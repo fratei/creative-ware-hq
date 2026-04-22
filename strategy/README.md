@@ -7,7 +7,7 @@ Build AI-native SaaS products that go beyond raw transcription to deliver workfl
 ## Company Overview
 - **Company:** CreativeWare
 - **Owner:** [@fratei](https://github.com/fratei)
-- **HQ Repo:** [`fratei/creativware-hq`](https://github.com/fratei/creativware-hq)
+- **HQ Repo:** [`fratei/creative-ware-hq`](https://github.com/fratei/creative-ware-hq)
 - **Flagship Product:** AudioText — AI audio/video transcription & understanding platform
 
 ## Approved Strategic Direction (Q2–Q3 2026)

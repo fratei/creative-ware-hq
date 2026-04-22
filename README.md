@@ -9,7 +9,7 @@
 | **Company** | CreativeWare |
 | **Owner** | [@fratei](https://github.com/fratei) |
 | **Mission** | Build AI-native SaaS products that deliver workflow automation, insights, and domain-specific solutions |
-| **HQ Repo** | [`fratei/creativware-hq`](https://github.com/fratei/creativware-hq) |
+| **HQ Repo** | [`fratei/creative-ware-hq`](https://github.com/fratei/creative-ware-hq) |
 
 ## Products
 

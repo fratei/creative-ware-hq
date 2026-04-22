@@ -27,7 +27,7 @@ Products are created automatically by the [Product Creation Pipeline](../.github
 
 To create a new product:
 1. An opportunity in `strategy/opportunities/` gets approved by @fratei
-2. The pipeline creates a repo from the [product template](https://github.com/fratei/creativware-product-template)
+2. The pipeline creates a repo from the [product template](https://github.com/fratei/creative-ware-product-template)
 3. The product is registered here automatically
 4. Agents begin working on the new product
 

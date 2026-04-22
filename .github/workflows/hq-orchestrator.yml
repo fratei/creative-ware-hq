@@ -147,7 +147,7 @@ jobs:
             // Commit dashboard
             try {
               execSync('git config user.name "CreativeWare Bot"');
-              execSync('git config user.email "bot@creativware.ai"');
+              execSync('git config user.email "bot@creative-ware.ai"');
               execSync('git add docs/agents/DASHBOARD.md');
               const diff = execSync('git diff --cached --name-only').toString().trim();
               if (diff) {
