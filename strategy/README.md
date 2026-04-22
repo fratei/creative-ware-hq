@@ -4,6 +4,17 @@
 
 Build AI-native SaaS products that go beyond raw transcription to deliver workflow automation, insights, and domain-specific solutions across verticals.
 
+## Company Overview
+- **Company:** CreativeWare
+- **Owner:** [@fratei](https://github.com/fratei)
+- **HQ Repo:** [`fratei/creativware-hq`](https://github.com/fratei/creativware-hq)
+- **Flagship Product:** AudioText — AI audio/video transcription & understanding platform
+
+## Approved Strategic Direction (Q2–Q3 2026)
+- **Decision:** [audiotext-app#1](https://github.com/fratei/audiotext-app/issues/1)
+- **Owner-approved priority:** Execute **Developer API & SDK** and **Sales Call Intelligence** in parallel
+- **Implementation tracking:** [audiotext-app#33](https://github.com/fratei/audiotext-app/issues/33)
+
 ## Strategic Pillars
 
 1. **AI-First Products** — Every product leverages AI as a core differentiator, not a feature
