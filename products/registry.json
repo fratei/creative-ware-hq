@@ -1,0 +1,12 @@
+{
+  "products": [
+    {
+      "name": "AudioText",
+      "repo": "fratei/audiotext-app",
+      "status": "live",
+      "stack": "Node.js/Express, Azure AKS, GPT-4o, Stripe",
+      "created": "2025",
+      "description": "AI-powered audio transcription SaaS"
+    }
+  ]
+}

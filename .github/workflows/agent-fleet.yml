@@ -1,0 +1,235 @@
+name: "🏢 CreativeWare Agent Fleet — C-Suite Operations"
+
+# Company-level C-suite agents scanning ALL product repos.
+# - CPO: scans product strategies, creates opportunity issues
+# - CFO: financial review
+# - CTO: technical review
+# Runs every 2 hours from HQ, reads product registry.
+
+on:
+  schedule:
+    - cron: "15 */2 * * *"
+  workflow_dispatch:
+    inputs:
+      agent:
+        description: "Which agent to run"
+        type: choice
+        options:
+          - "all"
+          - "cpo-opportunities"
+          - "cfo-financial-review"
+          - "cto-tech-review"
+        default: "all"
+  repository_dispatch:
+    types: [agent-fleet-trigger]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  cpo-opportunities:
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'repository_dispatch' ||
+      inputs.agent == 'all' ||
+      inputs.agent == 'cpo-opportunities'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: "📦 CPO Agent — Scan All Products for Opportunities"
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+
+            const registry = JSON.parse(fs.readFileSync('products/registry.json', 'utf-8'));
+            const products = registry.products.filter(p => p.status === 'live');
+
+            const summarize = (text, max = 300) => {
+              const n = (text || '').replace(/\s+/g, ' ').trim();
+              if (!n) return 'See brief for details';
+              if (n.length <= max) return n;
+              const t = n.slice(0, max);
+              const b = Math.max(t.lastIndexOf('. '), t.lastIndexOf('! '), t.lastIndexOf('? '));
+              return `${n.slice(0, b > max * 0.6 ? b + 1 : max).trimEnd()}…`;
+            };
+
+            for (const product of products) {
+              const repo = product.repo.replace(/^[^/]+\//, '');
+              console.log(`\n📦 Scanning ${repo}...`);
+
+              // Read opportunity briefs from product repo
+              let files = [];
+              try {
+                const { data: contents } = await github.rest.repos.getContent({
+                  owner, repo, path: 'strategy/opportunities',
+                });
+                files = contents.filter(f => f.name.endsWith('.md') && f.name !== 'INDEX.md' && f.name !== 'README.md');
+              } catch (e) {
+                console.log(`  No opportunities dir in ${repo}: ${e.message}`);
+                continue;
+              }
+
+              // Get existing opportunity issues in product repo
+              const { data: existingIssues } = await github.rest.issues.listForRepo({
+                owner, repo, state: 'all', labels: 'opportunity', per_page: 100,
+              });
+              const existingTitles = new Set(existingIssues.map(i => i.title));
+
+              let created = 0;
+              for (const file of files) {
+                // Read file content
+                let content;
+                try {
+                  const { data: fileData } = await github.rest.repos.getContent({
+                    owner, repo, path: `strategy/opportunities/${file.name}`,
+                  });
+                  content = Buffer.from(fileData.content, 'base64').toString('utf-8');
+                } catch { continue; }
+
+                const titleMatch = content.match(/^#\s+(.+)/m);
+                if (!titleMatch) continue;
+                const briefTitle = titleMatch[1].replace(/^Opportunity Brief:\s*/i, '').trim();
+                const issueTitle = `[OPPORTUNITY] ${briefTitle}`;
+
+                if (existingTitles.has(issueTitle)) {
+                  console.log(`  Skipping (exists): ${issueTitle}`);
+                  continue;
+                }
+
+                const problemMatch = content.match(/## Problem\n([\s\S]*?)(?=\n##)/);
+                const recMatch = content.match(/## Recommendation\n([\s\S]*?)(?=\n##|\n$)/);
+
+                const body = [
+                  `## 📋 Opportunity Brief: ${briefTitle}`,
+                  ``,
+                  `**Agent:** 📦 CPO Agent (HQ)`,
+                  `**Product:** ${product.name} (\`${product.repo}\`)`,
+                  `**Brief:** \`strategy/opportunities/${file.name}\``,
+                  `**Requires:** @fratei approval to proceed`,
+                  ``,
+                  `### Problem`, summarize(problemMatch ? problemMatch[1] : ''),
+                  ``, `### Recommendation`, summarize(recMatch ? recMatch[1] : ''),
+                  ``,
+                  `### Next Steps`,
+                  `1. @fratei: Review the full brief`,
+                  `2. Comment with approval, modifications, or rejection`,
+                  `3. Close this issue to trigger autonomous implementation`,
+                  ``,
+                  `---`,
+                  `*Generated by CPO Agent (HQ) — CreativeWare*`,
+                ].join('\n');
+
+                try {
+                  const { data: issue } = await github.rest.issues.create({
+                    owner, repo, title: issueTitle, body,
+                    labels: ['opportunity', 'needs-owner-approval', 'agent/cpo'],
+                    assignees: ['fratei'],
+                  });
+                  console.log(`  ✅ Created ${repo}#${issue.number}: ${issueTitle}`);
+                  created++;
+                  if (created >= 3) break;
+                } catch (err) {
+                  console.error(`  Failed: ${file.name}: ${err.message}`);
+                }
+              }
+              console.log(`  CPO: created ${created} opportunities in ${repo}`);
+            }
+
+  cfo-review:
+    if: >-
+      github.event_name == 'schedule' ||
+      inputs.agent == 'all' ||
+      inputs.agent == 'cfo-financial-review'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "💰 CFO Agent — Cross-Product Financial Review"
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const registry = JSON.parse(fs.readFileSync('products/registry.json', 'utf-8'));
+            const products = registry.products.filter(p => p.status === 'live');
+
+            // Adaptive: only run detailed review every 12h (skip on odd hours)
+            const hour = new Date().getUTCHours();
+            if (hour % 12 !== 0 && '${{ github.event_name }}' === 'schedule') {
+              console.log('💰 CFO: skipping — detailed review runs every 12h');
+              return;
+            }
+
+            for (const product of products) {
+              const repo = product.repo.replace(/^[^/]+\//, '');
+              try {
+                const { data: openPRs } = await github.rest.pulls.list({
+                  owner, repo, state: 'open', per_page: 50,
+                });
+                const { data: openIssues } = await github.rest.issues.listForRepo({
+                  owner, repo, state: 'open', per_page: 100,
+                });
+                const engineeringIssues = openIssues.filter(i =>
+                  i.labels.some(l => l.name === 'engineering')
+                ).length;
+
+                console.log(`💰 ${repo}: ${openPRs.length} PRs, ${engineeringIssues} engineering tasks`);
+              } catch (e) {
+                console.log(`💰 ${repo}: scan failed — ${e.message}`);
+              }
+            }
+
+  cto-review:
+    if: >-
+      github.event_name == 'schedule' ||
+      inputs.agent == 'all' ||
+      inputs.agent == 'cto-tech-review'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "🔧 CTO Agent — Cross-Product Tech Review"
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const registry = JSON.parse(fs.readFileSync('products/registry.json', 'utf-8'));
+            const products = registry.products.filter(p => p.status === 'live');
+
+            // Adaptive: detailed review every 12h
+            const hour = new Date().getUTCHours();
+            if (hour % 12 !== 0 && '${{ github.event_name }}' === 'schedule') {
+              console.log('🔧 CTO: skipping — detailed review runs every 12h');
+              return;
+            }
+
+            for (const product of products) {
+              const repo = product.repo.replace(/^[^/]+\//, '');
+              try {
+                const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+                  owner, repo, status: 'failure', per_page: 5,
+                });
+                const recentFailures = runs.workflow_runs.filter(r => {
+                  const age = Date.now() - new Date(r.created_at).getTime();
+                  return age < 24 * 3600000;
+                });
+
+                if (recentFailures.length > 3) {
+                  console.log(`🔧 ⚠️ ${repo}: ${recentFailures.length} CI failures in 24h`);
+                } else {
+                  console.log(`🔧 ${repo}: CI healthy (${recentFailures.length} failures in 24h)`);
+                }
+              } catch (e) {
+                console.log(`🔧 ${repo}: scan failed — ${e.message}`);
+              }
+            }

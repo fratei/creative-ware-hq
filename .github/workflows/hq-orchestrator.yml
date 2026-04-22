@@ -45,17 +45,11 @@ jobs:
             const now = new Date().toISOString();
             const today = now.split('T')[0];
 
-            // Read product registry
-            const registryPath = 'products/REGISTRY.md';
-            const registry = fs.readFileSync(registryPath, 'utf-8');
-
-            // Parse product repos from registry table
-            const repoPattern = /\[`fratei\/([^`]+)`\]/g;
-            const productRepos = [];
-            let match;
-            while ((match = repoPattern.exec(registry)) !== null) {
-              productRepos.push(match[1]);
-            }
+            // Read product registry (machine-readable JSON)
+            const registry = JSON.parse(fs.readFileSync('products/registry.json', 'utf-8'));
+            const productRepos = registry.products
+              .filter(p => p.status === 'live')
+              .map(p => p.repo.replace(/^[^/]+\//, ''));
             console.log(`Found ${productRepos.length} product repos: ${productRepos.join(', ')}`);
 
             // Scan each product
@@ -221,13 +215,10 @@ jobs:
             const today = new Date().toISOString().split('T')[0];
 
             // Read product registry
-            const registry = fs.readFileSync('products/REGISTRY.md', 'utf-8');
-            const repoPattern = /\[`fratei\/([^`]+)`\]/g;
-            const productRepos = [];
-            let match;
-            while ((match = repoPattern.exec(registry)) !== null) {
-              productRepos.push(match[1]);
-            }
+            const registry = JSON.parse(fs.readFileSync('products/registry.json', 'utf-8'));
+            const productRepos = registry.products
+              .filter(p => p.status === 'live')
+              .map(p => p.repo.replace(/^[^/]+\//, ''));
 
             // Gather weekly stats per product
             const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
