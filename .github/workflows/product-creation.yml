@@ -1,0 +1,261 @@
+name: "🏗️ Product Creation Pipeline"
+
+# Automatically creates a new product repo from the template when triggered.
+# Trigger via: repository_dispatch (new-product-approved) or workflow_dispatch.
+
+on:
+  repository_dispatch:
+    types: [new-product-approved]
+  workflow_dispatch:
+    inputs:
+      product_name:
+        description: "Product name (e.g., 'MedScribe')"
+        type: string
+        required: true
+      product_slug:
+        description: "Repo name slug (e.g., 'medscribe')"
+        type: string
+        required: true
+      product_description:
+        description: "One-line product description"
+        type: string
+        required: true
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  create-product:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: "🏗️ Create Product Repository"
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const { execSync } = require('child_process');
+            const fs = require('fs');
+            const owner = context.repo.owner;
+
+            // Get product details from dispatch payload or workflow inputs
+            const payload = context.payload.client_payload || {};
+            const productName = payload.product_name || '${{ inputs.product_name }}';
+            const productSlug = payload.product_slug || '${{ inputs.product_slug }}';
+            const productDesc = payload.product_description || '${{ inputs.product_description }}';
+            const sourceIssue = payload.source_issue || null;
+
+            if (!productName || !productSlug) {
+              core.setFailed('product_name and product_slug are required');
+              return;
+            }
+
+            const repoName = productSlug;
+            console.log(`🏗️ Creating product: ${productName} (${owner}/${repoName})`);
+
+            // Step 1: Create repo from template
+            try {
+              await github.rest.repos.createUsingTemplate({
+                template_owner: owner,
+                template_repo: 'creativware-product-template',
+                owner: owner,
+                name: repoName,
+                description: `${productName} — ${productDesc}`,
+                include_all_branches: false,
+                private: false,
+              });
+              console.log(`✅ Repo created: ${owner}/${repoName}`);
+            } catch (e) {
+              if (e.message.includes('already exists')) {
+                console.log(`⚠️ Repo ${owner}/${repoName} already exists — skipping creation`);
+              } else {
+                core.setFailed(`Repo creation failed: ${e.message}`);
+                return;
+              }
+            }
+
+            // Wait for GitHub to finish template initialization
+            await new Promise(r => setTimeout(r, 10000));
+
+            // Step 2: Replace placeholders in the new repo
+            const placeholderReplacements = [
+              { file: 'README.md', find: '{{PRODUCT_NAME}}', replace: productName },
+              { file: 'README.md', find: '{{PRODUCT_DESCRIPTION}}', replace: productDesc },
+              { file: 'README.md', find: '{{REPO_NAME}}', replace: repoName },
+              { file: 'README.md', find: '{{PRODUCT_SLUG}}', replace: productSlug },
+              { file: '.github/copilot-instructions.md', find: '{{PRODUCT_NAME}}', replace: productName },
+              { file: '.github/copilot-instructions.md', find: '{{PRODUCT_DESCRIPTION}}', replace: productDesc },
+              { file: '.github/workflows/observability-agent.yml', find: '{{PRODUCT_NAME}}', replace: productName },
+              { file: 'docs/agents/HANDBOOK.md', find: '{{PRODUCT_NAME}}', replace: productName },
+              { file: 'docs/agents/DASHBOARD.md', find: '{{PRODUCT_NAME}}', replace: productName },
+              { file: 'strategy/README.md', find: '{{PRODUCT_NAME}}', replace: productName },
+              { file: 'strategy/README.md', find: '{{PRODUCT_DESCRIPTION}}', replace: productDesc },
+              { file: 'strategy/README.md', find: '{{PRODUCT_SLUG}}', replace: productSlug },
+              { file: '.github/workflows/ci-cd.yml', find: '{{PRODUCT_NAME}}', replace: productName },
+            ];
+
+            // Group replacements by file
+            const fileUpdates = {};
+            for (const r of placeholderReplacements) {
+              if (!fileUpdates[r.file]) fileUpdates[r.file] = [];
+              fileUpdates[r.file].push(r);
+            }
+
+            for (const [filePath, replacements] of Object.entries(fileUpdates)) {
+              try {
+                const { data: fileData } = await github.rest.repos.getContent({
+                  owner, repo: repoName, path: filePath,
+                });
+                let content = Buffer.from(fileData.content, 'base64').toString('utf-8');
+
+                for (const r of replacements) {
+                  content = content.replaceAll(r.find, r.replace);
+                }
+
+                await github.rest.repos.createOrUpdateFileContents({
+                  owner, repo: repoName, path: filePath,
+                  message: `chore: configure ${filePath} for ${productName} [skip ci]`,
+                  content: Buffer.from(content).toString('base64'),
+                  sha: fileData.sha,
+                });
+                console.log(`✅ Updated: ${filePath}`);
+              } catch (e) {
+                console.log(`⚠️ Failed to update ${filePath}: ${e.message}`);
+              }
+            }
+
+            // Step 3: Register product in HQ
+            try {
+              const { data: regFile } = await github.rest.repos.getContent({
+                owner, repo: 'creativware-hq', path: 'products/REGISTRY.md',
+              });
+              let regContent = Buffer.from(regFile.content, 'base64').toString('utf-8');
+
+              // Add new product row to the table
+              const newRow = `| ${productName} | [\`fratei/${repoName}\`](https://github.com/fratei/${repoName}) | 🏗️ Building | ${new Date().toISOString().split('T')[0]} | TBD |`;
+
+              // Insert before the empty line after the table
+              regContent = regContent.replace(
+                /(\| .+ \| .+ \| 🟢 Live .+\|)/,
+                `$1\n${newRow}`
+              );
+
+              await github.rest.repos.createOrUpdateFileContents({
+                owner, repo: 'creativware-hq', path: 'products/REGISTRY.md',
+                message: `feat: register product ${productName}`,
+                content: Buffer.from(regContent).toString('base64'),
+                sha: regFile.sha,
+              });
+              console.log(`✅ Registered in HQ product registry`);
+            } catch (e) {
+              console.log(`⚠️ Registry update failed: ${e.message}`);
+            }
+
+            // Step 4: Create product card in HQ
+            try {
+              const productCard = [
+                `# ${productName} — Product Card`,
+                ``,
+                `## Overview`,
+                ``,
+                `| | |`,
+                `|---|---|`,
+                `| **Product** | ${productName} |`,
+                `| **Repository** | [\`fratei/${repoName}\`](https://github.com/fratei/${repoName}) |`,
+                `| **Status** | 🏗️ Building |`,
+                `| **Description** | ${productDesc} |`,
+                `| **Created** | ${new Date().toISOString().split('T')[0]} |`,
+                ``,
+                `## Tech Stack`,
+                `> To be determined during initial architecture.`,
+                ``,
+                `## Agent System`,
+                `Runs product-level autonomous agents (CPO/CFO/CTO, PR review, observability).`,
+                ``,
+                `## Strategic Direction`,
+                `> See strategy in the [product repo](https://github.com/fratei/${repoName}/blob/main/strategy/README.md).`,
+              ].join('\n');
+
+              await github.rest.repos.createOrUpdateFileContents({
+                owner, repo: 'creativware-hq',
+                path: `products/${productSlug}.md`,
+                message: `feat: add ${productName} product card`,
+                content: Buffer.from(productCard).toString('base64'),
+              });
+              console.log(`✅ Product card created`);
+            } catch (e) {
+              console.log(`⚠️ Product card creation failed: ${e.message}`);
+            }
+
+            // Step 5: Create initial roadmap issue in the new product repo
+            try {
+              const { data: roadmapIssue } = await github.rest.issues.create({
+                owner, repo: repoName,
+                title: `[ROADMAP] ${productName} — Initial Setup & MVP`,
+                body: [
+                  `## 🏗️ ${productName} — Initial Setup`,
+                  ``,
+                  `**Product:** ${productName}`,
+                  `**Description:** ${productDesc}`,
+                  `**Created by:** Product Creation Pipeline`,
+                  sourceIssue ? `**Source Opportunity:** fratei/creativware-hq#${sourceIssue}` : '',
+                  ``,
+                  `### Setup Tasks`,
+                  `- [ ] Define tech stack and architecture`,
+                  `- [ ] Set up development environment`,
+                  `- [ ] Create initial project structure`,
+                  `- [ ] Set up AGENT_PAT secret for autonomous operations`,
+                  `- [ ] Configure deployment pipeline`,
+                  ``,
+                  `### MVP Features`,
+                  `- [ ] Core product functionality`,
+                  `- [ ] User authentication`,
+                  `- [ ] Basic UI/UX`,
+                  `- [ ] Deployment to production`,
+                  ``,
+                  `@copilot — please begin by defining the architecture and setting up the project.`,
+                ].filter(Boolean).join('\n'),
+                labels: ['roadmap', 'engineering'],
+              });
+
+              // Assign to copilot for initial architecture
+              try {
+                await github.rest.issues.addAssignees({
+                  owner, repo: repoName,
+                  issue_number: roadmapIssue.number,
+                  assignees: ['copilot[bot]'],
+                });
+              } catch {}
+
+              console.log(`✅ Roadmap issue created: #${roadmapIssue.number}`);
+            } catch (e) {
+              console.log(`⚠️ Roadmap issue creation failed: ${e.message}`);
+            }
+
+            // Step 6: Comment on source issue if applicable
+            if (sourceIssue) {
+              try {
+                await github.rest.issues.createComment({
+                  owner, repo: 'creativware-hq',
+                  issue_number: sourceIssue,
+                  body: [
+                    `## 🏗️ Product Created!`,
+                    ``,
+                    `**${productName}** has been bootstrapped:`,
+                    `- Repository: [\`fratei/${repoName}\`](https://github.com/fratei/${repoName})`,
+                    `- Product Card: [products/${productSlug}.md](products/${productSlug}.md)`,
+                    `- Initial roadmap issue created in the product repo`,
+                    ``,
+                    `Agents are now active on the new product.`,
+                  ].join('\n'),
+                });
+              } catch {}
+            }
+
+            console.log(`\n🎉 Product ${productName} created successfully!`);
+            console.log(`   Repo: https://github.com/${owner}/${repoName}`);
+            console.log(`   Card: https://github.com/${owner}/creativware-hq/blob/main/products/${productSlug}.md`);
