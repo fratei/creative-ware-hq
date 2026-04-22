@@ -1,0 +1,302 @@
+name: "🎯 HQ Orchestrator — Cross-Product Coordinator"
+
+# Scans all registered products every 4 hours:
+# - Aggregates issues, PRs, incidents across all products
+# - Updates the cross-product dashboard
+# - Identifies cross-product opportunities
+# - Weekly company strategy review (Mondays)
+
+on:
+  schedule:
+    - cron: "0 */4 * * *"  # Every 4 hours
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Action to run"
+        type: choice
+        options:
+          - "full-scan"
+          - "dashboard-only"
+          - "strategy-review"
+        default: "full-scan"
+  repository_dispatch:
+    types: [hq-orchestrator-trigger]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  orchestrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: "🎯 Cross-Product Scan & Dashboard Update"
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const { execSync } = require('child_process');
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const now = new Date().toISOString();
+            const today = now.split('T')[0];
+
+            // Read product registry
+            const registryPath = 'products/REGISTRY.md';
+            const registry = fs.readFileSync(registryPath, 'utf-8');
+
+            // Parse product repos from registry table
+            const repoPattern = /\[`fratei\/([^`]+)`\]/g;
+            const productRepos = [];
+            let match;
+            while ((match = repoPattern.exec(registry)) !== null) {
+              productRepos.push(match[1]);
+            }
+            console.log(`Found ${productRepos.length} product repos: ${productRepos.join(', ')}`);
+
+            // Scan each product
+            const productStats = [];
+            for (const repo of productRepos) {
+              try {
+                const { data: openIssues } = await github.rest.issues.listForRepo({
+                  owner, repo, state: 'open', per_page: 100,
+                });
+                const { data: openPRs } = await github.rest.pulls.list({
+                  owner, repo, state: 'open', per_page: 50,
+                });
+                const { data: closedPRs } = await github.rest.pulls.list({
+                  owner, repo, state: 'closed', sort: 'updated',
+                  direction: 'desc', per_page: 20,
+                });
+                const mergedToday = closedPRs.filter(pr =>
+                  pr.merged_at && pr.merged_at >= `${today}T00:00:00Z`
+                ).length;
+
+                const bugs = openIssues.filter(i => i.labels?.some(l => l.name === 'bug')).length;
+                const incidents = openIssues.filter(i => i.labels?.some(l => l.name === 'incident')).length;
+                const awaitingOwner = openIssues.filter(i => i.labels?.some(l => l.name === 'needs-owner-approval')).length;
+
+                productStats.push({
+                  repo,
+                  status: incidents > 0 ? '🔴 Incident' : bugs > 3 ? '🟡 Bugs' : '🟢 Healthy',
+                  openIssues: openIssues.length,
+                  openPRs: openPRs.length,
+                  bugs,
+                  incidents,
+                  mergedToday,
+                  awaitingOwner,
+                });
+                console.log(`✅ ${repo}: ${openIssues.length} issues, ${openPRs.length} PRs, ${incidents} incidents`);
+              } catch (e) {
+                console.log(`⚠️ ${repo}: scan failed — ${e.message}`);
+                productStats.push({
+                  repo, status: '⚪ Error',
+                  openIssues: '?', openPRs: '?', bugs: '?',
+                  incidents: '?', mergedToday: '?', awaitingOwner: '?',
+                });
+              }
+            }
+
+            // Build cross-product dashboard
+            const dashboard = [
+              `# 📊 CreativeWare Cross-Product Dashboard`,
+              ``,
+              `> Auto-updated by HQ Orchestrator every 4h. Do not edit manually.`,
+              ``,
+              `## Product Status`,
+              ``,
+              `| Product | Status | Open Issues | Open PRs | Bugs | Incidents | Merged Today | Awaiting Owner |`,
+              `|---------|--------|-------------|----------|------|-----------|--------------|----------------|`,
+              ...productStats.map(p =>
+                `| ${p.repo} | ${p.status} | ${p.openIssues} | ${p.openPRs} | ${p.bugs} | ${p.incidents} | ${p.mergedToday} | ${p.awaitingOwner} |`
+              ),
+              ``,
+              `## Company Totals`,
+              ``,
+              `| Metric | Value |`,
+              `|--------|-------|`,
+              `| Products | ${productStats.length} |`,
+              `| Total Open Issues | ${productStats.reduce((s, p) => s + (parseInt(p.openIssues) || 0), 0)} |`,
+              `| Total Open PRs | ${productStats.reduce((s, p) => s + (parseInt(p.openPRs) || 0), 0)} |`,
+              `| Total Incidents | ${productStats.reduce((s, p) => s + (parseInt(p.incidents) || 0), 0)} |`,
+              `| PRs Merged Today | ${productStats.reduce((s, p) => s + (parseInt(p.mergedToday) || 0), 0)} |`,
+              `| Decisions Pending | ${productStats.reduce((s, p) => s + (parseInt(p.awaitingOwner) || 0), 0)} |`,
+              ``,
+              `## Health Summary`,
+              ...productStats.map(p => {
+                const issues = [];
+                if (parseInt(p.incidents) > 0) issues.push(`🔴 ${p.incidents} active incident(s)`);
+                if (parseInt(p.bugs) > 3) issues.push(`🟡 ${p.bugs} open bugs (above threshold)`);
+                if (parseInt(p.awaitingOwner) > 3) issues.push(`🟡 ${p.awaitingOwner} decisions pending owner review`);
+                return issues.length > 0
+                  ? `- **${p.repo}:** ${issues.join(', ')}`
+                  : `- **${p.repo}:** ✅ Healthy`;
+              }),
+              ``,
+              `---`,
+              `*Last updated: ${now}*`,
+              `*Generated by HQ Orchestrator — CreativeWare*`,
+            ].join('\n');
+
+            fs.writeFileSync('docs/agents/DASHBOARD.md', dashboard);
+
+            // Commit dashboard
+            try {
+              execSync('git config user.name "CreativeWare Bot"');
+              execSync('git config user.email "bot@creativware.ai"');
+              execSync('git add docs/agents/DASHBOARD.md');
+              const diff = execSync('git diff --cached --name-only').toString().trim();
+              if (diff) {
+                execSync('git commit -m "chore: update cross-product dashboard [skip ci]"');
+                execSync('git push origin HEAD:main');
+                console.log('📊 Dashboard updated');
+              }
+            } catch (e) {
+              console.log(`Dashboard commit failed: ${e.message}`);
+            }
+
+            // Check for decisions pending across products
+            const totalAwaiting = productStats.reduce((s, p) => s + (parseInt(p.awaitingOwner) || 0), 0);
+            if (totalAwaiting > 5) {
+              // Create a reminder issue in HQ
+              const { data: existing } = await github.rest.issues.listForRepo({
+                owner, repo: context.repo.repo, state: 'open',
+                labels: 'agent/orchestrator', per_page: 5,
+              });
+              if (!existing.some(i => i.title.includes('Decision Queue'))) {
+                await github.rest.issues.create({
+                  owner, repo: context.repo.repo,
+                  title: `⚠️ [HQ] Decision Queue Backing Up — ${totalAwaiting} pending`,
+                  body: [
+                    `## Decision Queue Alert`,
+                    ``,
+                    `${totalAwaiting} decisions are awaiting @fratei review across all products:`,
+                    ...productStats.filter(p => parseInt(p.awaitingOwner) > 0).map(p =>
+                      `- **${p.repo}:** ${p.awaitingOwner} pending`
+                    ),
+                    ``,
+                    `@fratei — please review pending decisions in each product repo.`,
+                  ].join('\n'),
+                  labels: ['agent/orchestrator', 'needs-owner-approval'],
+                  assignees: ['fratei'],
+                });
+              }
+            }
+
+  # ─── Weekly Strategy Review (Mondays) ─────────────────────────────────
+  strategy-review:
+    if: >-
+      (github.event_name == 'schedule') ||
+      (github.event_name == 'workflow_dispatch' && inputs.action == 'strategy-review')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check if Monday
+        id: day-check
+        run: |
+          DOW=$(date -u +%u)
+          HOUR=$(date -u +%H)
+          if [ "$DOW" = "1" ] && [ "$HOUR" -lt "6" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: "📋 Weekly Strategy Review"
+        if: steps.day-check.outputs.run == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const today = new Date().toISOString().split('T')[0];
+
+            // Read product registry
+            const registry = fs.readFileSync('products/REGISTRY.md', 'utf-8');
+            const repoPattern = /\[`fratei\/([^`]+)`\]/g;
+            const productRepos = [];
+            let match;
+            while ((match = repoPattern.exec(registry)) !== null) {
+              productRepos.push(match[1]);
+            }
+
+            // Gather weekly stats per product
+            const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+            const productReviews = [];
+            for (const prodRepo of productRepos) {
+              try {
+                const { data: closedIssues } = await github.rest.issues.listForRepo({
+                  owner, repo: prodRepo, state: 'closed', since: weekAgo, per_page: 50,
+                });
+                const { data: mergedPRs } = await github.rest.pulls.list({
+                  owner, repo: prodRepo, state: 'closed', sort: 'updated',
+                  direction: 'desc', per_page: 30,
+                });
+                const weekMerged = mergedPRs.filter(pr =>
+                  pr.merged_at && pr.merged_at >= weekAgo
+                ).length;
+
+                productReviews.push({
+                  repo: prodRepo,
+                  closedIssues: closedIssues.length,
+                  mergedPRs: weekMerged,
+                });
+              } catch (e) {
+                productReviews.push({ repo: prodRepo, closedIssues: '?', mergedPRs: '?' });
+              }
+            }
+
+            const report = [
+              `## 📋 Weekly Strategy Review — ${today}`,
+              ``,
+              `### Product Performance (Last 7 Days)`,
+              ``,
+              `| Product | Issues Closed | PRs Merged |`,
+              `|---------|---------------|------------|`,
+              ...productReviews.map(p => `| ${p.repo} | ${p.closedIssues} | ${p.mergedPRs} |`),
+              ``,
+              `### Company Health`,
+              `- Products: ${productRepos.length}`,
+              `- Total issues closed this week: ${productReviews.reduce((s, p) => s + (parseInt(p.closedIssues) || 0), 0)}`,
+              `- Total PRs merged this week: ${productReviews.reduce((s, p) => s + (parseInt(p.mergedPRs) || 0), 0)}`,
+              ``,
+              `### Strategic Priorities`,
+              `> Review company strategy at \`strategy/README.md\``,
+              ``,
+              `---`,
+              `*Generated by HQ Orchestrator — CreativeWare*`,
+            ].join('\n');
+
+            // Create or update weekly report issue
+            const title = `[REPORT] Weekly Strategy Review — ${today}`;
+            const { data: existing } = await github.rest.issues.listForRepo({
+              owner, repo, state: 'open', labels: 'agent/orchestrator', per_page: 10,
+            });
+            const existingReport = existing.find(i => i.title.startsWith('[REPORT] Weekly'));
+
+            if (existingReport) {
+              await github.rest.issues.update({
+                owner, repo, issue_number: existingReport.number,
+                body: report,
+              });
+              // Close previous week
+              await github.rest.issues.update({
+                owner, repo, issue_number: existingReport.number,
+                state: 'closed',
+              });
+            }
+
+            await github.rest.issues.create({
+              owner, repo, title, body: report,
+              labels: ['agent/orchestrator', 'report'],
+            });
+            console.log('📋 Weekly strategy review created');
