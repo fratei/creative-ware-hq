@@ -158,16 +158,26 @@ jobs:
             const products = registry.products.filter(p => p.status === 'live');
             const allFindings = [];
 
+            // Extended list of sensitive keywords to detect in commit messages
+            const sensitiveKeywords = [
+              'password', 'passwd', 'secret', 'api_key', 'apikey',
+              'token', 'credential', 'private_key', 'privatekey',
+              'auth_key', 'authkey', 'bearer', 'access_key', 'accesskey',
+              'client_secret', 'clientsecret',
+            ];
+
             for (const product of products) {
               const repo = product.repo.replace(/^[^/]+\//, '');
               try {
+                // Scan more commits for better coverage
                 const { data: commits } = await github.rest.repos.listCommits({
-                  owner, repo, per_page: 10,
+                  owner, repo, per_page: 50,
                 });
                 for (const c of commits) {
                   const msg = (c.commit.message || '').toLowerCase();
-                  if (msg.includes('password') || msg.includes('secret') || msg.includes('api_key')) {
-                    allFindings.push(`⚠️ **${repo}**: Commit ${c.sha.slice(0,7)} message contains sensitive keyword`);
+                  const matched = sensitiveKeywords.find(kw => msg.includes(kw));
+                  if (matched) {
+                    allFindings.push(`⚠️ **${repo}**: Commit ${c.sha.slice(0,7)} message contains sensitive keyword (\`${matched}\`)`);
                   }
                 }
 
@@ -195,6 +205,58 @@ jobs:
               return;
             }
 
+            const hasCritical = allFindings.some(f => f.startsWith('⚠️'));
+
+            // Create follow-up issues in affected product repos for critical findings
+            const criticalByRepo = {};
+            for (const finding of allFindings) {
+              if (!finding.startsWith('⚠️')) continue;
+              const repoMatch = finding.match(/\*\*([^*]+)\*\*/);
+              if (!repoMatch) continue;
+              const repo = repoMatch[1];
+              if (!criticalByRepo[repo]) criticalByRepo[repo] = [];
+              criticalByRepo[repo].push(finding);
+            }
+
+            for (const [repo, findings] of Object.entries(criticalByRepo)) {
+              try {
+                const { data: existingSecIssues } = await github.rest.issues.listForRepo({
+                  owner, repo, state: 'open', labels: 'security', per_page: 10,
+                });
+                if (!existingSecIssues.some(i => i.title.includes(today))) {
+                  await github.rest.issues.create({
+                    owner, repo,
+                    title: `[SECURITY] Sensitive keyword detected in commit — ${today}`,
+                    body: [
+                      `## 🔒 CISO Security Alert`,
+                      ``,
+                      `The CISO agent detected potential sensitive data in recent commit messages.`,
+                      ``,
+                      `### Findings`,
+                      findings.join('\n'),
+                      ``,
+                      `### Required Actions`,
+                      `1. **Investigate** each flagged commit to determine if actual secrets were committed`,
+                      `2. **Rotate** any exposed credentials immediately (API keys, tokens, passwords)`,
+                      `3. **Purge** secrets from git history using \`git filter-repo\` or BFG Repo-Cleaner if confirmed`,
+                      `4. **Update** all services using rotated credentials`,
+                      `5. **Document** remediation steps taken`,
+                      ``,
+                      `> ⚠️ If this is a false positive (e.g., commit message mentions "password hashing" as a feature), close this issue with a comment explaining why.`,
+                      ``,
+                      `---`,
+                      `*Detected by CISO Agent (HQ) — CreativeWare*`,
+                    ].join('\n'),
+                    labels: ['security', 'agent/ciso'],
+                    assignees: ['fratei'],
+                  });
+                  console.log(`🔒 Created security follow-up in ${repo}`);
+                }
+              } catch (e) {
+                console.log(`⚠️ Could not create follow-up in ${repo}: ${e.message}`);
+              }
+            }
+
             await github.rest.issues.create({
               owner, repo: hqRepo,
               title: `[SECURITY] Company Audit — ${today}`,
@@ -203,9 +265,20 @@ jobs:
                 ``, `### Findings`,
                 allFindings.join('\n'),
                 ``,
-                allFindings.some(f => f.startsWith('⚠️'))
-                  ? `@fratei — potential security issues found.`
-                  : 'Informational findings only.',
+                ...(hasCritical ? [
+                  `### Required Actions`,
+                  `1. **Review** each flagged commit to determine if actual secrets were exposed`,
+                  `2. **Rotate** any exposed credentials immediately (API keys, tokens, passwords)`,
+                  `3. **Purge** secrets from git history if confirmed using \`git filter-repo\` or BFG Repo-Cleaner`,
+                  `4. **Verify** that affected services have been updated with new credentials`,
+                  ``,
+                  `> Follow-up issues have been created in each affected product repo.`,
+                  ``,
+                  `@fratei — potential security issues found. Please review and take action.`,
+                ] : [
+                  `Informational findings only. No immediate action required.`,
+                ]),
               ].join('\n'),
               labels: ['security', 'agent/ciso'],
+              assignees: hasCritical ? ['fratei'] : [],
             });
