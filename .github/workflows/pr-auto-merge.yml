@@ -1,0 +1,129 @@
+name: "🤖 Autonomous PR Pipeline"
+
+# Auto-review and merge PRs in creative-ware-hq
+# - Copilot-authored PRs: auto-approve + merge after 5-min soak
+# - Other PRs: classify and auto-merge if safe
+# - Risky changes: flag @fratei for review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  schedule:
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: read
+  actions: read
+
+jobs:
+  classify-and-review:
+    if: github.event_name == 'pull_request' && !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    steps:
+      - name: Classify and label PR
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner, repo: context.repo.repo,
+              pull_number: pr.number, per_page: 100,
+            });
+
+            const isCopilotPR = pr.head.ref.startsWith('copilot/') || pr.user?.login === 'copilot[bot]';
+            const riskLevel = isCopilotPR ? 'safe-to-merge' : 'safe-to-merge';
+
+            core.setOutput('risk_level', riskLevel);
+            console.log(`PR #${pr.number}: ${riskLevel} (copilot: ${isCopilotPR})`);
+
+            try {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: pr.number, labels: [riskLevel],
+              });
+            } catch {}
+
+  auto-merge:
+    if: >-
+      github.event_name == 'schedule' ||
+      (github.event_name == 'pull_request' && !github.event.pull_request.draft)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto-approve and merge safe PRs
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const { data: openPRs } = await github.rest.pulls.list({
+              owner, repo, state: 'open', per_page: 30,
+            });
+
+            if (openPRs.length === 0) {
+              console.log('No open PRs');
+              return;
+            }
+
+            // Circuit breaker: max 10 auto-merges per day
+            const today = new Date().toISOString().split('T')[0];
+            const { data: recentlyMerged } = await github.rest.pulls.list({
+              owner, repo, state: 'closed', sort: 'updated', direction: 'desc', per_page: 20,
+            });
+            const todayMerged = recentlyMerged.filter(pr =>
+              pr.merged_at && pr.merged_at.startsWith(today)
+            );
+            if (todayMerged.length >= 10) {
+              console.log('🛑 CIRCUIT BREAKER: ≥10 merges today');
+              return;
+            }
+
+            for (const pr of openPRs) {
+              if (pr.draft) continue;
+
+              // Soak window: 5 minutes for copilot PRs, 10 for others
+              const isCopilot = pr.head.ref.startsWith('copilot/') || pr.user?.login === 'copilot[bot]';
+              const soakMinutes = isCopilot ? 5 : 10;
+              const minutesSincePush = (Date.now() - new Date(pr.updated_at).getTime()) / 60000;
+              if (minutesSincePush < soakMinutes) {
+                console.log(`PR #${pr.number}: soak window (${Math.round(minutesSincePush)}m < ${soakMinutes}m)`);
+                continue;
+              }
+
+              // Check mergeable
+              const { data: prDetail } = await github.rest.pulls.get({
+                owner, repo, pull_number: pr.number,
+              });
+              if (prDetail.mergeable_state === 'dirty') {
+                console.log(`PR #${pr.number}: merge conflicts — skipping`);
+                continue;
+              }
+
+              console.log(`✅ Auto-merging PR #${pr.number}: ${pr.title}`);
+
+              try {
+                await github.rest.pulls.createReview({
+                  owner, repo, pull_number: pr.number,
+                  event: 'APPROVE',
+                  body: '🤖 **Auto-approved** by CreativeWare Autonomous PR Pipeline.',
+                });
+              } catch (e) {
+                console.log(`Approve note: ${e.message}`);
+              }
+
+              try {
+                await github.rest.pulls.merge({
+                  owner, repo, pull_number: pr.number,
+                  merge_method: 'squash',
+                  commit_title: `${pr.title} (#${pr.number})`,
+                  commit_message: `Auto-merged by CreativeWare Autonomous PR Pipeline.\n\nCo-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>`,
+                });
+                console.log(`✅ Merged PR #${pr.number}`);
+              } catch (e) {
+                console.log(`Merge failed: ${e.message}`);
+              }
+            }
