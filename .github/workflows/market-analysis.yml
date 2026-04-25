@@ -1,0 +1,475 @@
+name: "🔍 Market Analysis Agent — Trends, Whitespace & Product Evolution"
+
+# Weekly market intelligence agent.
+# Runs three parallel research tasks assigned to Copilot:
+# - Market Trends: audio/voice AI landscape shifts, growth drivers, emerging use cases
+# - Competitive Whitespace: gaps competitors aren't serving; new opportunity briefs
+# - Product Evolution: how each live product should evolve based on market signals
+# Results are written as opportunity briefs in strategy/opportunities/
+
+on:
+  schedule:
+    - cron: "0 9 * * 4"  # Every Thursday at 09:00 UTC
+  workflow_dispatch:
+    inputs:
+      analysis_type:
+        description: "Which analysis to run"
+        type: choice
+        options:
+          - "all"
+          - "market-trends"
+          - "competitive-whitespace"
+          - "product-evolution"
+        default: "all"
+  repository_dispatch:
+    types: [market-analysis-trigger]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+
+  # ─── Market Trends ───────────────────────────────────────────────────────────
+  market-trends:
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'repository_dispatch' ||
+      inputs.analysis_type == 'all' ||
+      inputs.analysis_type == 'market-trends'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "📈 Market Trends — Create Research Task"
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const today = new Date().toISOString().split('T')[0];
+            const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+
+            // Read product registry
+            const registry = JSON.parse(fs.readFileSync('products/registry.json', 'utf-8'));
+            const products = registry.products.filter(p => p.status === 'live');
+            const productList = products.map(p => `- **${p.name}** (\`${p.repo}\`): ${p.description}`).join('\n');
+
+            // Dedup: skip if a market-trends issue was created in the last 7 days
+            const { data: recent } = await github.rest.issues.listForRepo({
+              owner, repo, state: 'all',
+              labels: 'market-analysis,agent/cmo',
+              since: sevenDaysAgo, per_page: 20,
+            });
+            if (recent.some(i => i.title.includes('[MARKET TRENDS]'))) {
+              console.log('⏭️ Market trends analysis already created this week — skipping');
+              return;
+            }
+
+            const title = `[MARKET TRENDS] Audio/Voice AI Market Analysis — ${today}`;
+            const body = [
+              `## 📈 Market Trends Research Task`,
+              ``,
+              `**Agent:** 🔍 Market Analysis Agent (HQ)`,
+              `**Type:** Market Trends`,
+              `**Date:** ${today}`,
+              `**Requires:** @fratei review after Copilot completes`,
+              ``,
+              `---`,
+              ``,
+              `## Research Brief`,
+              ``,
+              `Perform a comprehensive market trends analysis for the audio/voice AI space. Research and document the following:`,
+              ``,
+              `### 1. Market Landscape`,
+              `- Current TAM/SAM for speech-to-text, audio understanding, and voice AI (2026 estimates)`,
+              `- Year-over-year growth rates and key growth drivers`,
+              `- Shifts in enterprise vs. SMB vs. developer segment spending`,
+              ``,
+              `### 2. Technology Trends`,
+              `- Emerging AI model capabilities affecting audio/voice (e.g., real-time models, multimodal)`,
+              `- Open-source vs. managed API dynamics (Whisper, OpenAI, Google, AWS, Azure)`,
+              `- New use cases enabled by recent model improvements`,
+              ``,
+              `### 3. Buyer Behaviour Trends`,
+              `- How buyer expectations have shifted (accuracy, latency, pricing, compliance)`,
+              `- Emerging verticals showing accelerated adoption`,
+              `- Key pain points that remain unaddressed by existing solutions`,
+              ``,
+              `### 4. Regulatory & Compliance Trends`,
+              `- Data privacy and AI governance requirements affecting audio processing`,
+              `- HIPAA, GDPR, SOC2 demand signals from enterprise buyers`,
+              ``,
+              `## Deliverable`,
+              ``,
+              `Create a new market trends brief at:`,
+              `\`\`\``,
+              `strategy/opportunities/market-trends-${today}.md`,
+              `\`\`\``,
+              ``,
+              `Use this structure:`,
+              `\`\`\`markdown`,
+              `# Market Trends Brief — ${today}`,
+              ``,
+              `**Status:** researching`,
+              `**Owner:** CMO Agent (HQ)`,
+              `**Created:** ${today}`,
+              `**Last Updated:** ${today}`,
+              ``,
+              `## Executive Summary`,
+              ``,
+              `## Market Landscape`,
+              ``,
+              `## Technology Trends`,
+              ``,
+              `## Buyer Behaviour Trends`,
+              ``,
+              `## Regulatory & Compliance Trends`,
+              ``,
+              `## Strategic Implications for CreativeWare`,
+              ``,
+              `## Recommended Actions`,
+              `\`\`\``,
+              ``,
+              `After writing the brief, commit it and comment on this issue with a summary of the top 3 strategic implications.`,
+              ``,
+              `## Current Products`,
+              productList,
+              ``,
+              `---`,
+              `*Generated by Market Analysis Agent (HQ) — CreativeWare*`,
+            ].join('\n');
+
+            const { data: issue } = await github.rest.issues.create({
+              owner, repo, title, body,
+              labels: ['market-analysis', 'agent/cmo', 'copilot'],
+            });
+
+            // Assign to Copilot
+            let assigned = false;
+            for (const login of ['copilot', 'copilot[bot]']) {
+              try {
+                await github.rest.issues.addAssignees({
+                  owner, repo,
+                  issue_number: issue.number,
+                  assignees: [login],
+                });
+                const { data: check } = await github.rest.issues.get({
+                  owner, repo, issue_number: issue.number,
+                });
+                if (check.assignees.some(a => a.login.toLowerCase().includes('copilot'))) {
+                  assigned = true;
+                  break;
+                }
+              } catch {}
+            }
+            if (!assigned) {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issue.number,
+                body: `⚠️ Auto-assignment to Copilot failed. Please assign manually in the GitHub UI.`,
+              });
+            }
+            console.log(`✅ Created market trends task: #${issue.number}`);
+
+  # ─── Competitive Whitespace ──────────────────────────────────────────────────
+  competitive-whitespace:
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'repository_dispatch' ||
+      inputs.analysis_type == 'all' ||
+      inputs.analysis_type == 'competitive-whitespace'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "🗺️ Competitive Whitespace — Create Research Task"
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const today = new Date().toISOString().split('T')[0];
+            const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+
+            // Dedup
+            const { data: recent } = await github.rest.issues.listForRepo({
+              owner, repo, state: 'all',
+              labels: 'market-analysis,agent/cmo',
+              since: sevenDaysAgo, per_page: 20,
+            });
+            if (recent.some(i => i.title.includes('[COMPETITIVE WHITESPACE]'))) {
+              console.log('⏭️ Competitive whitespace analysis already created this week — skipping');
+              return;
+            }
+
+            // Read existing opportunity briefs to provide context
+            const oppDir = 'strategy/opportunities';
+            const existingBriefs = [];
+            try {
+              const files = fs.readdirSync(oppDir).filter(f =>
+                f.endsWith('.md') && f !== 'TEMPLATE.md' && !f.startsWith('market-trends')
+              );
+              for (const file of files) {
+                const content = fs.readFileSync(path.join(oppDir, file), 'utf-8');
+                const titleMatch = content.match(/^#\s+(.+)/m);
+                const statusMatch = content.match(/\*\*Status:\*\*\s*(.+)/);
+                if (titleMatch) {
+                  existingBriefs.push(
+                    `- **${titleMatch[1].trim()}** (${file}) — Status: ${statusMatch ? statusMatch[1].trim() : 'unknown'}`
+                  );
+                }
+              }
+            } catch {}
+
+            const title = `[COMPETITIVE WHITESPACE] Market Gap Analysis — ${today}`;
+            const body = [
+              `## 🗺️ Competitive Whitespace Research Task`,
+              ``,
+              `**Agent:** 🔍 Market Analysis Agent (HQ)`,
+              `**Type:** Competitive Whitespace`,
+              `**Date:** ${today}`,
+              `**Requires:** @fratei review after Copilot completes`,
+              ``,
+              `---`,
+              ``,
+              `## Research Brief`,
+              ``,
+              `Identify unserved or underserved market segments in the audio/voice AI and conversation intelligence space. This informs new product opportunities for CreativeWare.`,
+              ``,
+              `### Competitors to Analyse`,
+              ``,
+              `| Competitor | Segment | Pricing | Key Weakness |`,
+              `|-----------|---------|---------|-------------|`,
+              `| AssemblyAI | Developer API | Pay-as-you-go | ? |`,
+              `| Deepgram | Developer API / Enterprise | Custom | ? |`,
+              `| Rev AI | Developer API | Per-minute | ? |`,
+              `| OpenAI Whisper | OSS / API | Free / API pricing | ? |`,
+              `| Gong | Sales Intelligence | $100–200/seat/mo | ? |`,
+              `| Chorus (ZoomInfo) | Sales Intelligence | Enterprise | ? |`,
+              `| Fireflies.ai | Meeting Intelligence | $10–19/seat/mo | ? |`,
+              `| Otter.ai | Meeting Notes | Freemium | ? |`,
+              `| Descript | Media/Podcast | $12–24/mo | ? |`,
+              ``,
+              `### Research Tasks`,
+              ``,
+              `1. **Fill in competitor weaknesses** — for each competitor above, identify their top 1–2 weaknesses (pricing, accuracy, UX, integrations, compliance, vertical focus)`,
+              ``,
+              `2. **Identify whitespace segments** — find buyer segments that are:`,
+              `   - Too small for enterprise players (Gong, Chorus)`,
+              `   - Too specialised for horizontal tools (AssemblyAI, Deepgram)`,
+              `   - Underserved by free/OSS options (Whisper)`,
+              ``,
+              `3. **Score each gap** on:`,
+              `   - Market size (1–5)`,
+              `   - Technical leverage from AudioText (1–5)`,
+              `   - Time to revenue (1–5, higher = faster)`,
+              `   - Competitive intensity (1–5, higher = less competition)`,
+              ``,
+              `4. **For each high-scoring gap (≥14 total)** — create a new opportunity brief at \`strategy/opportunities/{opportunity-name}.md\` using the template at \`strategy/opportunities/TEMPLATE.md\``,
+              ``,
+              `## Existing Opportunities (avoid duplicates)`,
+              ``,
+              existingBriefs.length > 0
+                ? existingBriefs.join('\n')
+                : '_No existing opportunity briefs found._',
+              ``,
+              `## Deliverable`,
+              ``,
+              `1. Comment on this issue with a ranked whitespace matrix (markdown table)`,
+              `2. Create new \`strategy/opportunities/*.md\` files for each identified high-priority gap`,
+              `3. Each new brief must follow \`strategy/opportunities/TEMPLATE.md\``,
+              ``,
+              `---`,
+              `*Generated by Market Analysis Agent (HQ) — CreativeWare*`,
+            ].join('\n');
+
+            const { data: issue } = await github.rest.issues.create({
+              owner, repo, title, body,
+              labels: ['market-analysis', 'agent/cmo', 'copilot'],
+            });
+
+            let assigned = false;
+            for (const login of ['copilot', 'copilot[bot]']) {
+              try {
+                await github.rest.issues.addAssignees({
+                  owner, repo,
+                  issue_number: issue.number,
+                  assignees: [login],
+                });
+                const { data: check } = await github.rest.issues.get({
+                  owner, repo, issue_number: issue.number,
+                });
+                if (check.assignees.some(a => a.login.toLowerCase().includes('copilot'))) {
+                  assigned = true;
+                  break;
+                }
+              } catch {}
+            }
+            if (!assigned) {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issue.number,
+                body: `⚠️ Auto-assignment to Copilot failed. Please assign manually in the GitHub UI.`,
+              });
+            }
+            console.log(`✅ Created competitive whitespace task: #${issue.number}`);
+
+  # ─── Product Evolution ───────────────────────────────────────────────────────
+  product-evolution:
+    if: >-
+      github.event_name == 'schedule' ||
+      github.event_name == 'repository_dispatch' ||
+      inputs.analysis_type == 'all' ||
+      inputs.analysis_type == 'product-evolution'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "🚀 Product Evolution — Create Research Task"
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const today = new Date().toISOString().split('T')[0];
+            const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+
+            // Dedup
+            const { data: recent } = await github.rest.issues.listForRepo({
+              owner, repo, state: 'all',
+              labels: 'market-analysis,agent/cmo',
+              since: sevenDaysAgo, per_page: 20,
+            });
+            if (recent.some(i => i.title.includes('[PRODUCT EVOLUTION]'))) {
+              console.log('⏭️ Product evolution analysis already created this week — skipping');
+              return;
+            }
+
+            // Read product registry
+            const registry = JSON.parse(fs.readFileSync('products/registry.json', 'utf-8'));
+            const products = registry.products.filter(p => p.status === 'live');
+
+            // Gather open issues & recent PRs per product for context
+            const productSummaries = [];
+            for (const product of products) {
+              const prodRepo = product.repo.replace(/^[^/]+\//, '');
+              let issueCount = '?', mergedCount = '?', openFeatures = '?';
+              try {
+                const { data: openIssues } = await github.rest.issues.listForRepo({
+                  owner, repo: prodRepo, state: 'open', per_page: 50,
+                });
+                const { data: closedPRs } = await github.rest.pulls.list({
+                  owner, repo: prodRepo, state: 'closed', sort: 'updated',
+                  direction: 'desc', per_page: 20,
+                });
+                const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+                issueCount = openIssues.length;
+                mergedCount = closedPRs.filter(pr => pr.merged_at && pr.merged_at >= weekAgo).length;
+                openFeatures = openIssues.filter(i =>
+                  i.labels.some(l => ['feature', 'enhancement', 'opportunity'].includes(l.name))
+                ).length;
+              } catch {}
+
+              productSummaries.push(
+                `### ${product.name} (\`${product.repo}\`)\n` +
+                `- **Description:** ${product.description}\n` +
+                `- **Stack:** ${product.stack}\n` +
+                `- **Open Issues:** ${issueCount} | **Open Feature Requests:** ${openFeatures} | **PRs Merged This Week:** ${mergedCount}\n` +
+                `- **Product Card:** \`products/${prodRepo.replace(/^.*\//, '')}.md\` (if present)`
+              );
+            }
+
+            const title = `[PRODUCT EVOLUTION] Product Roadmap & Market Fit Analysis — ${today}`;
+            const body = [
+              `## 🚀 Product Evolution Research Task`,
+              ``,
+              `**Agent:** 🔍 Market Analysis Agent (HQ)`,
+              `**Type:** Product Evolution`,
+              `**Date:** ${today}`,
+              `**Requires:** @fratei review after Copilot completes`,
+              ``,
+              `---`,
+              ``,
+              `## Research Brief`,
+              ``,
+              `Evaluate how each live CreativeWare product should evolve based on current market signals, user feedback, and competitive dynamics. Identify roadmap priorities that strengthen market position.`,
+              ``,
+              `## Products to Evaluate`,
+              ``,
+              productSummaries.join('\n\n'),
+              ``,
+              `## Research Tasks`,
+              ``,
+              `For **each product**, analyse:`,
+              ``,
+              `### 1. Market Fit Assessment`,
+              `- Is the product solving the right problem for the right ICP?`,
+              `- What signals (user feedback, usage patterns, competitor moves) suggest market fit gaps?`,
+              `- What is the current NPS/retention trajectory (infer from issue sentiment if data unavailable)?`,
+              ``,
+              `### 2. Feature Evolution Opportunities`,
+              `- What features would most increase retention and expansion revenue?`,
+              `- What features would open a new ICP segment without losing the current one?`,
+              `- What integrations are competitors launching that we should prioritise?`,
+              ``,
+              `### 3. Pricing & Packaging Evolution`,
+              `- Are there pricing tiers that would unlock higher ACVs?`,
+              `- Is there a PLG (product-led growth) motion that is not yet fully exploited?`,
+              ``,
+              `### 4. Platform / Ecosystem Plays`,
+              `- What API/SDK/integration capabilities would create a platform moat?`,
+              `- Are there partnership or distribution opportunities that should inform the roadmap?`,
+              ``,
+              `## Deliverable`,
+              ``,
+              `1. Comment on this issue with a per-product evolution summary (one paragraph each)`,
+              ``,
+              `2. For each identified evolution opportunity:`,
+              `   - If it is a **new capability or adjacent product**: create \`strategy/opportunities/{opportunity-name}.md\` using \`strategy/opportunities/TEMPLATE.md\``,
+              `   - If it is a **roadmap enhancement to an existing product**: create or update a file at \`strategy/opportunities/{product}-evolution-{date}.md\` with the recommendations`,
+              ``,
+              `3. Each file must include:`,
+              `   - Clear problem statement and target ICP`,
+              `   - Market evidence (competitor moves, buyer signals)`,
+              `   - Technical leverage from existing infrastructure`,
+              `   - Revenue potential and time-to-value estimate`,
+              ``,
+              `---`,
+              `*Generated by Market Analysis Agent (HQ) — CreativeWare*`,
+            ].join('\n');
+
+            const { data: issue } = await github.rest.issues.create({
+              owner, repo, title, body,
+              labels: ['market-analysis', 'agent/cmo', 'copilot'],
+            });
+
+            let assigned = false;
+            for (const login of ['copilot', 'copilot[bot]']) {
+              try {
+                await github.rest.issues.addAssignees({
+                  owner, repo,
+                  issue_number: issue.number,
+                  assignees: [login],
+                });
+                const { data: check } = await github.rest.issues.get({
+                  owner, repo, issue_number: issue.number,
+                });
+                if (check.assignees.some(a => a.login.toLowerCase().includes('copilot'))) {
+                  assigned = true;
+                  break;
+                }
+              } catch {}
+            }
+            if (!assigned) {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issue.number,
+                body: `⚠️ Auto-assignment to Copilot failed. Please assign manually in the GitHub UI.`,
+              });
+            }
+            console.log(`✅ Created product evolution task: #${issue.number}`);

@@ -2,6 +2,7 @@ name: "🏢 CreativeWare Agent Fleet — C-Suite Operations"
 
 # Company-level C-suite agents scanning ALL product repos.
 # - CPO: scans product strategies, creates opportunity issues
+# - CMO: market analysis — trends, whitespace, product evolution (weekly)
 # - CFO: financial review
 # - CTO: technical review
 # Runs every 2 hours from HQ, reads product registry.
@@ -17,6 +18,7 @@ on:
         options:
           - "all"
           - "cpo-opportunities"
+          - "cmo-market-analysis"
           - "cfo-financial-review"
           - "cto-tech-review"
         default: "all"
@@ -141,6 +143,26 @@ jobs:
               }
               console.log(`  CPO: created ${created} opportunities in ${repo}`);
             }
+
+  cmo-market-analysis:
+    if: >-
+      inputs.agent == 'cmo-market-analysis' ||
+      inputs.agent == 'all'
+    runs-on: ubuntu-latest
+    steps:
+      - name: "📊 CMO Agent — Trigger Market Analysis"
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'market-analysis.yml',
+              ref: 'main',
+              inputs: { analysis_type: 'all' },
+            });
+            console.log('📊 CMO: market analysis workflow triggered');
 
   cfo-review:
     if: >-

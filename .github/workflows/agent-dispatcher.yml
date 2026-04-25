@@ -10,6 +10,7 @@ on:
       - implementation-approved
       - incident-detected
       - meeting-requested
+      - market-analysis-requested
       - work-completed
 
   workflow_dispatch:
@@ -238,6 +239,18 @@ jobs:
                   inputs: { meeting_type: payload.type || 'standup' },
                 });
                 console.log('✅ Meeting workflow triggered');
+                break;
+              }
+
+              case 'market-analysis-requested': {
+                const analysisType = payload.analysis_type || 'all';
+                await github.rest.actions.createWorkflowDispatch({
+                  owner, repo: context.repo.repo,
+                  workflow_id: 'market-analysis.yml',
+                  ref: 'main',
+                  inputs: { analysis_type: analysisType },
+                });
+                console.log(`📊 Market analysis workflow triggered (type: ${analysisType})`);
                 break;
               }
 
