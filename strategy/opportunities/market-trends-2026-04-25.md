@@ -172,7 +172,7 @@ The fastest-growing buyer segment is developers and engineering-led teams. They 
 | 🥇 1 | Ship Post-Transcription Intelligence layer | Highest retention impact; closes the gap competitors are exploiting | CPO | 4–6 weeks |
 | 🥇 1 | Launch Developer API (public) + SDKs | Fastest-growing segment; PLG flywheel; approved and in-flight | CTO | 4–6 weeks |
 | 🥈 2 | Begin SOC2 Type II preparation | Unlocks enterprise and healthcare ACV; one-time compliance investment | CEO / CTO | 8–12 weeks |
-| 🥈 2 | Publish MCP connector | Low effort; emerging AI agent distribution channel | CTO | 2–3 weeks |
+| 🥈 2 | Publish MCP (Model Context Protocol) connector | Low effort; emerging AI agent distribution channel | CTO | 2–3 weeks |
 | 🥉 3 | Launch HIPAA-ready tier with BAA | Healthcare segment gate; 5–10x ACV vs. SMB tier | CEO / CMO | 12–16 weeks |
 | 🥉 3 | Target media & podcasting vertical | Large addressable niche; low compliance overhead; strong word-of-mouth | CMO | 6–8 weeks |
 
