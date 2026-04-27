@@ -79,7 +79,7 @@ AudioText users must manually copy transcripts and export them to their producti
 - **Competitor response:** Otter/Descript could match integrations quickly if successful (first-mover advantage is limited)
 
 **Open questions:**
-- Should folder-watching be real-time (expensive; requires polling) or batch (check every 30 min)?
+- Should folder-watching use push/webhook-style change notifications for near-real-time sync, polling/batch checks every 30 min, or a hybrid model with periodic reconciliation/backfill? What are the tradeoffs around webhook delivery reliability, replay/recovery after missed events, rate limits, and operating cost for Google Drive and Dropbox?
 - Which 5 integrations should launch first? Proposed priority:
   1. Zapier (unlocks 5,000+ apps)
   2. Google Drive auto-sync (largest user base)
