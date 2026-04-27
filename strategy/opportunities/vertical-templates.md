@@ -84,7 +84,7 @@ The pain is severe: users spend 30-50% of their time post-processing transcripts
 - YouTube SRT/VTT caption export with styling
 
 **Compliance complexity:**
-- **HIPAA certification:** Requires BAA with Azure, penetration testing, and security audit (12-16 week timeline, $20-40K cost)
+- **HIPAA compliance program:** Requires BAA with Azure, risk assessment, policies/procedures, audit logging, encryption, access controls, and security testing (12-16 week timeline, $20-40K cost)
 - **Legal transcription:** No specific certification required, but formatting standards must be validated by legal professionals
 
 ### Revenue Potential
