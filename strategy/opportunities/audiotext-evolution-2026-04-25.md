@@ -1,7 +1,7 @@
 # AudioText — Product Evolution Roadmap
 
 **Status:** researching
-**Owner:** CPO Agent (HQ)
+**Owner:** CPO Agent (HQ) / Market Analysis Agent (HQ)
 **Created:** 2026-04-25
 **Last Updated:** 2026-04-25
 
@@ -31,6 +31,13 @@ AudioText is correctly positioned as an AI-native audio transcription and unders
 - **Competitor moves:** Otter.ai added AI meeting summaries and Salesforce/HubSpot push sync (Q1 2026). Fireflies.ai launched "Thread" (contextual AI Q&A on transcripts). AssemblyAI added LeMUR (LLM-over-audio) for developers. Descript launched AI chapter detection and social clip generation. All signal that raw transcription is table-stakes; the value is in *what you do with the transcript*.
 - **Buyer signals:** AudioText's own feature set (speaker diarization, custom vocabularies, team workspaces) targets collaboration use cases, yet lacks downstream workflow automation. Enterprise tier users on $59.99/mo are likely underserved on integrations — a major churn risk.
 - **NPS/retention inference:** 0 open issues + high PR velocity suggests either strong product stability or an early-stage user base that is not yet large enough to generate organic feedback. Proactive retention investments (integrations, value dashboards) are warranted before scale.
+
+### Current Fit Gaps
+
+- **Generic positioning:** "Audio transcription SaaS" is a commodity category with strong competition (Otter.ai, Descript, Rev.com, AssemblyAI)
+- **ICP clarity:** No clear vertical focus (e.g., legal, medical, sales, media) makes differentiation difficult
+- **Zero feature requests:** May indicate low user engagement or missing feedback channels rather than perfect fit
+- **Multi-model flexibility** (8 AI models, real-time WebSocket transcription) is a strong competitive moat but under-marketed
 
 ---
 
@@ -91,6 +98,19 @@ AudioText is correctly positioned as an AI-native audio transcription and unders
 
 ---
 
+### 2d. Vertical-Specific Templates & Workflows (Differentiation Play)
+
+**Problem:** Generic transcription has low switching costs. Users need workflows tailored to their use case.
+
+**Opportunity:**
+- **Legal transcription templates:** Court deposition formatting, legal terminology dictionaries, speaker labels (Attorney, Witness, Judge)
+- **Medical transcription templates:** SOAP note structuring, medical vocabulary, HIPAA-compliant storage
+- **Content creator workflows:** Automated chapter markers, SEO-optimized titles/descriptions, social media snippet extraction
+
+**Revenue Impact:** Could increase Pro → Enterprise conversion by 30–40% through vertical-specific add-ons at $10–20/month. Refer to `strategy/opportunities/vertical-templates.md`.
+
+---
+
 ## 3. Pricing & Packaging Evolution
 
 ### Current State
@@ -132,7 +152,7 @@ Priority integrations to build (ordered by ICP demand):
 | Zapier / Make connector | All | Medium | High — unlocks 1000s of custom workflows |
 | Salesforce (enterprise CRM) | Enterprise sales | High | High |
 
-A Zapier/Make connector in particular delivers outsized reach: it makes AudioText compatible with any tool in a user's stack without AudioText having to build each integration.
+A Zapier/Make connector in particular delivers outsized reach: it makes AudioText compatible with any tool in a user's stack without AudioText having to build each integration. Refer to `strategy/opportunities/integration-marketplace.md`.
 
 ### 4b. MCP (Model Context Protocol) Connector
 
@@ -145,17 +165,36 @@ The emerging MCP standard enables AI agents and LLMs to call AudioText's transcr
 - **Podcast hosting platforms** (Buzzsprout, Podbean, Anchor/Spotify for Podcasters): Bundle AudioText as a transcription + show notes add-on. Revenue-share model.
 - **Video editing tools** (Descript ecosystem, CapCut): Transcription-as-a-service partnership.
 - **Recruiting platforms** (Greenhouse, Lever): Auto-transcribe interview recordings for structured note-taking and compliance.
+- **Telehealth platforms** (Doxy.me, SimplePractice): HIPAA-compliant session transcription for therapists, doctors — high willingness-to-pay ($50–100/month/provider).
 - **Dialer software** (Aircall, Dialpad, RingCentral): Native integration for sales call intelligence; referenced by the existing Sales Call Intelligence opportunity.
 
 ---
 
-## 5. Technical Leverage Summary
+## 5. Competitive Dynamics
+
+### Key Competitors
+
+1. **Otter.ai** — Consumer/SMB focus, strong mobile app, $20/user Business tier; added AI meeting summaries and Salesforce/HubSpot push sync (Q1 2026)
+2. **Descript** — Video editing + transcription, creator focus, $24–50/month; launched AI chapter detection and social clip generation
+3. **AssemblyAI** — Developer API leader, $0.00025/second (~$0.015/min), strong docs; added LeMUR (LLM-over-audio)
+4. **Fireflies.ai** — Meeting intelligence focus; launched "Thread" (contextual AI Q&A on transcripts)
+
+### Defensibility Strategy
+
+- **Multi-model flexibility:** No competitor offers 8 models with user choice of quality/cost trade-off
+- **Real-time WebSocket:** Low-latency streaming is a technical moat (hard to replicate)
+- **Vertical templates:** Otter/Descript are horizontal; AudioText can win verticals (legal, medical, sales)
+
+---
+
+## 6. Technical Leverage Summary
 
 | Opportunity | Reuse from AudioText | Net-New Engineering |
 |------------|---------------------|---------------------|
 | Post-Transcription Intelligence | Very high (GPT-4o, speaker diarization) | Low (prompt engineering + UI) |
 | Meeting Intelligence | High (real-time WS, diarization) | Medium (calendar OAuth, meeting bot) |
 | Media Pipeline | High (multi-model transcription, GPT-4o) | Low (topic segmentation model, export formats) |
+| Vertical Templates | High (multi-model transcription, GPT-4o) | Low (template config + UI) |
 | Integration Marketplace | High (REST API v1) | Medium (per-integration connectors) |
 | MCP Connector | Very high (REST API maps to MCP tools) | Low |
 | Freemium PLG | High (auth/billing system) | Low (usage metering already in place) |
@@ -163,13 +202,14 @@ The emerging MCP standard enables AI agents and LLMs to call AudioText's transcr
 
 ---
 
-## 6. Revenue Potential & Time-to-Value
+## 7. Revenue Potential & Time-to-Value
 
 | Initiative | Pricing Model | Time to Revenue | Annual Revenue Potential |
 |-----------|---------------|----------------|--------------------------|
 | Post-Transcription Intelligence | Drives Starter → Pro conversion | 4–6 weeks | +20–30% MRR uplift |
 | Meeting Intelligence module | $15–25/seat/mo | 8–10 weeks | $50K–$200K ARR at 200–800 seats |
 | Media Pipeline mode | $19–49/mo | 6–8 weeks | $30K–$100K ARR at 150–200 creators |
+| Vertical Templates (Legal, Medical) | $10–20/mo add-on | 8–10 weeks | $30K–$80K ARR |
 | Teams tier | $39.99/3–10 seats | 2–3 weeks | +15–25% ACV per account |
 | Freemium PLG | Conversion uplift | 3–4 weeks | +20–40% trial → paid conversion |
 | Integration Marketplace | Retention / upsell driver | 6–12 weeks | Reduces churn 10–20% |
@@ -177,17 +217,20 @@ The emerging MCP standard enables AI agents and LLMs to call AudioText's transcr
 
 ---
 
-## 7. Risks & Open Questions
+## 8. Risks & Open Questions
 
 - **Meeting Intelligence:** Bot-based meeting recording requires explicit user consent flows and jurisdiction-specific compliance — must be addressed before GA launch.
 - **Media Pipeline:** Creator segment has high acquisition cost via paid channels; organic/community-led GTM required.
 - **Freemium PLG:** Freemium introduces potential abuse and cost-per-free-user risk — needs hard quota enforcement and GPU cost modelling before launch.
 - **Integration maintenance burden:** Each native integration creates ongoing maintenance. Zapier/Make connector should be prioritised to defer direct integration cost.
 - **Teams tier cannibalisation:** Risk that current Enterprise users ($59.99) downgrade to Teams ($39.99). Mitigate by ensuring Enterprise-exclusive features (SLA, advanced API, SSO).
+- **HIPAA/SOC 2 compliance:** Required for medical, legal, and enterprise verticals. Prioritise SOC 2 Type II certification (12–18 month process) to unlock enterprise deals.
+- **User feedback loop:** Zero open feature requests is unusual for a live product. Recommend implementing in-app feedback widget and quarterly NPS surveys.
+- **Competitive pricing pressure:** AssemblyAI at $0.015/min is significantly cheaper; benchmark cost-per-minute of current model mix to optimise for margin.
 
 ---
 
-## 8. Recommended Execution Order
+## 9. Recommended Execution Order
 
 | Priority | Initiative | Rationale |
 |----------|-----------|-----------|
@@ -195,8 +238,18 @@ The emerging MCP standard enables AI agents and LLMs to call AudioText's transcr
 | 🥇 1 | Freemium PLG + Teams tier | Pricing changes unlock pipeline; low engineering effort |
 | 🥈 2 | Integration Marketplace (Slack, Notion, Zapier) | Retention driver; unblocks Meeting Intelligence |
 | 🥈 2 | MCP Connector | Low effort, emerging distribution channel |
+| 🥉 3 | Vertical Templates (Legal, Medical) | Differentiation play; complements Meeting Intelligence and Media Pipeline |
 | 🥉 3 | Meeting Intelligence module | Larger ICP expansion; depends on meeting bot infrastructure |
 | 🥉 3 | Media Pipeline mode | Strong niche; parallelise with Meeting Intelligence |
+
+---
+
+## Open Questions for @fratei Review
+
+- Is there existing user feedback data (NPS, churn, feature requests) not visible in GitHub issues?
+- What is current MRR/ARR for AudioText? (To calibrate revenue potential estimates)
+- Are there compliance requirements (HIPAA, SOC 2) already in progress or planned?
+- What is the tolerance for technical debt paydown (monolith → microservices) vs. feature velocity?
 
 ---
 
@@ -204,3 +257,7 @@ The emerging MCP standard enables AI agents and LLMs to call AudioText's transcr
 
 - [ ] Approved by @fratei
 - [ ] Linked to implementation issues: #
+
+---
+
+*Market Analysis Agent (HQ) / CPO Agent (HQ) — CreativeWare*
