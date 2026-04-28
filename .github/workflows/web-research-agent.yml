@@ -49,154 +49,100 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: "📰 Search market news, funding & trends"
-        id: research
-        shell: bash
+        shell: python3 {0}
         run: |
-          set -euo pipefail
+          import json, urllib.request, urllib.parse, xml.etree.ElementTree as ET, time, sys
 
-          QUERIES=(
-            "speech+to+text+AI+SaaS"
-            "voice+AI+startup+funding"
-            "transcription+API+market"
-            "audio+intelligence+enterprise"
-            "meeting+transcription+tool"
-            "conversation+intelligence+platform"
-          )
-
-          FINDINGS="[]"
+          findings = []
 
           # ── Google News RSS ──
-          for q in "${QUERIES[@]}"; do
-            echo "🔍 Google News: $q"
-            XML=$(curl -sf --max-time 10 \
-              "https://news.google.com/rss/search?q=${q}&hl=en-US&gl=US&ceid=US:en" || echo "")
-            if [ -n "$XML" ]; then
-              ITEMS=$(echo "$XML" | python3 -c "
-          import xml.etree.ElementTree as ET, json, sys
-          try:
-              root = ET.parse(sys.stdin).getroot()
-              items = []
-              for item in list(root.findall('.//item'))[:5]:
-                  title = item.find('title')
-                  link = item.find('link')
-                  pub = item.find('pubDate')
-                  source_el = item.find('source')
-                  if title is not None:
-                      items.append({
-                          'source': 'google_news',
-                          'query': '${q}'.replace('+', ' '),
-                          'title': title.text or '',
-                          'url': (link.text or '') if link is not None else '',
-                          'date': (pub.text or '') if pub is not None else '',
-                          'publisher': (source_el.text or '') if source_el is not None else ''
-                      })
-              print(json.dumps(items))
-          except: print('[]')
-          " 2>/dev/null || echo "[]")
-              FINDINGS=$(echo "$FINDINGS" "$ITEMS" | python3 -c "
-          import json, sys
-          parts = sys.stdin.read().strip().split('\n')
-          merged = []
-          for p in parts:
-              try: merged.extend(json.loads(p))
-              except: pass
-          print(json.dumps(merged))
-          ")
-            fi
-            sleep 1
-          done
+          queries = [
+            "speech to text AI SaaS",
+            "voice AI startup funding",
+            "transcription API market",
+            "audio intelligence enterprise",
+            "meeting transcription tool",
+            "conversation intelligence platform",
+          ]
+          for q in queries:
+            print(f"🔍 Google News: {q}")
+            try:
+              url = f"https://news.google.com/rss/search?q={urllib.parse.quote(q)}&hl=en-US&gl=US&ceid=US:en"
+              req = urllib.request.Request(url, headers={"User-Agent": "CreativeWareBot/1.0"})
+              with urllib.request.urlopen(req, timeout=10) as resp:
+                root = ET.fromstring(resp.read())
+                for item in list(root.findall(".//item"))[:5]:
+                  title = item.find("title")
+                  link = item.find("link")
+                  pub = item.find("pubDate")
+                  source = item.find("source")
+                  if title is not None and title.text:
+                    findings.append({
+                      "source": "google_news", "query": q,
+                      "title": title.text,
+                      "url": (link.text or "") if link is not None else "",
+                      "date": (pub.text or "") if pub is not None else "",
+                      "publisher": (source.text or "") if source is not None else "",
+                    })
+            except Exception as e:
+              print(f"  ⚠️ Google News failed for '{q}': {e}")
+            time.sleep(1)
 
           # ── HackerNews ──
-          HN_QUERIES=("transcription AI" "speech to text" "voice AI" "meeting notes AI" "audio transcription")
-          for q in "${HN_QUERIES[@]}"; do
-            echo "🔍 HackerNews: $q"
-            HN=$(curl -sf --max-time 10 \
-              "https://hn.algolia.com/api/v1/search?query=$(echo "$q" | sed 's/ /+/g')&tags=story&hitsPerPage=5" || echo '{"hits":[]}')
-            ITEMS=$(echo "$HN" | python3 -c "
-          import json, sys
-          try:
-              d = json.load(sys.stdin)
-              items = []
-              for h in d.get('hits', []):
-                  items.append({
-                      'source': 'hackernews',
-                      'query': '$q',
-                      'title': h.get('title', ''),
-                      'url': h.get('url', '') or f\"https://news.ycombinator.com/item?id={h.get('objectID','')}\",
-                      'points': h.get('points', 0),
-                      'comments': h.get('num_comments', 0),
-                      'date': h.get('created_at', '')
+          hn_queries = ["transcription AI", "speech to text", "voice AI", "meeting notes AI", "audio transcription"]
+          for q in hn_queries:
+            print(f"🔍 HackerNews: {q}")
+            try:
+              url = f"https://hn.algolia.com/api/v1/search?query={urllib.parse.quote(q)}&tags=story&hitsPerPage=5"
+              with urllib.request.urlopen(url, timeout=10) as resp:
+                data = json.loads(resp.read())
+                for h in data.get("hits", []):
+                  findings.append({
+                    "source": "hackernews", "query": q,
+                    "title": h.get("title", ""),
+                    "url": h.get("url", "") or f"https://news.ycombinator.com/item?id={h.get('objectID', '')}",
+                    "points": h.get("points", 0),
+                    "comments": h.get("num_comments", 0),
+                    "date": h.get("created_at", ""),
                   })
-              print(json.dumps(items))
-          except: print('[]')
-          " 2>/dev/null || echo "[]")
-            FINDINGS=$(echo "$FINDINGS" "$ITEMS" | python3 -c "
-          import json, sys
-          parts = sys.stdin.read().strip().split('\n')
-          merged = []
-          for p in parts:
-              try: merged.extend(json.loads(p))
-              except: pass
-          print(json.dumps(merged))
-          ")
-            sleep 1
-          done
+            except Exception as e:
+              print(f"  ⚠️ HN failed for '{q}': {e}")
+            time.sleep(1)
 
           # ── GitHub trending ──
-          echo "🔍 GitHub: trending speech/audio AI repos"
-          SEVEN_DAYS_AGO=$(date -u -d "7 days ago" +%Y-%m-%d 2>/dev/null || date -u -v-7d +%Y-%m-%d)
-          GH_REPOS=$(curl -sf --max-time 10 \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/search/repositories?q=speech-to-text+OR+transcription+OR+voice-AI+pushed:>=${SEVEN_DAYS_AGO}&sort=stars&order=desc&per_page=10" || echo '{"items":[]}')
-          GH_ITEMS=$(echo "$GH_REPOS" | python3 -c "
-          import json, sys
+          print("🔍 GitHub: trending speech/audio AI repos")
           try:
-              d = json.load(sys.stdin)
-              items = []
-              for r in d.get('items', []):
-                  items.append({
-                      'source': 'github',
-                      'title': r.get('full_name', ''),
-                      'url': r.get('html_url', ''),
-                      'stars': r.get('stargazers_count', 0),
-                      'description': (r.get('description', '') or '')[:200],
-                      'language': r.get('language', ''),
-                      'updated': r.get('pushed_at', '')
-                  })
-              print(json.dumps(items))
-          except: print('[]')
-          " 2>/dev/null || echo "[]")
-          FINDINGS=$(echo "$FINDINGS" "$GH_ITEMS" | python3 -c "
-          import json, sys
-          parts = sys.stdin.read().strip().split('\n')
-          merged = []
-          for p in parts:
-              try: merged.extend(json.loads(p))
-              except: pass
-          print(json.dumps(merged))
-          ")
+            from datetime import datetime, timedelta
+            week_ago = (datetime.utcnow() - timedelta(days=7)).strftime("%Y-%m-%d")
+            url = f"https://api.github.com/search/repositories?q=speech-to-text+OR+transcription+OR+voice-AI+pushed:>={week_ago}&sort=stars&order=desc&per_page=10"
+            req = urllib.request.Request(url, headers={"Accept": "application/vnd.github+json", "User-Agent": "CreativeWareBot/1.0"})
+            with urllib.request.urlopen(req, timeout=10) as resp:
+              data = json.loads(resp.read())
+              for r in data.get("items", []):
+                findings.append({
+                  "source": "github",
+                  "title": r.get("full_name", ""),
+                  "url": r.get("html_url", ""),
+                  "stars": r.get("stargazers_count", 0),
+                  "description": (r.get("description", "") or "")[:200],
+                  "language": r.get("language", ""),
+                  "updated": r.get("pushed_at", ""),
+                })
+          except Exception as e:
+            print(f"  ⚠️ GitHub search failed: {e}")
 
           # Deduplicate by title
-          FINDINGS=$(echo "$FINDINGS" | python3 -c "
-          import json, sys
-          items = json.load(sys.stdin)
           seen = set()
           unique = []
-          for item in items:
-              key = item.get('title', '').lower().strip()
-              if key and key not in seen:
-                  seen.add(key)
-                  unique.append(item)
-          print(json.dumps(unique))
-          ")
+          for item in findings:
+            key = item.get("title", "").lower().strip()
+            if key and key not in seen:
+              seen.add(key)
+              unique.append(item)
 
-          COUNT=$(echo "$FINDINGS" | python3 -c "import json,sys; print(len(json.load(sys.stdin)))")
-          echo "📊 Market intelligence: $COUNT unique findings"
-
-          echo "$FINDINGS" > /tmp/market-findings.json
-
-          COUNT=$(echo "$FINDINGS" | python3 -c "import json,sys; print(len(json.load(sys.stdin)))")
-          echo "📊 Market intelligence: $COUNT unique findings"
+          print(f"📊 Market intelligence: {len(unique)} unique findings")
+          with open("/tmp/market-findings.json", "w") as f:
+            json.dump(unique, f, indent=2)
 
       - uses: actions/upload-artifact@v4
         with:
@@ -214,119 +160,78 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: "👥 Search user feedback, pain points & reviews"
-        id: research
-        shell: bash
+        shell: python3 {0}
         run: |
-          set -euo pipefail
+          import json, urllib.request, urllib.parse, time
 
-          FINDINGS="[]"
+          findings = []
 
           # ── Reddit ──
-          REDDIT_QUERIES=(
-            "transcription+app+review"
-            "meeting+notes+tool+recommendation"
-            "speech+to+text+accuracy"
-            "audio+transcription+frustrated+OR+problem+OR+issue"
-            "otter+OR+fireflies+OR+deepgram+alternative"
-            "transcription+API+developer"
-          )
+          reddit_queries = [
+            "transcription app review",
+            "meeting notes tool recommendation",
+            "speech to text accuracy",
+            "audio transcription problem OR issue OR frustrated",
+            "otter OR fireflies OR deepgram alternative",
+            "transcription API developer",
+          ]
+          for q in reddit_queries:
+            print(f"🔍 Reddit: {q}")
+            try:
+              url = f"https://www.reddit.com/search.json?q={urllib.parse.quote(q)}&sort=new&limit=5&t=month"
+              req = urllib.request.Request(url, headers={"User-Agent": "CreativeWareResearchBot/1.0"})
+              with urllib.request.urlopen(req, timeout=10) as resp:
+                data = json.loads(resp.read())
+                for post in data.get("data", {}).get("children", []):
+                  p = post.get("data", {})
+                  if p.get("score", 0) >= 1:
+                    findings.append({
+                      "source": "reddit", "query": q,
+                      "subreddit": p.get("subreddit", ""),
+                      "title": p.get("title", "")[:200],
+                      "url": "https://reddit.com" + p.get("permalink", ""),
+                      "score": p.get("score", 0),
+                      "comments": p.get("num_comments", 0),
+                      "selftext": (p.get("selftext", "") or "")[:300],
+                      "date": p.get("created_utc", 0),
+                    })
+            except Exception as e:
+              print(f"  ⚠️ Reddit failed for '{q}': {e}")
+            time.sleep(2)
 
-          for q in "${REDDIT_QUERIES[@]}"; do
-            echo "🔍 Reddit: $q"
-            REDDIT=$(curl -sf --max-time 10 \
-              -H "User-Agent: CreativeWareResearchBot/1.0" \
-              "https://www.reddit.com/search.json?q=${q}&sort=new&limit=5&t=month" || echo '{"data":{"children":[]}}')
-            ITEMS=$(echo "$REDDIT" | python3 -c "
-          import json, sys
-          try:
-              d = json.load(sys.stdin)
-              items = []
-              for post in d.get('data', {}).get('children', []):
-                  p = post.get('data', {})
-                  if p.get('score', 0) >= 1:
-                      items.append({
-                          'source': 'reddit',
-                          'query': '${q}'.replace('+', ' '),
-                          'subreddit': p.get('subreddit', ''),
-                          'title': p.get('title', '')[:200],
-                          'url': 'https://reddit.com' + p.get('permalink', ''),
-                          'score': p.get('score', 0),
-                          'comments': p.get('num_comments', 0),
-                          'selftext': (p.get('selftext', '') or '')[:300],
-                          'date': p.get('created_utc', 0)
-                      })
-              print(json.dumps(items))
-          except: print('[]')
-          " 2>/dev/null || echo "[]")
-            FINDINGS=$(echo "$FINDINGS" "$ITEMS" | python3 -c "
-          import json, sys
-          parts = sys.stdin.read().strip().split('\n')
-          merged = []
-          for p in parts:
-              try: merged.extend(json.loads(p))
-              except: pass
-          print(json.dumps(merged))
-          ")
-            sleep 2  # Reddit rate limits
-          done
-
-          # ── HackerNews Ask/Show/Complaints ──
-          HN_QUERIES=("ask hn transcription" "ask hn meeting notes" "show hn audio" "transcription tool review")
-          for q in "${HN_QUERIES[@]}"; do
-            echo "🔍 HackerNews: $q"
-            HN=$(curl -sf --max-time 10 \
-              "https://hn.algolia.com/api/v1/search?query=$(echo "$q" | sed 's/ /+/g')&hitsPerPage=5" || echo '{"hits":[]}')
-            ITEMS=$(echo "$HN" | python3 -c "
-          import json, sys
-          try:
-              d = json.load(sys.stdin)
-              items = []
-              for h in d.get('hits', []):
-                  items.append({
-                      'source': 'hackernews_user',
-                      'query': '$q',
-                      'title': h.get('title', '') or h.get('story_title', ''),
-                      'url': h.get('url', '') or f\"https://news.ycombinator.com/item?id={h.get('objectID','')}\",
-                      'points': h.get('points', 0),
-                      'comments': h.get('num_comments', 0),
-                      'date': h.get('created_at', '')
+          # ── HackerNews Ask/Show ──
+          hn_queries = ["ask hn transcription", "ask hn meeting notes", "show hn audio", "transcription tool review"]
+          for q in hn_queries:
+            print(f"🔍 HackerNews: {q}")
+            try:
+              url = f"https://hn.algolia.com/api/v1/search?query={urllib.parse.quote(q)}&hitsPerPage=5"
+              with urllib.request.urlopen(url, timeout=10) as resp:
+                data = json.loads(resp.read())
+                for h in data.get("hits", []):
+                  findings.append({
+                    "source": "hackernews_user", "query": q,
+                    "title": h.get("title", "") or h.get("story_title", ""),
+                    "url": h.get("url", "") or f"https://news.ycombinator.com/item?id={h.get('objectID', '')}",
+                    "points": h.get("points", 0),
+                    "comments": h.get("num_comments", 0),
+                    "date": h.get("created_at", ""),
                   })
-              print(json.dumps(items))
-          except: print('[]')
-          " 2>/dev/null || echo "[]")
-            FINDINGS=$(echo "$FINDINGS" "$ITEMS" | python3 -c "
-          import json, sys
-          parts = sys.stdin.read().strip().split('\n')
-          merged = []
-          for p in parts:
-              try: merged.extend(json.loads(p))
-              except: pass
-          print(json.dumps(merged))
-          ")
-            sleep 1
-          done
+            except Exception as e:
+              print(f"  ⚠️ HN failed for '{q}': {e}")
+            time.sleep(1)
 
           # Deduplicate
-          FINDINGS=$(echo "$FINDINGS" | python3 -c "
-          import json, sys
-          items = json.load(sys.stdin)
           seen = set()
           unique = []
-          for item in items:
-              key = item.get('title', '').lower().strip()
-              if key and key not in seen:
-                  seen.add(key)
-                  unique.append(item)
-          print(json.dumps(unique))
-          ")
+          for item in findings:
+            key = item.get("title", "").lower().strip()
+            if key and key not in seen:
+              seen.add(key)
+              unique.append(item)
 
-          COUNT=$(echo "$FINDINGS" | python3 -c "import json,sys; print(len(json.load(sys.stdin)))")
-          echo "👥 User signals: $COUNT unique findings"
-
-          echo "$FINDINGS" > /tmp/user-findings.json
-
-          COUNT=$(echo "$FINDINGS" | python3 -c "import json,sys; print(len(json.load(sys.stdin)))")
-          echo "👥 User signals: $COUNT unique findings"
+          print(f"👥 User signals: {len(unique)} unique findings")
+          with open("/tmp/user-findings.json", "w") as f:
+            json.dump(unique, f, indent=2)
 
       - uses: actions/upload-artifact@v4
         with:
@@ -344,174 +249,112 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: "🎯 Track competitor news & activity"
-        id: research
-        shell: bash
+        shell: python3 {0}
         run: |
-          set -euo pipefail
+          import json, urllib.request, urllib.parse, xml.etree.ElementTree as ET, time
 
-          COMPETITORS=(
-            "Deepgram"
-            "AssemblyAI"
-            "Otter.ai"
-            "Fireflies.ai"
-            "Rev+AI+transcription"
-            "Descript+audio"
-            "Gong+revenue+intelligence"
-            "Whisper+OpenAI"
-            "Gladia+AI"
-          )
-
-          FINDINGS="[]"
+          findings = []
 
           # ── Google News per competitor ──
-          for comp in "${COMPETITORS[@]}"; do
-            echo "🔍 Competitor news: $comp"
-            XML=$(curl -sf --max-time 10 \
-              "https://news.google.com/rss/search?q=${comp}+AI&hl=en-US&gl=US&ceid=US:en" || echo "")
-            if [ -n "$XML" ]; then
-              ITEMS=$(echo "$XML" | python3 -c "
-          import xml.etree.ElementTree as ET, json, sys
-          try:
-              root = ET.parse(sys.stdin).getroot()
-              items = []
-              for item in list(root.findall('.//item'))[:3]:
-                  title = item.find('title')
-                  link = item.find('link')
-                  pub = item.find('pubDate')
-                  source_el = item.find('source')
-                  if title is not None:
-                      items.append({
-                          'source': 'competitor_news',
-                          'competitor': '${comp}'.replace('+', ' '),
-                          'title': title.text or '',
-                          'url': (link.text or '') if link is not None else '',
-                          'date': (pub.text or '') if pub is not None else '',
-                          'publisher': (source_el.text or '') if source_el is not None else ''
-                      })
-              print(json.dumps(items))
-          except: print('[]')
-          " 2>/dev/null || echo "[]")
-              FINDINGS=$(echo "$FINDINGS" "$ITEMS" | python3 -c "
-          import json, sys
-          parts = sys.stdin.read().strip().split('\n')
-          merged = []
-          for p in parts:
-              try: merged.extend(json.loads(p))
-              except: pass
-          print(json.dumps(merged))
-          ")
-            fi
-            sleep 1
-          done
+          competitors = [
+            "Deepgram", "AssemblyAI", "Otter.ai", "Fireflies.ai",
+            "Rev AI transcription", "Descript audio", "Gong revenue intelligence",
+            "Whisper OpenAI", "Gladia AI",
+          ]
+          for comp in competitors:
+            print(f"🔍 Competitor news: {comp}")
+            try:
+              url = f"https://news.google.com/rss/search?q={urllib.parse.quote(comp + ' AI')}&hl=en-US&gl=US&ceid=US:en"
+              req = urllib.request.Request(url, headers={"User-Agent": "CreativeWareBot/1.0"})
+              with urllib.request.urlopen(req, timeout=10) as resp:
+                root = ET.fromstring(resp.read())
+                for item in list(root.findall(".//item"))[:3]:
+                  title = item.find("title")
+                  link = item.find("link")
+                  pub = item.find("pubDate")
+                  source = item.find("source")
+                  if title is not None and title.text:
+                    findings.append({
+                      "source": "competitor_news", "competitor": comp,
+                      "title": title.text,
+                      "url": (link.text or "") if link is not None else "",
+                      "date": (pub.text or "") if pub is not None else "",
+                      "publisher": (source.text or "") if source is not None else "",
+                    })
+            except Exception as e:
+              print(f"  ⚠️ News failed for '{comp}': {e}")
+            time.sleep(1)
 
           # ── GitHub: OSS competitor repos ──
-          OSS_REPOS=(
-            "openai/whisper"
-            "m-bain/whisperX"
-            "ggerganov/whisper.cpp"
-            "Vaibhavs10/insanely-fast-whisper"
-            "FunAudioLLM/SenseVoice"
-          )
-
-          for repo in "${OSS_REPOS[@]}"; do
-            echo "🔍 GitHub: $repo"
-            REPO_DATA=$(curl -sf --max-time 10 \
-              -H "Accept: application/vnd.github+json" \
-              "https://api.github.com/repos/$repo" || echo '{}')
-            ITEM=$(echo "$REPO_DATA" | python3 -c "
-          import json, sys
-          try:
-              r = json.load(sys.stdin)
-              if r.get('full_name'):
-                  print(json.dumps({
-                      'source': 'github_oss',
-                      'competitor': r.get('full_name', ''),
-                      'title': r.get('full_name', ''),
-                      'url': r.get('html_url', ''),
-                      'stars': r.get('stargazers_count', 0),
-                      'forks': r.get('forks_count', 0),
-                      'description': (r.get('description', '') or '')[:200],
-                      'updated': r.get('pushed_at', ''),
-                      'open_issues': r.get('open_issues_count', 0)
-                  }))
-              else: print('null')
-          except: print('null')
-          " 2>/dev/null || echo "null")
-            if [ "$ITEM" != "null" ]; then
-              FINDINGS=$(echo "$FINDINGS" "[$ITEM]" | python3 -c "
-          import json, sys
-          parts = sys.stdin.read().strip().split('\n')
-          merged = []
-          for p in parts:
-              try: merged.extend(json.loads(p))
-              except: pass
-          print(json.dumps(merged))
-          ")
-            fi
-            sleep 0.5
-          done
+          oss_repos = [
+            "openai/whisper", "m-bain/whisperX", "ggerganov/whisper.cpp",
+            "Vaibhavs10/insanely-fast-whisper", "FunAudioLLM/SenseVoice",
+          ]
+          for repo in oss_repos:
+            print(f"🔍 GitHub: {repo}")
+            try:
+              url = f"https://api.github.com/repos/{repo}"
+              req = urllib.request.Request(url, headers={
+                "Accept": "application/vnd.github+json",
+                "User-Agent": "CreativeWareBot/1.0",
+              })
+              with urllib.request.urlopen(req, timeout=10) as resp:
+                r = json.loads(resp.read())
+                if r.get("full_name"):
+                  findings.append({
+                    "source": "github_oss", "competitor": r["full_name"],
+                    "title": r["full_name"],
+                    "url": r.get("html_url", ""),
+                    "stars": r.get("stargazers_count", 0),
+                    "forks": r.get("forks_count", 0),
+                    "description": (r.get("description", "") or "")[:200],
+                    "updated": r.get("pushed_at", ""),
+                    "open_issues": r.get("open_issues_count", 0),
+                  })
+            except Exception as e:
+              print(f"  ⚠️ GitHub failed for '{repo}': {e}")
+            time.sleep(0.5)
 
           # ── ProductHunt ──
-          echo "🔍 ProductHunt: AI launches"
-          PH=$(curl -sf --max-time 10 \
-            "https://www.producthunt.com/feed?category=artificial-intelligence" || echo "")
-          if [ -n "$PH" ]; then
-            PH_ITEMS=$(echo "$PH" | python3 -c "
-          import xml.etree.ElementTree as ET, json, sys
+          print("🔍 ProductHunt: AI launches")
           try:
-              root = ET.parse(sys.stdin).getroot()
-              ns = {'a': 'http://www.w3.org/2005/Atom'}
-              items = []
-              for entry in list(root.findall('.//a:entry', ns))[:10]:
-                  title = entry.find('a:title', ns)
-                  link = entry.find('a:link', ns)
-                  summary = entry.find('a:summary', ns) or entry.find('a:content', ns)
-                  published = entry.find('a:published', ns) or entry.find('a:updated', ns)
-                  if title is not None:
-                      t = (title.text or '').lower()
-                      if any(kw in t for kw in ['audio', 'voice', 'transcript', 'speech', 'meeting', 'record', 'note', 'dictation', 'caption', 'subtitle', 'podcast', 'ai']):
-                          items.append({
-                              'source': 'producthunt',
-                              'title': title.text or '',
-                              'url': link.get('href', '') if link is not None else '',
-                              'summary': ((summary.text or '') if summary is not None else '')[:200],
-                              'date': (published.text or '') if published is not None else ''
-                          })
-              print(json.dumps(items))
-          except: print('[]')
-          " 2>/dev/null || echo "[]")
-            FINDINGS=$(echo "$FINDINGS" "$PH_ITEMS" | python3 -c "
-          import json, sys
-          parts = sys.stdin.read().strip().split('\n')
-          merged = []
-          for p in parts:
-              try: merged.extend(json.loads(p))
-              except: pass
-          print(json.dumps(merged))
-          ")
-          fi
+            url = "https://www.producthunt.com/feed?category=artificial-intelligence"
+            req = urllib.request.Request(url, headers={"User-Agent": "CreativeWareBot/1.0"})
+            with urllib.request.urlopen(req, timeout=10) as resp:
+              root = ET.fromstring(resp.read())
+              ns = {"a": "http://www.w3.org/2005/Atom"}
+              for entry in list(root.findall(".//a:entry", ns))[:10]:
+                title = entry.find("a:title", ns)
+                link = entry.find("a:link", ns)
+                summary = entry.find("a:summary", ns) or entry.find("a:content", ns)
+                published = entry.find("a:published", ns) or entry.find("a:updated", ns)
+                if title is not None and title.text:
+                  t = title.text.lower()
+                  keywords = ["audio", "voice", "transcript", "speech", "meeting", "record",
+                              "note", "dictation", "caption", "subtitle", "podcast", "ai"]
+                  if any(kw in t for kw in keywords):
+                    findings.append({
+                      "source": "producthunt",
+                      "title": title.text,
+                      "url": link.get("href", "") if link is not None else "",
+                      "summary": ((summary.text or "") if summary is not None else "")[:200],
+                      "date": (published.text or "") if published is not None else "",
+                    })
+          except Exception as e:
+            print(f"  ⚠️ ProductHunt failed: {e}")
 
           # Deduplicate
-          FINDINGS=$(echo "$FINDINGS" | python3 -c "
-          import json, sys
-          items = json.load(sys.stdin)
           seen = set()
           unique = []
-          for item in items:
-              key = item.get('title', '').lower().strip()
-              if key and key not in seen:
-                  seen.add(key)
-                  unique.append(item)
-          print(json.dumps(unique))
-          ")
+          for item in findings:
+            key = item.get("title", "").lower().strip()
+            if key and key not in seen:
+              seen.add(key)
+              unique.append(item)
 
-          COUNT=$(echo "$FINDINGS" | python3 -c "import json,sys; print(len(json.load(sys.stdin)))")
-          echo "🎯 Competitor watch: $COUNT unique findings"
-
-          echo "$FINDINGS" > /tmp/competitor-findings.json
-
-          COUNT=$(echo "$FINDINGS" | python3 -c "import json,sys; print(len(json.load(sys.stdin)))")
-          echo "🎯 Competitor watch: $COUNT unique findings"
+          print(f"🎯 Competitor watch: {len(unique)} unique findings")
+          with open("/tmp/competitor-findings.json", "w") as f:
+            json.dump(unique, f, indent=2)
 
       - uses: actions/upload-artifact@v4
         with:
