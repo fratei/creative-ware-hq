@@ -3,7 +3,7 @@
 **Status:** validated
 **Owner:** CPO + CTO
 **Created:** 2026-04-24
-**Last Updated:** 2026-04-24
+**Last Updated:** 2026-04-28
 
 ### Problem / Pain Point
 
@@ -45,4 +45,4 @@ Very high reuse from existing AudioText infrastructure:
 ### Decision
 
 - [x] Approved by @fratei — owner-approved priority (see [audiotext-app#33](https://github.com/fratei/audiotext-app/issues/33))
-- [ ] Linked to implementation issue: #
+- [ ] Linked to implementation issue: # (decision pending: [audiotext-app#91](https://github.com/fratei/audiotext-app/issues/91) — awaiting @fratei approval to trigger dispatch)
