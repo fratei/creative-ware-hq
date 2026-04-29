@@ -3,7 +3,7 @@
 **Status:** researching
 **Owner:** CMO Agent (HQ)
 **Created:** 2026-04-25
-**Last Updated:** 2026-04-25
+**Last Updated:** 2026-04-29
 
 ---
 
@@ -157,7 +157,20 @@ The healthcare, legal, HR, and enterprise segments — collectively the highest-
 
 **Impact for AudioText:** Begin SOC2 Type II preparation in parallel with product expansion. A BAA-ready HIPAA tier (with strict data retention controls) is the unlock for healthcare ambient documentation — a $1B+ TAM segment that competitors are not yet dominating at the SMB/mid-market level.
 
-### Implication 3: Developer Distribution Is the Fastest Growth Channel
+### Implication 3: Voice Synthesis Convergence — ElevenLabs' $500M Signal
+
+**Signal (2026-04-28):** ElevenLabs raised **$500M Series D at an $11B valuation** (WSJ). In the same period, Deepgram raised $130M Series C and multiple smaller voice AI startups secured $6M–$32M rounds. This is the single largest fundraise in the voice AI space to date and is a clear sign that investors view TTS/voice synthesis as a multi-billion-dollar standalone market.
+
+**Why it matters for AudioText:** ElevenLabs is a TTS/voice-synthesis platform — today a complement to AudioText's STT focus, not a direct competitor. However, at $11B and $500M in fresh capital, ElevenLabs has the resources to expand into speech-to-text, transcription workflows, and post-processing intelligence. The funding round accelerates the timeline for full-stack "audio-in, audio-out" voice platforms that blur the STT/TTS boundary.
+
+**Implications:**
+- **Short term (opportunity):** ElevenLabs' growth validates massive creator and enterprise demand for AI voice tooling; AudioText's transcription + intelligence layer is a natural complement and integration target (STT feed into TTS pipelines for dubbing, voice cloning, podcast production).
+- **Medium term (threat):** If ElevenLabs expands into transcription (acquiring or building STT), it becomes a direct competitor with 10× AudioText's current capitalization and a large existing creator customer base.
+- **Strategic response:** Accelerate integrations with voice synthesis platforms (ElevenLabs API, PlayHT, Resemble AI) to embed AudioText as the preferred STT layer in creator and enterprise voice workflows before those platforms build native transcription.
+
+**Impact for AudioText:** Add voice synthesis integration to the Media & Podcast Pipeline and Developer API roadmap as a near-term differentiator. Monitor ElevenLabs' product announcements for any STT/transcription feature launches.
+
+### Implication 4: Developer Distribution Is the Fastest Growth Channel
 
 The fastest-growing buyer segment is developers and engineering-led teams. They evaluate tools via free tiers, discover via Hacker News / ProductHunt / Reddit, and convert through quality documentation and SDK experience. The approved Developer API & SDK opportunity is correctly prioritised — but the GTM must emphasise PLG (product-led growth): freemium onboarding, exceptional docs, and community presence. Developers who build on AudioText's API become long-term, high-retention accounts and organic advocates.
 
@@ -173,6 +186,7 @@ The fastest-growing buyer segment is developers and engineering-led teams. They 
 | 🥇 1 | Launch Developer API (public) + SDKs | Fastest-growing segment; PLG flywheel; approved and in-flight | CTO | 4–6 weeks |
 | 🥈 2 | Begin SOC2 Type II preparation | Unlocks enterprise and healthcare ACV; one-time compliance investment | CEO / CTO | 8–12 weeks |
 | 🥈 2 | Publish MCP (Model Context Protocol) connector | Low effort; emerging AI agent distribution channel | CTO | 2–3 weeks |
+| 🥈 2 | Add ElevenLabs / voice synthesis integrations | ElevenLabs $500M raise validates creator demand; positions AudioText as preferred STT layer before TTS platforms build native transcription | CPO / CTO | 4–6 weeks |
 | 🥉 3 | Launch HIPAA-ready tier with BAA | Healthcare segment gate; 5–10x ACV vs. SMB tier | CEO / CMO | 12–16 weeks |
 | 🥉 3 | Target media & podcasting vertical | Large addressable niche; low compliance overhead; strong word-of-mouth | CMO | 6–8 weeks |
 

@@ -20,6 +20,7 @@
 | Fireflies.ai | Meeting Intelligence | $10–19/seat/mo | (1) Weak speaker diarization accuracy on technical/domain-specific content; (2) limited integrations outside core meeting use case; minimal developer API access |
 | Otter.ai | Meeting Notes | Freemium | (1) Poor accuracy for technical and professional content; limited enterprise compliance features (no SOC 2 enterprise tier); (2) freemium tier restrictions create friction; no ATS or CRM push integrations |
 | Descript | Media/Podcast | $12–24/mo | (1) Editor-first UX requires time investment to learn; not suited to creators who want automated output; (2) no integrations with podcast hosting platforms or RSS automation |
+| ElevenLabs | Voice Synthesis / TTS | Usage-based | (1) Today TTS-only — no transcription or post-processing intelligence; (2) **$500M raised at $11B valuation (Apr 2026, WSJ)** — well-capitalised; risk of STT/transcription expansion; currently a potential integration partner, watch for competitive pivot |
 
 ---
 
@@ -92,3 +93,4 @@ All gaps are scored on four dimensions (1–5 each). Threshold for opportunity b
 1. @fratei to review this matrix and approve / deprioritise opportunities
 2. Approved opportunities to be linked to implementation issues in `fratei/audiotext-app`
 3. Medical Dictation and Legal Deposition to be re-evaluated once HIPAA compliance infrastructure is in place (planned for H2 2026)
+4. **Monitor ElevenLabs** for any STT or transcription product launches following their $500M Series D (Apr 2026). If they enter the transcription market, re-score competitive intensity for Media/Podcast and Developer API segments.
