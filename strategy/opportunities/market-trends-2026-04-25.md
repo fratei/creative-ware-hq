@@ -159,7 +159,7 @@ The healthcare, legal, HR, and enterprise segments — collectively the highest-
 
 ### Implication 3: Voice Synthesis Convergence — ElevenLabs' $500M Signal
 
-**Signal (2026-04-28):** ElevenLabs raised **$500M Series D at an $11B valuation** (WSJ). In the same period, Deepgram raised $130M Series C and multiple smaller voice AI startups secured $6M–$32M rounds. This is the single largest fundraise in the voice AI space to date and is a clear sign that investors view TTS/voice synthesis as a multi-billion-dollar standalone market.
+**Signal (2026-04-28):** ElevenLabs raised **$500M Series D at an $11B valuation** (WSJ; The SaaS News). In the same period, Deepgram raised $130M Series C and multiple smaller voice AI startups secured $6M–$32M rounds. This is the single largest fundraise in the voice AI space to date and is a clear sign that investors view TTS/voice synthesis as a multi-billion-dollar standalone market.
 
 **Why it matters for AudioText:** ElevenLabs is a TTS/voice-synthesis platform — today a complement to AudioText's STT focus, not a direct competitor. However, at $11B and $500M in fresh capital, ElevenLabs has the resources to expand into speech-to-text, transcription workflows, and post-processing intelligence. The funding round accelerates the timeline for full-stack "audio-in, audio-out" voice platforms that blur the STT/TTS boundary.
 
@@ -186,7 +186,7 @@ The fastest-growing buyer segment is developers and engineering-led teams. They 
 | 🥇 1 | Launch Developer API (public) + SDKs | Fastest-growing segment; PLG flywheel; approved and in-flight | CTO | 4–6 weeks |
 | 🥈 2 | Begin SOC2 Type II preparation | Unlocks enterprise and healthcare ACV; one-time compliance investment | CEO / CTO | 8–12 weeks |
 | 🥈 2 | Publish MCP (Model Context Protocol) connector | Low effort; emerging AI agent distribution channel | CTO | 2–3 weeks |
-| 🥈 2 | Add ElevenLabs / voice synthesis integrations | ElevenLabs $500M raise validates creator demand; positions AudioText as preferred STT layer before TTS platforms build native transcription | CPO / CTO | 4–6 weeks |
+| 🥈 2 | Add ElevenLabs / voice synthesis integrations — see [`voice-synthesis-integration.md`](voice-synthesis-integration.md) | ElevenLabs $500M raise validates creator demand; positions AudioText as preferred STT layer before TTS platforms build native transcription | CPO / CTO | 4–6 weeks |
 | 🥉 3 | Launch HIPAA-ready tier with BAA | Healthcare segment gate; 5–10x ACV vs. SMB tier | CEO / CMO | 12–16 weeks |
 | 🥉 3 | Target media & podcasting vertical | Large addressable niche; low compliance overhead; strong word-of-mouth | CMO | 6–8 weeks |
 
