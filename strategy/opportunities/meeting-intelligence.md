@@ -21,6 +21,7 @@ Knowledge workers spend 30–40% of their working week in meetings (Microsoft Wo
 - **Competitor landscape:**
   - *Otter.ai* — strong brand in consumer/SMB; poor accuracy for technical/domain-specific vocabulary; limited post-transcription intelligence; no sales workflow integration
   - *Fireflies.ai* — affordable; weak on multi-speaker accuracy; limited CRM push; no real-time coaching
+  - *Notta* — AI-powered meeting notes and async transcription; **raised ¥2.3 Billion Series B (Apr 2026, The SaaS News)**, signalling accelerated investment; strong in mobile/async workflows but limited real-time intelligence and CRM/ATS integrations; new funding increases their product velocity
   - *Gong / Chorus* — excellent sales call intelligence but priced for enterprise ($100–200/seat/mo); not designed for general knowledge-worker meetings
   - **Gap:** No affordable (<$25/seat) solution combines accurate multi-speaker transcription, real-time action item extraction, and deep integrations (Slack, Notion, CRM) in a single workflow
 - **Customer signals:** AudioText users in consulting and SaaS verticals have requested calendar integration and auto-generated meeting recaps. Fireflies.ai has 60K+ active teams on its free tier — a clear signal of unmet demand that has not been monetised at a fair price point.
@@ -46,6 +47,7 @@ High reuse from existing AudioText infrastructure:
 - Recall.ai SDK dependency introduces a third-party risk; evaluate build-vs-buy for meeting bot carefully
 - Differentiation against Fireflies.ai will hinge on accuracy and integration depth — must demonstrate measurably better speaker diarization in head-to-head tests
 - Risk of feature cannibalisation with Sales Call Intelligence; position clearly: Meeting Intelligence = all-hands/general meetings; Sales Call Intelligence = revenue-generating calls with CRM automation
+- **New risk (Apr 2026):** Notta raised ¥2.3B Series B; their increased funding accelerates product development in the same meeting notes / async transcription space. Move quickly to establish product differentiation on real-time intelligence and integrations before Notta's roadmap closes the whitespace.
 
 ### Whitespace Scoring
 
@@ -54,7 +56,7 @@ High reuse from existing AudioText infrastructure:
 | Market size | 5 | Large, fast-growing segment; TAM ~$4.5B |
 | Technical leverage | 4 | Real-time WS + diarization already built; meeting bot is net-new |
 | Time to revenue | 3 | 8–10 weeks; calendar OAuth adds complexity |
-| Competitive intensity | 2 | Fireflies/Otter well-established in SMB; differentiation must be sharp |
+| Competitive intensity | 2 | Fireflies/Otter well-established in SMB; Notta ¥2.3B Series B (Apr 2026) increases funding-backed competition; differentiation must be sharp |
 | **Total** | **14** | Meets ≥14 threshold |
 
 ### Decision
