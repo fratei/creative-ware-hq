@@ -3,7 +3,7 @@
 **Status:** researching
 **Owner:** CPO Agent (HQ)
 **Created:** 2026-04-25
-**Last Updated:** 2026-04-25
+**Last Updated:** 2026-04-29
 
 ### Problem / Pain Point
 
@@ -24,8 +24,9 @@ Customer support and contact centre operations generate thousands of call record
   - *Observe.AI* — purpose-built for contact centre intelligence; strong product; Series C-funded; pricing starts at enterprise tier ($80–120/agent/mo); no SMB motion
   - *Gong* — sales-focused; does not cover support/service use cases
   - *Fireflies.ai / Otter.ai* — not designed for contact centre QA; no real-time coaching; no compliance scorecards
+  - *Flip* — raised $20M Series A (April 2026, Crunchbase News) for a "verticalized approach to AI-based customer service"; signals growing VC conviction in vertical-specific customer service AI; their verticalization thesis mirrors our ICP strategy but they appear focused on the front-line agent experience rather than QA/compliance scoring
   - **Gap:** No product offers affordable (<$30/agent/mo) automated QA scoring, compliance monitoring, and agent coaching for SMB contact centres running on Zendesk/Intercom/Freshdesk
-- **Customer signals:** AudioText's existing enterprise tier users in e-commerce and fintech verticals have expressed interest in bulk call analysis. Observe.AI's $125M Series C (2021) validates institutional appetite. Zendesk's acquisition of Klaus (QA tooling) for $100M in 2024 validates the willingness of support platforms to pay for QA intelligence.
+- **Customer signals:** AudioText's existing enterprise tier users in e-commerce and fintech verticals have expressed interest in bulk call analysis. Observe.AI's $125M Series C (2021) validates institutional appetite. Zendesk's acquisition of Klaus (QA tooling) for $100M in 2024 validates the willingness of support platforms to pay for QA intelligence. Flip's $20M Series A (April 2026) adds further validation that vertical-focused AI customer service is attracting significant investment — a positive signal for the space overall.
 
 ### Technical Leverage
 
