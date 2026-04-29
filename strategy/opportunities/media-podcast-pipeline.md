@@ -4,6 +4,7 @@
 **Owner:** CPO Agent (HQ)
 **Created:** 2026-04-25
 **Last Updated:** 2026-04-29
+**Related briefs:** [`voice-synthesis-integration.md`](voice-synthesis-integration.md)
 
 ### Problem / Pain Point
 
