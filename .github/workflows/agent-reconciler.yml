@@ -175,7 +175,7 @@ jobs:
             ];
 
             // Commit message patterns that indicate a keyword is used in a safe, descriptive context
-            // (e.g. feature work, refactoring, testing) rather than credential exposure.
+            // (e.g. feature work, refactoring, testing, CI/CD config) rather than credential exposure.
             const safeCommitPatterns = [
               /\btoken\s+(refresh|expir|validat|generat|rotat|handl|check|verif|parse|encod|hash|reset|revok)/i,
               /\b(refresh|expir|validat|generat|rotat|handl|check|verif|parse|encod|hash|reset|revok)\s+token/i,
@@ -186,6 +186,18 @@ jobs:
               /\b(auth|security|token)\s+test/i,
               /\btest\s+(auth|security|token)/i,
               /\bredact\s+(sensitive|secret|token|password)/i,
+              // CI/CD workflow patterns — token references in GitHub Actions YAML are not leaked credentials.
+              /\$\{\{[^}]*?\btoken\b/i,                              // ${{ ... token (GitHub Actions expression)
+              /\bgithub-token\s*:/i,                                  // github-token: parameter in actions/github-script
+              /\bpersist-credentials\b/i,                             // actions/checkout persist-credentials setting
+              /\bsecrets\.(GITHUB_TOKEN|AGENT_PAT)\b/i,               // explicit GitHub secret names
+              /\bgithub\.token\b/i,                                   // github.token built-in
+              /\bcheckout\b[^\n]{0,100}\btoken\b/i,                   // checkout action token parameter (same line)
+              /\btoken\b[^\n]{0,100}\bcheckout\b/i,                   // token + checkout action (same line)
+              /\bci[\s/\-]?cd\b[^\n]{0,100}\btoken\b/i,              // token mentioned in CI/CD context (same line)
+              /\btoken\b[^\n]{0,100}\bci[\s/\-]?cd\b/i,              // CI/CD mentioned after token (same line)
+              /\bworkflow\s+(token|failure|fix|error|permission)/i,    // workflow token/failure fix patterns
+              /\btoken\s+(permission|scope|workflow|action)/i,         // token permission/scope changes
             ];
 
             // Patterns that strongly suggest an actual credential value is present in the commit message.
