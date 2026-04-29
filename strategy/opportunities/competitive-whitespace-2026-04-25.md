@@ -12,7 +12,7 @@
 | Competitor | Segment | Pricing | Key Weaknesses |
 |-----------|---------|---------|----------------|
 | AssemblyAI | Developer API | Pay-as-you-go | (1) Becomes expensive at scale (high-volume users hit $$$); (2) limited vertical-specific features — raw transcription only, no downstream intelligence |
-| Deepgram | Developer API / Enterprise | Custom | (1) Opaque enterprise pricing; poor UX for non-technical buyers; (2) weak post-transcription AI — no summarisation, action items, or topic intelligence |
+| Deepgram | Developer API / Enterprise | Custom | (1) Opaque enterprise pricing; poor UX for non-technical buyers; (2) weak post-transcription AI — no summarisation, action items, or topic intelligence. ⚠️ **$130M Series C raised Apr 2026 at $1.3B valuation** — fresh capital will accelerate DX/UX improvements and feature breadth; weaknesses above have a shorter shelf life than previously assumed. |
 | Rev AI | Developer API | Per-minute | (1) Per-minute pricing model is uncompetitive for high-volume production use; (2) limited SDK documentation and developer experience compared to AssemblyAI |
 | OpenAI Whisper | OSS / API | Free / API pricing | (1) No managed SLAs, no enterprise compliance certifications (SOC 2, HIPAA); (2) requires self-hosting infrastructure for production use; no post-transcription features |
 | Gong | Sales Intelligence | $100–200/seat/mo | (1) Priced out of SMB market entirely (enterprise-only); (2) rigid sales use case — cannot be adapted for support, HR, or general meeting intelligence |

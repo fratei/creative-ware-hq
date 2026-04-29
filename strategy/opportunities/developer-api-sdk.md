@@ -3,7 +3,7 @@
 **Status:** validated
 **Owner:** CPO + CTO
 **Created:** 2026-04-24
-**Last Updated:** 2026-04-28
+**Last Updated:** 2026-04-29
 
 ### Problem / Pain Point
 
@@ -18,7 +18,7 @@ Developers building applications that need audio transcription, speaker diarizat
 ### Market Evidence
 
 - **TAM/SAM estimate:** Global speech recognition API market ~$2.5B in 2025, growing ~20% YoY; developer tier SAM ~$300M
-- **Competitor landscape:** AssemblyAI (developer-focused, strong docs), Deepgram (low-latency, real-time), Rev AI (accuracy-focused), OpenAI Whisper (free OSS but no managed API SLAs). Gap: no dominant player offers both high accuracy + affordable pay-as-you-go + deep SDK coverage.
+- **Competitor landscape:** AssemblyAI (developer-focused, strong docs), Deepgram (low-latency, real-time — **raised $130M Series C at $1.3B valuation, Apr 2026; expect accelerated DX improvements and feature expansion**), Rev AI (accuracy-focused), OpenAI Whisper (free OSS but no managed API SLAs). Gap: no dominant player offers both high accuracy + affordable pay-as-you-go + deep SDK coverage. Deepgram's raise signals this gap is closing — speed of execution on SDK quality and developer experience is now more critical.
 - **Customer signals:** AudioText already has a REST API v1 for enterprise users — early adopters have requested SDKs (Python, JS/TS) and webhook support. Developer communities (Hacker News, Reddit r/MachineLearning) regularly surface requests for affordable, accurate transcription APIs.
 
 ### Technical Leverage
