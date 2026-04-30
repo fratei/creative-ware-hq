@@ -9,6 +9,7 @@
 | 🎙️ AudioText | [`fratei/audiotext-app`](https://github.com/fratei/audiotext-app) | 🟢 Live | 2025 | Node.js/Express, Azure AKS, GPT-4o |
 | 💻 Developer API & SDK | [`fratei/audiotext-app`](https://github.com/fratei/audiotext-app) (extension) | 🏗️ Creating | 2026-04-30 | Node.js/Express, Python SDK, JS/TS SDK, Stripe metering |
 | 📞 Sales Call Intelligence | [`fratei/audiotext-app`](https://github.com/fratei/audiotext-app) (extension) | 🏗️ Creating | 2026-04-30 | Node.js/Express, GPT-4o, HubSpot API, Azure AKS |
+| 🧬 SynthData | [`fratei/synthdata-app`](https://github.com/fratei/synthdata-app) | 🏗️ Creating | 2026-04-30 | Python/FastAPI, Azure OpenAI, Azure Speech, Azure Blob Storage |
 
 ## Product Lifecycle
 
@@ -39,3 +40,4 @@ See individual product cards in this directory:
 - [audiotext.md](audiotext.md)
 - [developer-api-sdk.md](developer-api-sdk.md)
 - [sales-call-intelligence.md](sales-call-intelligence.md)
+- [synthdata.md](synthdata.md)
