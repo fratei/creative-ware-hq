@@ -26,6 +26,8 @@ Build AI-native SaaS products that go beyond raw transcription to deliver workfl
 
 ### Current Products
 - **AudioText** (🟢 Live) — AI transcription & understanding platform
+- **Developer API & SDK** (🏗️ Creating) — Pay-as-you-go REST API + Python/JS SDKs for developers
+- **Sales Call Intelligence** (🏗️ Creating) — Automated call scoring, CRM auto-fill, coaching for B2B sales teams
 
 ### Opportunity Pipeline
 See [opportunities/](opportunities/) for evaluated opportunities.
@@ -52,7 +54,7 @@ New products are evaluated on:
 
 | Metric | Current | Q3 2026 Target |
 |--------|---------|----------------|
-| Products | 1 | 2-3 |
+| Products | 3 (1 live, 2 creating) | 3+ live |
 | MRR | — | $10K+ |
 | Paid Users | — | 100+ |
 | Agent Autonomy | ~80% | 95%+ |

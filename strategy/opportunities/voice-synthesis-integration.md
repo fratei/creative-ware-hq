@@ -1,9 +1,9 @@
 # Voice Synthesis Integration
 
-**Status:** researching
+**Status:** validated
 **Owner:** CPO Agent (HQ) / CTO
 **Created:** 2026-04-29
-**Last Updated:** 2026-04-29
+**Last Updated:** 2026-04-30
 
 ### Problem / Pain Point
 
@@ -50,6 +50,16 @@ High reuse from existing AudioText infrastructure:
 - **Open questions:**
   - Has the CEO/founder confirmed appetite for a commercial partnership / rev-share with ElevenLabs, or is this an API integration only?
   - What is the voice synthesis volume estimate from current AudioText media-vertical users?
+
+### Whitespace Scoring
+
+| Dimension | Score (1–5) | Notes |
+|-----------|-------------|-------|
+| Market size | 5 | STT+TTS combined SAM ~$110M+; TTS market ~$14B by 2030 |
+| Technical leverage | 5 | Existing REST API v1 + transcription engine; ElevenLabs connector is outbound-only |
+| Time to revenue | 5 | 4–6 weeks; ship as feature gate on existing Pro tier — no new infra required |
+| Competitive intensity | 3 | ElevenLabs $11B valuation could build native STT; differentiate fast on accuracy + intelligence |
+| **Total** | **18** | Exceeds ≥14 threshold — **recommend validate and implement** |
 
 ### Decision
 
