@@ -41,6 +41,7 @@ Key verticals under evaluation:
 - 💻 Developer API — SDK packages, rate limiting
 - 🔌 MCP Integration — Model Context Protocol connector marketplace
 - 📞 Support QA — Real-time agent coaching, compliance
+- 🧬 Synthetic Data Generator — Privacy-compliant AI training & QA data (audio/speech niche first)
 
 ### Decision Framework
 New products are evaluated on:
