@@ -3,7 +3,7 @@
 **Status:** validated
 **Owner:** CPO Agent (HQ) / CTO
 **Created:** 2026-04-29
-**Last Updated:** 2026-04-30
+**Last Updated:** 2026-05-04
 
 ### Problem / Pain Point
 
@@ -44,6 +44,7 @@ High reuse from existing AudioText infrastructure:
 ### Risks & Open Questions
 
 - **Competitive threat:** ElevenLabs' $500M raise ($11B valuation) gives it the resources to build native STT/transcription, potentially making AudioText a target for displacement rather than integration. Counter-strategy: launch the integration fast to establish AudioText as the canonical STT layer *within* ElevenLabs workflows before ElevenLabs builds its own.
+- **Zero-shot TTS acceleration (NEW — May 2026):** Microsoft's VALL-E research model (HackerNews, 524 pts, 2026-05-01 research brief) demonstrates voice cloning from just three seconds of reference audio. Open-source equivalents (StyleTTS2 at 725 HN pts; WhisperSpeech at 464 HN pts) are reaching ElevenLabs-quality synthesis. This signals rapid commoditisation of voice cloning and strengthens the case for AudioText to own the STT → intelligence → TTS pipeline before synthesis becomes a zero-margin commodity. See also `strategy/opportunities/zero-shot-voice-cloning.md` for a dedicated brief.
 - **API dependency:** Deep integration with a single third-party API creates lock-in and breakage risk. Mitigate by abstracting the synthesis layer to support PlayHT and Resemble AI as alternatives.
 - **Pricing / margin risk:** If ElevenLabs introduces a managed STT offering (even basic), it may bundle it free to retain TTS customers — commoditising AudioText's integration value. Differentiate through accuracy, intelligence features (summaries, chapter detection), and developer experience rather than raw transcription price.
 - **Data privacy:** Audio passed to ElevenLabs for synthesis may contain PII. Define a clear data-handling policy (no audio retention, only text-in/audio-out for synthesis calls). Required for HIPAA-adjacent use cases.
