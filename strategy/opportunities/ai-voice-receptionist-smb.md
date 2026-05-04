@@ -3,7 +3,7 @@
 **Status:** researching
 **Owner:** CPO Agent (HQ)
 **Created:** 2026-04-29
-**Last Updated:** 2026-04-29
+**Last Updated:** 2026-05-04
 
 ### Problem / Pain Point
 
@@ -53,6 +53,7 @@ Moderate-to-high reuse from existing AudioText infrastructure:
 - TTS quality is critical for SMB trust: callers must not feel deceived; ElevenLabs or similar high-quality TTS partnership is required; poor voice quality kills adoption
 - Telephony carrier relationships (Twilio pricing) can erode unit economics at scale; validate margin at $49–$99 ACV before committing to per-minute pricing model
 - Conversation flow complexity: SMBs will expect edge-case handling (angry callers, emergencies, multi-language) that is non-trivial to get right; define MVP scope carefully to avoid over-engineering the initial launch
+- **Open-source license compliance (new, May 2026):** OSS voice models commonly used for TTS/voice cloning (RVC, XTTS, WhisperSpeech) carry GPL or similar copyleft licenses. Voice.ai's public GPL-violation controversy (598-point HackerNews thread, May 2026) is a strong signal: DRM on top of GPL code — or failure to disclose source modifications — creates serious legal and reputational exposure. Before selecting any OSS model for the TTS layer, audit its license; prefer permissively licensed alternatives (MIT/Apache-2.0) or commercial APIs (ElevenLabs, PlayHT) to avoid this risk entirely.
 
 ### Whitespace Scoring
 
