@@ -4,7 +4,7 @@
 **Owner:** CPO Agent (HQ) / CTO
 **Created:** 2026-04-29
 **Last Updated:** 2026-05-05
-**Related briefs:** [`open-source-tts-styletts2.md`](open-source-tts-styletts2.md), [`media-podcast-pipeline.md`](media-podcast-pipeline.md)
+**Related briefs:** [`open-source-tts-styletts2.md`](open-source-tts-styletts2.md), [`media-podcast-pipeline.md`](media-podcast-pipeline.md), [`zero-shot-voice-cloning.md`](zero-shot-voice-cloning.md)
 
 ### Problem / Pain Point
 
@@ -48,6 +48,7 @@ High reuse from existing AudioText infrastructure:
 ### Risks & Open Questions
 
 - **Competitive threat:** ElevenLabs' $500M raise ($11B valuation) gives it the resources to build native STT/transcription, potentially making AudioText a target for displacement rather than integration. Counter-strategy: launch the integration fast to establish AudioText as the canonical STT layer *within* ElevenLabs workflows before ElevenLabs builds its own. **New (May 2026):** xAI entering the voice API market with standalone Grok STT/TTS APIs increases urgency — the window for AudioText to establish integration partnerships is narrowing as major tech players enter the space.
+- **Zero-shot TTS acceleration (NEW — May 2026):** Microsoft's VALL-E research model (HackerNews, 524 pts, 2026-05-01 research brief) demonstrates voice cloning from just three seconds of reference audio. Open-source equivalents (StyleTTS2 at 725 HN pts; WhisperSpeech at 464 HN pts) are reaching ElevenLabs-quality synthesis. This signals rapid commoditisation of voice cloning and strengthens the case for AudioText to own the STT → intelligence → TTS pipeline before synthesis becomes a zero-margin commodity. See also [`zero-shot-voice-cloning.md`](zero-shot-voice-cloning.md) for a dedicated brief.
 - **API dependency:** Deep integration with a single third-party API creates lock-in and breakage risk. Mitigate by abstracting the synthesis layer to support PlayHT and Resemble AI as alternatives.
 - **Pricing / margin risk:** If ElevenLabs introduces a managed STT offering (even basic), it may bundle it free to retain TTS customers — commoditising AudioText's integration value. Differentiate through accuracy, intelligence features (summaries, chapter detection), and developer experience rather than raw transcription price.
 - **Open-source license compliance:** Several high-quality OSS voice synthesis models (RVC, XTTS, WhisperSpeech) are licensed under GPL or derivatives. If CreativeWare builds on or distributes modified versions of these models, GPL obligations (source disclosure, no DRM, copyleft) apply. Voice.ai's 2026 controversy demonstrates the reputational and legal risk of ignoring this: 598-point HN thread calling out GPL violations with a side of DRM (May 2026, *undeleted.ronsor.com*). Mitigation: use MIT/Apache-2.0-licensed models where possible; audit OSS dependencies with `reuse`/SPDX before any product launch; avoid DRM or obfuscation on any GPL-derived artifacts.
