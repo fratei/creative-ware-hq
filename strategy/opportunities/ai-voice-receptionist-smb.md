@@ -20,13 +20,16 @@ Small businesses — salons, dental offices, law firms, plumbers, restaurants, r
 - **TAM/SAM estimate:** ~32M small businesses in the US alone; virtual/outsourced receptionist market ~$5–8B globally; AI-addressable SAM for software-based AI receptionists estimated $1–2B and growing at 30%+ CAGR driven by voice AI investment wave (2025–2026 funding signals)
 - **Signal reinforcement (2026-05-02):** The Beside $32M raise (Fortune, Apr 2026) re-appeared as a top market-move signal in the 2026-05-02 Web Research Intelligence Brief alongside broader voice AI funding news (ElevenLabs $500M, Deepgram $130M). Continued industry prominence of this story indicates Beside is actively gaining press traction; the window to build a differentiated, lower-cost SMB alternative is narrowing.
 - **Competitor landscape:**
-  - *Beside* — raised $32M Series A (Apr 2026, Fortune) specifically targeting AI receptionist for SMBs; still early-stage but now gaining sustained media visibility (signal confirmed across multiple research cycles in Apr–May 2026); geographic focus unclear; no dominant mindshare yet, but fundraising gives 18–24-month runway to establish a moat
+  - *Beside* — raised $32M Series A (Apr 2026, Fortune) specifically targeting AI receptionist for SMBs; signal confirmed across CreativeWare research briefs 2026-04-28 through 2026-05-02; still early-stage but gaining sustained media visibility across multiple research cycles (Apr–May 2026); geographic focus unclear; no dominant mindshare yet, but fundraising gives 18–24-month runway to establish a moat
+  - *Giga* — raised $61M (Fortune, May 2026) for enterprise voice AI, starting with DoorDash; enterprise focus leaves SMB segment open
+  - *Hyro* — raised $45M Series C (May 2026, Cornell Tech) to scale Voice AI in Healthcare; focused on large hospital systems and clinic networks; does not serve general SMBs but validates that voice AI receptionists have strong market pull in the adjacent healthcare vertical (dental, specialist practices within our ICP are underserved by Hyro's enterprise motion) — see [`voice-ai-healthcare.md`](voice-ai-healthcare.md)
   - *Ruby Receptionists / AnswerConnect* — human + hybrid AI; expensive ($200–600/mo); human agents are the bottleneck; not truly AI-native
   - *Dialpad / RingCentral* — mid-market telephony + AI; over-engineered and overpriced for solo practitioners; minimum seats (5+); not SMB-first
   - *Google Business Calls / Apple Business Chat* — lightweight but no voice AI agent; handles text only
   - *Signpost / Podium* — messaging-first; no inbound call handling
   - **Gap:** No affordable (<$99/mo), fully AI-native, voice-first receptionist that a solo practitioner can activate in minutes via a phone number forward
-- **Customer signals:** Voice AI adoption signals are strong — multiple HackerNews threads on real-time voice chat at <500ms latency; ProductHunt "Voice Agents" launch (Apr 2026, MindPal AI); 725-point HN thread on StyleTTS2 open-source quality TTS. Infrastructure costs are falling as OSS (whisper.cpp ⭐49K, LocalAI ⭐45K) commoditises the STT/TTS stack.
+- **Infrastructure acceleration:** xAI launched standalone Grok STT/TTS APIs targeting enterprise voice developers (May 2026); Microsoft released VibeVoice open-source frontier voice AI (⭐45K+). Voice AI infrastructure is commoditizing faster than anticipated — reduces build cost and timeline for the TTS/STT layer.
+- **Customer signals:** Voice AI adoption signals are strong — multiple HackerNews threads on real-time voice chat at <500ms latency; ProductHunt "Voice Agents" launch (Apr 2026, MindPal AI); 725-point HN thread on StyleTTS2 open-source quality TTS. Infrastructure costs are falling as OSS (whisper.cpp ⭐49K, LocalAI ⭐46K) commoditises the STT/TTS stack. Investors are consistently "going hard for voice AI" (Newcomer/Substack, Crunchbase News).
 
 ### Technical Leverage
 
@@ -50,10 +53,11 @@ Moderate-to-high reuse from existing AudioText infrastructure:
 ### Risks & Open Questions
 
 - Call recording consent laws vary by jurisdiction (US two-party states, GDPR in EU); AI-generated voice must disclose it is an AI per FTC guidelines and emerging state-level laws (e.g., California SB 1001) — disclosure UX must be first-class, not a footnote
-- Beside ($32M) is a direct competitor with a head start; speed and distribution matter — AudioText's existing user base and developer ecosystem are key differentiation levers
+- Beside ($32M) and Giga ($61M for enterprise) are direct or adjacent competitors gaining funding momentum; speed and distribution matter — AudioText's existing user base and developer ecosystem are key differentiation levers; the Beside signal has persisted across every daily research cycle since 2026-04-28, indicating Beside is actively gaining mindshare
 - TTS quality is critical for SMB trust: callers must not feel deceived; ElevenLabs or similar high-quality TTS partnership is required; poor voice quality kills adoption
 - Telephony carrier relationships (Twilio pricing) can erode unit economics at scale; validate margin at $49–$99 ACV before committing to per-minute pricing model
 - Conversation flow complexity: SMBs will expect edge-case handling (angry callers, emergencies, multi-language) that is non-trivial to get right; define MVP scope carefully to avoid over-engineering the initial launch
+- **Open-source license compliance (new, May 2026):** OSS voice models commonly used for TTS/voice cloning (RVC, XTTS, WhisperSpeech) carry GPL or similar copyleft licenses. Voice.ai's public GPL-violation controversy (598-point HackerNews thread, May 2026) is a strong signal: DRM on top of GPL code — or failure to disclose source modifications — creates serious legal and reputational exposure. Before selecting any OSS model for the TTS layer, audit its license; prefer permissively licensed alternatives (MIT/Apache-2.0) or commercial APIs (ElevenLabs, PlayHT) to avoid this risk entirely.
 
 ### Whitespace Scoring
 
@@ -62,8 +66,8 @@ Moderate-to-high reuse from existing AudioText infrastructure:
 | Market size | 4 | Tens of millions of SMBs globally; direct revenue leakage from missed calls is a highly felt pain |
 | Technical leverage | 3 | Core STT is production-ready; telephony stack and TTS integration are net-new but achievable via third-party APIs |
 | Time to revenue | 2 | 12–16 weeks; telephony licensing and LLM agent loop reliability testing add scope vs. pure transcription products |
-| Competitive intensity | 3 | Beside is now well-funded ($32M Series A) and gaining sustained media traction across multiple weekly research cycles (Apr–May 2026); still no dominant AI-native SMB receptionist; human services remain vulnerable — but urgency to act is rising |
-| **Total** | **12** | Below ≥14 threshold; urgency elevated — Beside's continued press visibility confirms the market is real; re-score to ≥14 if AudioText signs first telephony pilot or if Beside ships a public product |
+| Competitive intensity | 3 | Beside is now well-funded ($32M Series A) and gaining sustained media traction across multiple weekly research cycles (Apr–May 2026); Giga ($61M) targets enterprise (different ICP); xAI/Microsoft entering infrastructure layer but not SMB SaaS; still no dominant AI-native SMB receptionist; human services remain vulnerable — urgency to act is rising |
+| **Total** | **12** | Below ≥14 threshold; urgency elevated — Beside's continued press visibility (6+ daily research cycles, Apr–May 2026) confirms the market is real; re-score to ≥14 if AudioText signs first telephony pilot, Beside announces GA/pricing, or if Beside ships a public product |
 
 ### Decision
 
@@ -75,5 +79,6 @@ Moderate-to-high reuse from existing AudioText infrastructure:
 ---
 
 *Signal source: [Exclusive: Beside, an AI voice startup, raises $32 million to build an AI receptionist for small businesses — Fortune (2026-04-28)](https://news.google.com/rss/articles/CBMirAFBVV95cUxNUWw5TDZrQmhyZW9ZMFdvRi1zQ3hsazN0akRhRktUbTh6OXp0YTd2Vjk5aWVleTNieFItc3JCVnB1V2NJcWM5Mi1YLW1aVUthMjdnQ3BmM2V0SFZlQ1c1d3ZIZUxtbWNZVHdWM2poSnNWRF8wTUQ2d3I4LVE1dVpIWWljcE1XQ1RwWkRFeE9jMDdSb0lSaWxaTnRTaHFLa0FZYUZwMXFNOFFjNTNS?oc=5)*  
-*Signal reinforced: [2026-05-02 Web Research Intelligence Brief](../research/2026-05-02.md)*  
+*Signal confirmed in research briefs: [2026-04-28](../research/2026-04-28.md), [2026-04-29](../research/2026-04-29.md), [2026-04-30](../research/2026-04-30.md), [2026-05-01](../research/2026-05-01.md), [2026-05-02](../research/2026-05-02.md)*  
+*ElevenLabs $500M raise signal re-confirmed: [Exclusive | Voice AI Startup ElevenLabs Raises $500 Million — WSJ](https://news.google.com/rss/articles/CBMiiwFBVV95cUxOQkdZSUphMGR3X2ZDaTRZdGpuU19aNF93ajhFMFNUenU5TUZoTmhMaVFSM29WQ3dGcjR6dUxUanlSVnNZZFdua1dlWEh3Slo2ZlROaVF6VkJYX2I2Tk9yOUhIMXp2enQ2cEN1VVNrVVNobzV2eEdvMEpyYy1tSF8tcDRpeVNLOG8wTzVR?oc=5) · Research brief: [`strategy/research/2026-05-03.md`](../research/2026-05-03.md)*  
 *Brief created by Copilot Agent — CreativeWare HQ*
