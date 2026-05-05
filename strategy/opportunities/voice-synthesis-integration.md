@@ -4,6 +4,7 @@
 **Owner:** CPO Agent (HQ) / CTO
 **Created:** 2026-04-29
 **Last Updated:** 2026-05-04
+**Related briefs:** [`open-source-tts-styletts2.md`](open-source-tts-styletts2.md), [`media-podcast-pipeline.md`](media-podcast-pipeline.md)
 
 ### Problem / Pain Point
 
@@ -24,7 +25,8 @@ AudioText's speech-to-text (STT) engine and voice synthesis (TTS) platforms like
   - *xAI (Grok)* — launched standalone Grok Speech-to-Text and Text-to-Speech APIs (May 2026, marktechpost.com), entering the developer voice API market; enterprise-focused; a new entrant to monitor as a potential competitor for developer mindshare.
   - *PlayHT, Resemble AI* — smaller TTS competitors; open to third-party integrations.
   - *Descript* — offers both STT (transcription) and limited TTS (voice cloning / Overdub). Closest bundled competitor in the creator segment, but editor-first UX limits API use cases. Now partnering with Kaltura for enterprise AI video workflows (May 2026).
-  - **Gap:** No platform offers a turnkey STT → intelligence → TTS pipeline API that developer and creator teams can embed without bespoke glue code.
+  - *StyleTTS2* (open-source, MIT) — emerging OSS alternative achieving ElevenLabs-quality synthesis; trended on HackerNews with 725 pts (May 2026). No managed API wrapper exists, which represents a complementary open-source synthesis path. See [`open-source-tts-styletts2.md`](open-source-tts-styletts2.md) for full analysis.
+  - **Gap:** No platform offers a turnkey STT → intelligence → TTS pipeline API that developer and creator teams can embed without bespoke glue code. AudioText can fill this gap with both a managed ElevenLabs connector and a privacy-first open-source synthesis option (StyleTTS2).
 - **Customer signals:** AudioText users in media verticals have requested voice synthesis export (show notes + AI-dubbed audio) — see feature request threads in `strategy/research/2026-04-28.md` and `media-podcast-pipeline.md` (Risks section). ElevenLabs' public Discord and Reddit community (r/ElevenLabs, ~45K members) regularly surface requests for higher-quality transcription as input to dubbing workflows (source: CreativeWare Web Research Agent, 2026-04-28). The $500M raise — the largest single fundraise in voice AI history — validates that institutional investors see a multi-billion-dollar creator voice economy; AudioText can serve as the STT intelligence layer within it.
 
 ### Technical Leverage
@@ -47,7 +49,7 @@ High reuse from existing AudioText infrastructure:
 - **Competitive threat:** ElevenLabs' $500M raise ($11B valuation) gives it the resources to build native STT/transcription, potentially making AudioText a target for displacement rather than integration. Counter-strategy: launch the integration fast to establish AudioText as the canonical STT layer *within* ElevenLabs workflows before ElevenLabs builds its own. **New (May 2026):** xAI entering the voice API market with standalone Grok STT/TTS APIs increases urgency — the window for AudioText to establish integration partnerships is narrowing as major tech players enter the space.
 - **API dependency:** Deep integration with a single third-party API creates lock-in and breakage risk. Mitigate by abstracting the synthesis layer to support PlayHT and Resemble AI as alternatives.
 - **Pricing / margin risk:** If ElevenLabs introduces a managed STT offering (even basic), it may bundle it free to retain TTS customers — commoditising AudioText's integration value. Differentiate through accuracy, intelligence features (summaries, chapter detection), and developer experience rather than raw transcription price.
-- **Data privacy:** Audio passed to ElevenLabs for synthesis may contain PII. Define a clear data-handling policy (no audio retention, only text-in/audio-out for synthesis calls). Required for HIPAA-adjacent use cases.
+- **Data privacy:** Audio passed to ElevenLabs for synthesis may contain PII. Define a clear data-handling policy (no audio retention, only text-in/audio-out for synthesis calls). Required for HIPAA-adjacent use cases. Consider routing privacy-sensitive customers through the open-source StyleTTS2 synthesis path instead (see [`open-source-tts-styletts2.md`](open-source-tts-styletts2.md)).
 - **Open questions:**
   - Has the CEO/founder confirmed appetite for a commercial partnership / rev-share with ElevenLabs, or is this an API integration only?
   - What is the voice synthesis volume estimate from current AudioText media-vertical users?
