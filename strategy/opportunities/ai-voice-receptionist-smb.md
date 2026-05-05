@@ -3,7 +3,7 @@
 **Status:** researching
 **Owner:** CPO Agent (HQ)
 **Created:** 2026-04-29
-**Last Updated:** 2026-04-29
+**Last Updated:** 2026-05-04
 
 ### Problem / Pain Point
 
@@ -20,6 +20,7 @@ Small businesses — salons, dental offices, law firms, plumbers, restaurants, r
 - **TAM/SAM estimate:** ~32M small businesses in the US alone; virtual/outsourced receptionist market ~$5–8B globally; AI-addressable SAM for software-based AI receptionists estimated $1–2B and growing at 30%+ CAGR driven by voice AI investment wave (2025–2026 funding signals)
 - **Competitor landscape:**
   - *Beside* — just raised $32M Series A (Apr 2026, Fortune) specifically targeting AI receptionist for SMBs; product is early-stage; geographic focus unclear; no dominant mindshare yet
+  - *Hyro* — raised $45M Series C (May 2026, Cornell Tech) to scale Voice AI in Healthcare; focused on large hospital systems and clinic networks; does not serve general SMBs but validates that voice AI receptionists have strong market pull in the adjacent healthcare vertical (dental, specialist practices within our ICP are underserved by Hyro's enterprise motion) — see [`voice-ai-healthcare.md`](voice-ai-healthcare.md)
   - *Ruby Receptionists / AnswerConnect* — human + hybrid AI; expensive ($200–600/mo); human agents are the bottleneck; not truly AI-native
   - *Dialpad / RingCentral* — mid-market telephony + AI; over-engineered and overpriced for solo practitioners; minimum seats (5+); not SMB-first
   - *Google Business Calls / Apple Business Chat* — lightweight but no voice AI agent; handles text only
@@ -72,4 +73,5 @@ Moderate-to-high reuse from existing AudioText infrastructure:
 ---
 
 *Signal source: [Exclusive: Beside, an AI voice startup, raises $32 million to build an AI receptionist for small businesses — Fortune (2026-04-28)](https://news.google.com/rss/articles/CBMirAFBVV95cUxNUWw5TDZrQmhyZW9ZMFdvRi1zQ3hsazN0akRhRktUbTh6OXp0YTd2Vjk5aWVleTNieFItc3JCVnB1V2NJcWM5Mi1YLW1aVUthMjdnQ3BmM2V0SFZlQ1c1d3ZIZUxtbWNZVHdWM2poSnNWRF8wTUQ2d3I4LVE1dVpIWWljcE1XQ1RwWkRFeE9jMDdSb0lSaWxaTnRTaHFLa0FZYUZwMXFNOFFjNTNS?oc=5)*  
+*ElevenLabs $500M raise signal re-confirmed: [Exclusive | Voice AI Startup ElevenLabs Raises $500 Million — WSJ](https://news.google.com/rss/articles/CBMiiwFBVV95cUxOQkdZSUphMGR3X2ZDaTRZdGpuU19aNF93ajhFMFNUenU5TUZoTmhMaVFSM29WQ3dGcjR6dUxUanlSVnNZZFdua1dlWEh3Slo2ZlROaVF6VkJYX2I2Tk9yOUhIMXp2enQ2cEN1VVNrVVNobzV2eEdvMEpyYy1tSF8tcDRpeVNLOG8wTzVR?oc=5) · Research brief: [`strategy/research/2026-05-03.md`](../research/2026-05-03.md)*  
 *Brief created by Copilot Agent — CreativeWare HQ*

@@ -19,10 +19,11 @@ AudioText's speech-to-text (STT) engine and voice synthesis (TTS) platforms like
 
 - **TAM/SAM estimate:** Global TTS market ~$5B in 2025, projected ~$14B by 2030 (Grand View Research); STT + voice intelligence SAM ~$6B in 2026 (MarketsandMarkets). Integration products capturing even 1% of combined STT/TTS workflow spend = $110M+ SAM.
 - **Competitor landscape:**
-  - *ElevenLabs* — dominant TTS/voice-synthesis platform; **raised $500M Series D at $11B valuation (Apr 2026, WSJ / The SaaS News)**. Backed by Nvidia. Eyeing IPO. No native STT or transcription offering yet, but capitalisation gives it resources to build or acquire.
-  - *Deepgram* — STT leader; raised $130M Series C (Apr 2026). Has not launched TTS integration partner programme.
+  - *ElevenLabs* — dominant TTS/voice-synthesis platform; **raised $500M Series D at $11B valuation (Apr 2026, WSJ / The SaaS News)**. Backed by Nvidia. Eyeing IPO. No native STT or transcription offering yet, but capitalisation gives it resources to build or acquire. Signal re-confirmed in research brief 2026-05-03.
+  - *Deepgram* — STT leader; raised $130M Series C (Apr 2026). Has not launched TTS integration partner programme. Now expanding with multilingual Flux model (10 languages, mid-call switching) targeting voice agents (May 2026).
+  - *xAI (Grok)* — launched standalone Grok Speech-to-Text and Text-to-Speech APIs (May 2026, marktechpost.com), entering the developer voice API market; enterprise-focused; a new entrant to monitor as a potential competitor for developer mindshare.
   - *PlayHT, Resemble AI* — smaller TTS competitors; open to third-party integrations.
-  - *Descript* — offers both STT (transcription) and limited TTS (voice cloning / Overdub). Closest bundled competitor in the creator segment, but editor-first UX limits API use cases.
+  - *Descript* — offers both STT (transcription) and limited TTS (voice cloning / Overdub). Closest bundled competitor in the creator segment, but editor-first UX limits API use cases. Now partnering with Kaltura for enterprise AI video workflows (May 2026).
   - **Gap:** No platform offers a turnkey STT → intelligence → TTS pipeline API that developer and creator teams can embed without bespoke glue code.
 - **Customer signals:** AudioText users in media verticals have requested voice synthesis export (show notes + AI-dubbed audio) — see feature request threads in `strategy/research/2026-04-28.md` and `media-podcast-pipeline.md` (Risks section). ElevenLabs' public Discord and Reddit community (r/ElevenLabs, ~45K members) regularly surface requests for higher-quality transcription as input to dubbing workflows (source: CreativeWare Web Research Agent, 2026-04-28). The $500M raise — the largest single fundraise in voice AI history — validates that institutional investors see a multi-billion-dollar creator voice economy; AudioText can serve as the STT intelligence layer within it.
 
@@ -43,7 +44,7 @@ High reuse from existing AudioText infrastructure:
 
 ### Risks & Open Questions
 
-- **Competitive threat:** ElevenLabs' $500M raise ($11B valuation) gives it the resources to build native STT/transcription, potentially making AudioText a target for displacement rather than integration. Counter-strategy: launch the integration fast to establish AudioText as the canonical STT layer *within* ElevenLabs workflows before ElevenLabs builds its own.
+- **Competitive threat:** ElevenLabs' $500M raise ($11B valuation) gives it the resources to build native STT/transcription, potentially making AudioText a target for displacement rather than integration. Counter-strategy: launch the integration fast to establish AudioText as the canonical STT layer *within* ElevenLabs workflows before ElevenLabs builds its own. **New (May 2026):** xAI entering the voice API market with standalone Grok STT/TTS APIs increases urgency — the window for AudioText to establish integration partnerships is narrowing as major tech players enter the space.
 - **API dependency:** Deep integration with a single third-party API creates lock-in and breakage risk. Mitigate by abstracting the synthesis layer to support PlayHT and Resemble AI as alternatives.
 - **Pricing / margin risk:** If ElevenLabs introduces a managed STT offering (even basic), it may bundle it free to retain TTS customers — commoditising AudioText's integration value. Differentiate through accuracy, intelligence features (summaries, chapter detection), and developer experience rather than raw transcription price.
 - **Data privacy:** Audio passed to ElevenLabs for synthesis may contain PII. Define a clear data-handling policy (no audio retention, only text-in/audio-out for synthesis calls). Required for HIPAA-adjacent use cases.
@@ -68,7 +69,9 @@ High reuse from existing AudioText infrastructure:
 
 ---
 
-*Research sources: WSJ (ElevenLabs $500M Series D, Apr 2026 — confirmed by second WSJ signal detection 2026-04-30), The SaaS News (ElevenLabs raises $500M at $11B, Apr 2026), MarketsandMarkets (STT market 2026), Grand View Research (TTS market 2025–2030).*
+*Research sources: WSJ (ElevenLabs $500M Series D, Apr 2026 — confirmed by second WSJ signal detection 2026-04-30), The SaaS News (ElevenLabs raises $500M at $11B, Apr 2026), MarketsandMarkets (STT market 2026), Grand View Research (TTS market 2025–2030), marktechpost.com (xAI Grok STT/TTS APIs, May 2026), SiliconANGLE (Deepgram Flux multilingual, May 2026).*
+
+*Signal re-confirmed: [Exclusive | Voice AI Startup ElevenLabs Raises $500 Million — WSJ](https://news.google.com/rss/articles/CBMiiwFBVV95cUxOQkdZSUphMGR3X2ZDaTRZdGpuU19aNF93ajhFMFNUenU5TUZoTmhMaVFSM29WQ3dGcjR6dUxUanlSVnNZZFdua1dlWEh3Slo2ZlROaVF6VkJYX2I2Tk9yOUhIMXp2enQ2cEN1VVNrVVNobzV2eEdvMEpyYy1tSF8tcDRpeVNLOG8wTzVR?oc=5) · Research brief: [`strategy/research/2026-05-03.md`](../research/2026-05-03.md)*
 
 *Triggered by: GitHub issue #[RESEARCH] ElevenLabs Raises $500M Series D at $11B Valuation and GitHub issue #[RESEARCH] Exclusive | Voice AI Startup ElevenLabs Raises $500 Million — WSJ (duplicate WSJ signal confirmation, 2026-04-30) — Web Research Agent signals.*
 

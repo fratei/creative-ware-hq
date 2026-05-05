@@ -3,7 +3,7 @@
 **Status:** researching
 **Owner:** CMO Agent (HQ)
 **Created:** 2026-04-25
-**Last Updated:** 2026-04-29
+**Last Updated:** 2026-05-04
 
 ---
 
@@ -157,7 +157,25 @@ The healthcare, legal, HR, and enterprise segments — collectively the highest-
 
 **Impact for AudioText:** Begin SOC2 Type II preparation in parallel with product expansion. A BAA-ready HIPAA tier (with strict data retention controls) is the unlock for healthcare ambient documentation — a $1B+ TAM segment that competitors are not yet dominating at the SMB/mid-market level.
 
-### Implication 3: Voice Synthesis Convergence — ElevenLabs' $500M Signal
+### Implication 3: Global Scale Validation — iFlytek Reaches 100 Million Users
+
+**Signal (2026-05-03):** iFlytek — China's leading AI speech company — announced its audio transcription tool has crossed **100 million users** (KrASIA). iFlytek (HKEX: 6030) is best known for its Mandarin-language voice AI and STT products, and this milestone makes it one of the largest-scale audio transcription deployments in the world by user count.
+
+**Why it matters for AudioText:** iFlytek's user milestone is a powerful proof point that audio transcription tools can achieve massive consumer and prosumer scale. While iFlytek operates primarily in the Chinese-language market and is not a direct competitor in AudioText's target geography (English-language SMB / developer), the milestone has important strategic implications:
+
+- **TAM validation:** 100M users at a single provider confirms that the addressable market for audio transcription tools is far larger than Western analyst estimates (focused on enterprise API spend) suggest. The consumer and prosumer segments represent a high-volume, high-engagement user base.
+- **Competitive timing signal:** iFlytek's growth has been driven by integrating transcription into mobile and productivity workflows — a distribution model AudioText has not yet pursued. This signals that mobile-first and embedded workflows are a major unlock for scale.
+- **Indirect competitive risk:** As iFlytek expands internationally, it may eventually target English-language markets with a well-funded, high-scale product. The more likely near-term risk is that global platform incumbents (Google, Microsoft, Apple) cite iFlytek's scale as validation to double down on their own embedded transcription features.
+- **Product insight:** At 100M users, iFlytek's product is built around simplicity, mobile-first UX, and frictionless onboarding — hallmarks of consumer-grade PLG. AudioText's current product is developer- and SMB-focused; there is an opportunity to learn from consumer-grade transcription UX patterns to improve freemium activation.
+
+**Implications:**
+- **Short term (opportunity):** iFlytek's scale validates the freemium + PLG motion for transcription. AudioText's planned freemium tier (60 min/mo free) is directionally correct — but activation UX and mobile access will be key differentiators to achieve similar engagement depth.
+- **Medium term (awareness):** Monitor iFlytek's international expansion roadmap. If it launches an English-language product or acquires a Western transcription startup, re-score competitive intensity for the consumer/prosumer transcription segment.
+- **Strategic response:** Treat iFlytek's 100M milestone as market validation, not a direct threat. Use it as a signal to accelerate freemium PLG improvements and explore mobile-accessible transcription workflows (browser-based, mobile web) that lower the activation barrier for non-developer users.
+
+**Impact for AudioText:** Reinforce commitment to the freemium PLG tier as an acquisition channel at scale. Ensure mobile and lightweight browser access is prioritised alongside the core desktop/API product. Track iFlytek's English-language expansion as a low-probability, high-impact competitive risk.
+
+### Implication 4: Voice Synthesis Convergence — ElevenLabs' $500M Signal
 
 **Signal (2026-04-28, WSJ confirmed 2026-04-30):** ElevenLabs raised **$500M Series D at an $11B valuation** (WSJ; The SaaS News). In the same period, Deepgram raised $130M Series C and multiple smaller voice AI startups secured $6M–$32M rounds. This is the single largest fundraise in the voice AI space to date and is a clear sign that investors view TTS/voice synthesis as a multi-billion-dollar standalone market. See `strategy/opportunities/voice-synthesis-integration.md` (Status: **validated**) for the full opportunity assessment.
 
@@ -170,7 +188,7 @@ The healthcare, legal, HR, and enterprise segments — collectively the highest-
 
 **Impact for AudioText:** Add voice synthesis integration to the Media & Podcast Pipeline and Developer API roadmap as a near-term differentiator. Monitor ElevenLabs' product announcements for any STT/transcription feature launches.
 
-### Implication 3b: Meeting Intelligence Space Heating Up — Notta's ¥2.3B Series B
+### Implication 4b: Meeting Intelligence Space Heating Up — Notta's ¥2.3B Series B
 
 **Signal (2026-04-28):** Notta raised **¥2.3 Billion in a Series B round** (approx. $15M USD, The SaaS News). Notta is an AI-powered meeting notes and async transcription platform competing directly in the same segment as Otter.ai, Fireflies.ai, and AudioText's planned Meeting Intelligence module.
 
@@ -183,7 +201,7 @@ The healthcare, legal, HR, and enterprise segments — collectively the highest-
 
 **Impact for AudioText:** Increase urgency on Meeting Intelligence module. See updated competitive landscape in `strategy/opportunities/meeting-intelligence.md`.
 
-### Implication 3c: Deepgram's $130M Series C Accelerates Competitive Pressure in Developer API
+### Implication 4c: Deepgram's $130M Series C Accelerates Competitive Pressure in Developer API
 
 **Signal (2026-04-28):** Deepgram raised **$130M Series C at a $1.3B valuation** (Reuters / The SaaS News). Deepgram is AudioText's closest direct competitor in the real-time, developer-facing transcription API market.
 
@@ -196,7 +214,7 @@ The healthcare, legal, HR, and enterprise segments — collectively the highest-
 
 **Impact for AudioText:** Treat the next 6 months as a critical window to ship the Developer API, SDKs, and Post-Transcription Intelligence layer. Delay increases the risk that Deepgram's improved DX closes the differentiation gap before AudioText establishes developer brand recognition.
 
-### Implication 4: Developer Distribution Is the Fastest Growth Channel
+### Implication 5: Developer Distribution Is the Fastest Growth Channel
 
 The fastest-growing buyer segment is developers and engineering-led teams. They evaluate tools via free tiers, discover via Hacker News / ProductHunt / Reddit, and convert through quality documentation and SDK experience. The approved Developer API & SDK opportunity is correctly prioritised — but the GTM must emphasise PLG (product-led growth): freemium onboarding, exceptional docs, and community presence. Developers who build on AudioText's API become long-term, high-retention accounts and organic advocates.
 
@@ -215,11 +233,12 @@ The fastest-growing buyer segment is developers and engineering-led teams. They 
 | 🥈 2 | Publish MCP (Model Context Protocol) connector | Low effort; emerging AI agent distribution channel | CTO | 2–3 weeks |
 | 🥈 2 | Add ElevenLabs / voice synthesis integrations — see [`voice-synthesis-integration.md`](voice-synthesis-integration.md) | ElevenLabs $500M raise validates creator demand; positions AudioText as preferred STT layer before TTS platforms build native transcription | CPO / CTO | 4–6 weeks |
 | 🥈 2 | Accelerate Meeting Intelligence module | Notta ¥2.3B Series B (Apr 2026) signals whitespace narrowing in AI meeting notes; ship real-time intelligence + CRM integrations to differentiate before Notta's roadmap catches up | CPO / CTO | 6–10 weeks |
+| 🥉 3 | Monitor iFlytek international expansion | iFlytek's 100M user milestone validates PLG/freemium transcription at consumer scale; track any English-language product launches; use as benchmark for freemium UX and mobile access improvements | CMO | Ongoing |
 | 🥉 3 | Launch HIPAA-ready tier with BAA | Healthcare segment gate; 5–10x ACV vs. SMB tier | CEO / CMO | 12–16 weeks |
 | 🥉 3 | Target media & podcasting vertical | Large addressable niche; low compliance overhead; strong word-of-mouth | CMO | 6–8 weeks |
 
 ---
 
-*Research sources: MarketsandMarkets, Precedence Research, Fortune Business Insights, codesota.com, novascribe.ai, pkgpulse.com, Microsoft Azure AI blog, OpenAI announcements (2025–2026).*
+*Research sources: MarketsandMarkets, Precedence Research, Fortune Business Insights, codesota.com, novascribe.ai, pkgpulse.com, Microsoft Azure AI blog, OpenAI announcements (2025–2026), [KrASIA — iFlytek's audio transcription tool reaches 100 million users (2026-05-03)](https://news.google.com/rss/articles/CBMihgFBVV95cUxPR21FRmpHMUxSdUQ0dG15OV84d3NYT0lpalc0MDVUTkRJVWJTTGxNLWlzOWVlb21WYThlMEFHdmRYWHVQZFZaVVFNbWNsVzVsTlJsaDdTSG5OWmFyQmNTdmIxUlRGRm94dGlZVVg1a2JzSVl3TTRJTzZ2bnJjejNmNUx0TWhYZw?oc=5).*
 
 *Generated by Market Analysis Agent (HQ) — CreativeWare*

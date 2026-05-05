@@ -88,6 +88,7 @@ All gaps are scored on four dimensions (1–5 each). Threshold for opportunity b
 | AI Voice Receptionist (SMB) | 12 | Telephony integration and TTS partnership add complexity; Beside ($32M Series A, Apr 2026) is a direct competitor with a head start; re-evaluate in Q3 2026 if competitor traction stalls or ElevenLabs partnership becomes viable |
 | Medical Dictation / Clinical | 13 | Time to revenue penalised by HIPAA certification (12–18 months); requires clinical vocabulary fine-tuning beyond current infrastructure |
 | Legal Deposition | 12 | Niche market; long enterprise sales cycles; chain-of-custody compliance adds significant engineering scope |
+| Healthcare Voice AI (Patient Engagement) | 12 | HIPAA BAA and EHR connectors add time-to-revenue penalty; Hyro ($45M Series C, May 2026) validates enterprise demand but owns the large health-system segment; independent-practice whitespace is real but sales cycles are long — re-evaluate once HIPAA compliance infrastructure is in place; see [`voice-ai-healthcare.md`](voice-ai-healthcare.md) |
 
 ---
 
@@ -99,3 +100,4 @@ All gaps are scored on four dimensions (1–5 each). Threshold for opportunity b
 4. **Monitor ElevenLabs** for any STT or transcription product launches following their $500M Series D (Apr 2026). If they enter the transcription market, re-score competitive intensity for Media/Podcast and Developer API segments.
 5. **Monitor Notta** following its ¥2.3B Series B (Apr 2026). Notta competes directly in meeting notes and async transcription; the raise signals accelerated product investment that may narrow the whitespace window in the Meeting Intelligence segment.
 6. **Monitor Beside** (AI receptionist, $32M Series A, Apr 2026) and the broader SMB voice AI segment. If Beside gains significant traction or raises again, consider a fast-follow entry leveraging AudioText's STT infrastructure + an ElevenLabs TTS partnership. Re-score AI Voice Receptionist (SMB) in Q3 2026.
+7. **Monitor Hyro** (Healthcare Voice AI, $45M Series C, May 2026). Hyro's raise confirms strong enterprise health-system demand; re-evaluate Healthcare Voice AI (Patient Engagement) once HIPAA compliance infrastructure is in place. The independent-practice segment is not served by Hyro's enterprise motion — see [`voice-ai-healthcare.md`](voice-ai-healthcare.md) for the tracked brief.
