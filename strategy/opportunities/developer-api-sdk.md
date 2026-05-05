@@ -3,7 +3,7 @@
 **Status:** validated
 **Owner:** CPO + CTO
 **Created:** 2026-04-24
-**Last Updated:** 2026-04-29
+**Last Updated:** 2026-05-04
 
 ### Problem / Pain Point
 
@@ -41,6 +41,10 @@ Very high reuse from existing AudioText infrastructure:
 - Need to decide on metering granularity (per-second vs per-minute)
 - Documentation quality is a key differentiator — requires dedicated effort
 - Competition from OpenAI / Google at the commodity end of the market
+- **Deepgram $130M Series C (Apr 2026) — accelerated competitive threat:** Deepgram's raise (~$1.3B valuation, The SaaS News) sharpens the urgency on three fronts:
+  - *DX timeline:* Fresh capital funds faster SDK quality improvements and developer onboarding enhancements — the exact dimensions AudioText must win on. SDK v1 and developer docs portal should ship before Deepgram's DX roadmap closes the gap.
+  - *Feature expansion risk:* Deepgram may use new capital to build post-transcription intelligence (summarisation, action items, topic detection) — features currently absent from their product and AudioText's primary differentiation.
+  - *Counter-strategy:* Compete on intelligence depth and developer experience, not on raw transcription price or latency where Deepgram already leads.
 
 ### Decision
 
