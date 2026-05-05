@@ -3,7 +3,7 @@
 **Status:** researching
 **Owner:** CPO Agent (HQ)
 **Created:** 2026-04-25
-**Last Updated:** 2026-04-29
+**Last Updated:** 2026-05-04
 
 ### Problem / Pain Point
 
@@ -25,6 +25,7 @@ Customer support and contact centre operations generate thousands of call record
   - *Gong* — sales-focused; does not cover support/service use cases
   - *Fireflies.ai / Otter.ai* — not designed for contact centre QA; no real-time coaching; no compliance scorecards
   - *Flip* — raised $20M Series A (April 2026, Crunchbase News) for a "verticalized approach to AI-based customer service"; signals growing VC conviction in vertical-specific customer service AI; their verticalization thesis mirrors our ICP strategy but they appear focused on the front-line agent experience rather than QA/compliance scoring
+  - *Deepgram* — STT infrastructure leader; **raised $130M Series C at $1.3B valuation (Apr 2026, The SaaS News / Reuters)**. Deepgram powers the transcription layer of several contact centre AI platforms. Fresh capital is accelerating real-time STT accuracy and latency improvements and increases the likelihood they expand up the stack into vertical QA and analytics features — reducing the window where AudioText can establish the intelligence layer above commodity STT.
   - **Gap:** No product offers affordable (<$30/agent/mo) automated QA scoring, compliance monitoring, and agent coaching for SMB contact centres running on Zendesk/Intercom/Freshdesk
 - **Customer signals:** AudioText's existing enterprise tier users in e-commerce and fintech verticals have expressed interest in bulk call analysis. Observe.AI's $125M Series C (2021) validates institutional appetite. Zendesk's acquisition of Klaus (QA tooling) for $100M in 2024 validates the willingness of support platforms to pay for QA intelligence. Flip's $20M Series A (April 2026) adds further validation that vertical-focused AI customer service is attracting significant investment — a positive signal for the space overall.
 
@@ -50,6 +51,7 @@ High reuse from existing AudioText infrastructure:
 - Helpdesk integrations (Zendesk, Intercom, Freshdesk) each require separate connectors; start with Zendesk only (largest SMB installed base)
 - Risk of Zendesk/Intercom building native AI QA features (Zendesk acquired Klaus; Intercom is investing heavily in AI) — must build and validate before these features ship
 - Pricing undercuts Observe.AI significantly — validate that SMB willingness-to-pay aligns with $25–$45/agent/mo before engineering investment
+- **New risk (Apr 2026):** Deepgram raised $130M Series C at $1.3B valuation (The SaaS News / Reuters). As the STT infrastructure layer used by many contact centre AI tools, fresh capital accelerates real-time transcription improvements and increases the likelihood of upstack expansion into QA scoring and analytics features — potentially commoditising AudioText's transcription layer. Differentiate on post-transcription intelligence (scorecards, compliance rules, coaching prompts) and workflow integrations rather than raw transcription accuracy or speed.
 
 ### Whitespace Scoring
 
