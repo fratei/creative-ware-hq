@@ -78,9 +78,11 @@ This opportunity has been repeatedly confirmed by recurring market signals acros
 | 2026-04-30 | `strategy/outcomes/2026-04.md` | Status elevated to *validated* (whitespace score 18/20) |
 | 2026-05-01 | `strategy/research/2026-05-01.md` | Signal recurs — brief already active |
 | 2026-05-02 | `strategy/research/2026-05-02.md` | Signal recurs — brief reviewed, no new action required (issue #73) |
+| 2026-05-03 | `strategy/research/2026-05-03.md` | Signal recurs — brief reviewed, no new action required |
 | 2026-05-04 | `strategy/research/2026-05-04.md` | Signal recurs — brief remains validated, awaiting @fratei approval |
+| 2026-05-05 | `strategy/research/2026-05-05.md` | Signal recurs — CNBC also confirms ElevenLabs $11B valuation; brief reviewed, no new action required |
 
-Signal persistence across 6+ research cycles further strengthens market conviction. No new action required until @fratei approves the [IMPLEMENT] issue.
+Signal persistence across 7+ research cycles further strengthens market conviction. No new action required until @fratei approves the [IMPLEMENT] issue.
 
 ### Decision
 
@@ -91,7 +93,7 @@ Signal persistence across 6+ research cycles further strengthens market convicti
 
 *Research sources: WSJ (ElevenLabs $500M Series D, Apr 2026 — confirmed by second WSJ signal detection 2026-04-30), The SaaS News (ElevenLabs raises $500M at $11B, Apr 2026), MarketsandMarkets (STT market 2026), Grand View Research (TTS market 2025–2030), marktechpost.com (xAI Grok STT/TTS APIs, May 2026), SiliconANGLE (Deepgram Flux multilingual, May 2026).*
 
-*Signal re-confirmed: [Exclusive | Voice AI Startup ElevenLabs Raises $500 Million — WSJ](https://news.google.com/rss/articles/CBMiiwFBVV95cUxOQkdZSUphMGR3X2ZDaTRZdGpuU19aNF93ajhFMFNUenU5TUZoTmhMaVFSM29WQ3dGcjR6dUxUanlSVnNZZFdua1dlWEh3Slo2ZlROaVF6VkJYX2I2Tk9yOUhIMXp2enQ2cEN1VVNrVVNobzV2eEdvMEpyYy1tSF8tcDRpeVNLOG8wTzVR?oc=5) · Research brief: [`strategy/research/2026-05-03.md`](../research/2026-05-03.md)*
+*Signal re-confirmed: [Exclusive | Voice AI Startup ElevenLabs Raises $500 Million — WSJ](https://news.google.com/rss/articles/CBMiiwFBVV95cUxOQkdZSUphMGR3X2ZDaTRZdGpuU19aNF93ajhFMFNUenU5TUZoTmhMaVFSM29WQ3dGcjR6dUxUanlSVnNZZFdua1dlWEh3Slo2ZlROaVF6VkJYX2I2Tk9yOUhIMXp2enQ2cEN1VVNrVVNobzV2eEdvMEpyYy1tSF8tcDRpeVNLOG8wTzVR?oc=5) · Research briefs: [`strategy/research/2026-05-03.md`](../research/2026-05-03.md), [`strategy/research/2026-05-04.md`](../research/2026-05-04.md), [`strategy/research/2026-05-05.md`](../research/2026-05-05.md)*
 
 *Triggered by: GitHub issue #[RESEARCH] ElevenLabs Raises $500M Series D at $11B Valuation and GitHub issue #[RESEARCH] Exclusive | Voice AI Startup ElevenLabs Raises $500 Million — WSJ (duplicate WSJ signal confirmation, 2026-04-30) — Web Research Agent signals.*
 
