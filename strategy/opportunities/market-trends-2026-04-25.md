@@ -177,7 +177,7 @@ The healthcare, legal, HR, and enterprise segments — collectively the highest-
 
 ### Implication 4: Voice Synthesis Convergence — ElevenLabs' $500M Signal
 
-**Signal (2026-04-28):** ElevenLabs raised **$500M Series D at an $11B valuation** (WSJ; The SaaS News). In the same period, Deepgram raised $130M Series C and multiple smaller voice AI startups secured $6M–$32M rounds. This is the single largest fundraise in the voice AI space to date and is a clear sign that investors view TTS/voice synthesis as a multi-billion-dollar standalone market.
+**Signal (2026-04-28, WSJ confirmed 2026-04-30):** ElevenLabs raised **$500M Series D at an $11B valuation** (WSJ; The SaaS News). In the same period, Deepgram raised $130M Series C and multiple smaller voice AI startups secured $6M–$32M rounds. This is the single largest fundraise in the voice AI space to date and is a clear sign that investors view TTS/voice synthesis as a multi-billion-dollar standalone market. See `strategy/opportunities/voice-synthesis-integration.md` (Status: **validated**) for the full opportunity assessment.
 
 **Why it matters for AudioText:** ElevenLabs is a TTS/voice-synthesis platform — today a complement to AudioText's STT focus, not a direct competitor. However, at $11B and $500M in fresh capital, ElevenLabs has the resources to expand into speech-to-text, transcription workflows, and post-processing intelligence. The funding round accelerates the timeline for full-stack "audio-in, audio-out" voice platforms that blur the STT/TTS boundary.
 
