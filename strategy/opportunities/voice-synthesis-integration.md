@@ -67,6 +67,21 @@ High reuse from existing AudioText infrastructure:
 | Competitive intensity | 3 | ElevenLabs $11B valuation could build native STT; differentiate fast on accuracy + intelligence |
 | **Total** | **18** | Exceeds ≥14 threshold — **recommend validate and implement** |
 
+### Signal History
+
+This opportunity has been repeatedly confirmed by recurring market signals across multiple research cycles:
+
+| Date | Research Brief | Signal |
+|------|---------------|--------|
+| 2026-04-28 | `strategy/research/2026-04-28.md` | ElevenLabs $500M raise first detected (WSJ) |
+| 2026-04-29 | `strategy/research/2026-04-29.md` | Signal confirmed — opportunity brief created (issue #36) |
+| 2026-04-30 | `strategy/outcomes/2026-04.md` | Status elevated to *validated* (whitespace score 18/20) |
+| 2026-05-01 | `strategy/research/2026-05-01.md` | Signal recurs — brief already active |
+| 2026-05-02 | `strategy/research/2026-05-02.md` | Signal recurs — brief reviewed, no new action required (issue #73) |
+| 2026-05-04 | `strategy/research/2026-05-04.md` | Signal recurs — brief remains validated, awaiting @fratei approval |
+
+Signal persistence across 6+ research cycles further strengthens market conviction. No new action required until @fratei approves the [IMPLEMENT] issue.
+
 ### Decision
 
 - [ ] Approved by @fratei
