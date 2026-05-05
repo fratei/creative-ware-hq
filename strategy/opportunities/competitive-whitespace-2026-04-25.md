@@ -37,6 +37,7 @@ All gaps are scored on four dimensions (1–5 each). Threshold for opportunity b
 | Contact Center & Support QA | 4 | 4 | 3 | 3 | **14** | ✅ contact-center-qa.md |
 | AI Voice Receptionist (SMB) | 4 | 3 | 2 | 3 | **12** | ✅ ai-voice-receptionist-smb.md |
 | Medical Dictation / Clinical | 4 | 3 | 2 | 4 | **13** | ❌ Below threshold |
+| Healthcare Voice AI (Patient Engagement) | 4 | 3 | 2 | 3 | **12** | ❌ Below threshold — see voice-ai-healthcare.md; Hyro $45M raise (May 2026) validates market but confirms strong competition |
 | Legal Deposition | 3 | 3 | 2 | 4 | **12** | ❌ Below threshold |
 
 > **Scoring key:** Market size (1=niche, 5=large TAM); Technical leverage (1=build from scratch, 5=very high AudioText reuse); Time to revenue (1=slow/12+ months, 5=fast/<6 weeks); Competitive intensity (1=very crowded/hard to win, 5=near-empty/easy to enter). **Higher scores always indicate more favourable conditions.** For competitive intensity, a score of 5 means few strong competitors (good for us); 1 means the segment is saturated.
@@ -87,6 +88,7 @@ All gaps are scored on four dimensions (1–5 each). Threshold for opportunity b
 |---------|-------|----------------------|
 | AI Voice Receptionist (SMB) | 12 | Telephony integration and TTS partnership add complexity; Beside ($32M Series A, Apr 2026) is a direct competitor with a head start; re-evaluate in Q3 2026 if competitor traction stalls or ElevenLabs partnership becomes viable |
 | Medical Dictation / Clinical | 13 | Time to revenue penalised by HIPAA certification (12–18 months); requires clinical vocabulary fine-tuning beyond current infrastructure |
+| Healthcare Voice AI (Patient Engagement) | 12 | **⚠️ New signal (May 2026):** Hyro raised $45M (Cornell Tech) specifically for patient-facing voice AI in hospitals and health systems; validates the market but confirms well-funded competition; HIPAA BAA and EHR connectors are the critical-path gates — re-evaluate once HIPAA compliance infrastructure is in place (H2 2026). See [`voice-ai-healthcare.md`](voice-ai-healthcare.md). |
 | Legal Deposition | 12 | Niche market; long enterprise sales cycles; chain-of-custody compliance adds significant engineering scope |
 
 ---
@@ -99,3 +101,5 @@ All gaps are scored on four dimensions (1–5 each). Threshold for opportunity b
 4. **Monitor ElevenLabs** for any STT or transcription product launches following their $500M Series D (Apr 2026). If they enter the transcription market, re-score competitive intensity for Media/Podcast and Developer API segments.
 5. **Monitor Notta** following its ¥2.3B Series B (Apr 2026). Notta competes directly in meeting notes and async transcription; the raise signals accelerated product investment that may narrow the whitespace window in the Meeting Intelligence segment.
 6. **Monitor Beside** (AI receptionist, $32M Series A, Apr 2026) and the broader SMB voice AI segment. If Beside gains significant traction or raises again, consider a fast-follow entry leveraging AudioText's STT infrastructure + an ElevenLabs TTS partnership. Re-score AI Voice Receptionist (SMB) in Q3 2026.
+7. **Monitor Deepgram** following its $130M Series C (Apr 2026, ~$1.3B valuation, The SaaS News). Fresh capital will accelerate their developer experience improvements (SDK quality, docs, onboarding) and may fund expansion into post-transcription intelligence (summarisation, topic detection, action items) — features currently absent from Deepgram's product. If Deepgram ships downstream intelligence features, re-score competitive intensity for the Developer API & SDK segment and re-evaluate the whitespace assumptions in `developer-api-sdk.md`. Immediate counter-response: prioritise SDK launch and developer docs portal ahead of Deepgram's DX roadmap reaching parity.
+8. **Monitor Hyro** (Healthcare Voice AI, $45M Series C, May 2026). Hyro's raise confirms strong enterprise health-system demand; re-evaluate Healthcare Voice AI (Patient Engagement) once HIPAA compliance infrastructure is in place. The independent-practice segment is not served by Hyro's enterprise motion — see [`voice-ai-healthcare.md`](voice-ai-healthcare.md) for the tracked brief.

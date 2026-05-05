@@ -25,7 +25,8 @@ Sales teams lose revenue because insights from customer calls are buried in reco
   - *Fireflies.ai* — SMB-friendly meeting transcription; lacks deep call scoring and CRM auto-fill
   - *Natter* — **raised $23M to scale enterprise AI conversation intelligence (May 2026)**; direct competitor in conversation scoring and deal intelligence; targets enterprise, not SMB
   - *Giga* — **raised $61M to expand enterprise voice AI, starting with DoorDash (May 2026)**; targets very large enterprises with voice AI workflows; validates enterprise appetite but confirms SMB/mid-market gap remains
-  - **Gap:** All major players are expensive (Gong $100–$200/seat/mo) and target enterprise. No strong affordable alternative for 10–100 seat teams.
+  - *Deepgram* — STT infrastructure layer underpinning many voice-AI apps; **raised $130M Series C at $1.3B valuation (Apr 2026)**; accelerating STT accuracy and real-time API capabilities that power competitors at the infrastructure layer, while raising the risk of upstack expansion into conversation intelligence
+  - **Gap:** All major application-layer players are expensive (Gong $100–$200/seat/mo) and target enterprise. No strong affordable alternative for 10–100 seat teams.
 - **Customer signals:** AudioText users in sales verticals have requested CRM integration and call summaries. Market surveys show 60%+ of sales managers want automated call coaching but can't justify enterprise pricing.
 
 ### Technical Leverage
@@ -47,6 +48,7 @@ High reuse from existing AudioText infrastructure:
 - Call recording consent and compliance requirements vary by jurisdiction (must address before GA)
 - Model accuracy for sales-specific jargon and objection patterns needs fine-tuning
 - Distribution: need partnerships or integrations with dialer software (Aircall, Dialpad, etc.)
+- **New risk (May 2026):** Deepgram raised $130M Series C at $1.3B valuation (Apr 2026). As the key STT infrastructure layer for many voice-AI platforms, their increased capitalisation will accelerate STT accuracy and real-time API improvements — raising the baseline transcription quality available to all application-layer competitors (Gong, Fireflies.ai, Salesloft) — while also creating the risk of upstack expansion into conversation intelligence and sales call analytics. AudioText must differentiate on application-layer intelligence (CRM automation, call coaching, objection detection) and affordable pricing rather than raw transcription.
 
 ### Decision
 
