@@ -3,7 +3,7 @@
 **Status:** validated
 **Owner:** CPO Agent (HQ) / CTO
 **Created:** 2026-04-29
-**Last Updated:** 2026-05-05
+**Last Updated:** 2026-05-06
 **Related briefs:** [`open-source-tts-styletts2.md`](open-source-tts-styletts2.md), [`media-podcast-pipeline.md`](media-podcast-pipeline.md), [`zero-shot-voice-cloning.md`](zero-shot-voice-cloning.md)
 
 ### Problem / Pain Point
@@ -81,8 +81,9 @@ This opportunity has been repeatedly confirmed by recurring market signals acros
 | 2026-05-03 | `strategy/research/2026-05-03.md` | Signal recurs — brief reviewed, no new action required |
 | 2026-05-04 | `strategy/research/2026-05-04.md` | Signal recurs — brief remains validated, awaiting @fratei approval |
 | 2026-05-05 | `strategy/research/2026-05-05.md` | ElevenLabs tops **$500M ARR** + announces additional funding (The Economic Times) — new revenue milestone distinct from the prior $500M capital raise; further strengthens market conviction |
+| 2026-05-06 | `strategy/research/2026-05-06.md` | ARR milestone reconfirmed by CXO Digitalpulse (`ElevenLabs surpasses $500 million ARR`) — recurring signal, no new action required |
 
-Signal persistence across 7+ research cycles further strengthens market conviction. No new action required until @fratei approves the [IMPLEMENT] issue.
+Signal persistence across 8+ research cycles further strengthens market conviction. No new action required until @fratei approves the [IMPLEMENT] issue.
 
 ### Decision
 
