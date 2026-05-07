@@ -83,9 +83,9 @@ This opportunity has been repeatedly confirmed by recurring market signals acros
 | 2026-05-04 | `strategy/research/2026-05-04.md` | Signal recurs — brief remains validated, awaiting @fratei approval |
 | 2026-05-05 | `strategy/research/2026-05-05.md` | ElevenLabs tops **$500M ARR** + announces additional funding (The Economic Times) — new revenue milestone distinct from the prior $500M capital raise; further strengthens market conviction |
 | 2026-05-06 | `strategy/research/2026-05-06.md` | ElevenLabs $500M ARR re-confirmed (CXO Digitalpulse, issue #106) — 9th cycle recurrence; same milestone from a third independent publisher; no new brief required |
-| 2026-05-07 | `strategy/research/2026-05-07.md` | Signal continues; Voxtral (Mistral AI open-source voice model) detected — new OSS entrant commoditising synthesis layer; documented in competitor landscape above |
+| 2026-05-07 | `strategy/research/2026-05-07.md` | ARR milestone signal recurs (same Economic Times source) and Voxtral (Mistral AI open-source voice model) is detected — opportunity remains *validated*; documented in competitor landscape; no additional action required |
 
-Signal persistence across 9+ research cycles further strengthens market conviction. No new action required until @fratei approves the [IMPLEMENT] issue.
+Signal persistence across 10 research cycles further strengthens market conviction. No new action required until @fratei approves the [IMPLEMENT] issue.
 
 ### Decision
 
