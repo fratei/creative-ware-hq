@@ -3,7 +3,7 @@
 **Status:** researching
 **Owner:** CPO Agent (HQ) / CTO
 **Created:** 2026-05-04
-**Last Updated:** 2026-05-04
+**Last Updated:** 2026-05-07
 
 ### Problem / Pain Point
 
@@ -27,6 +27,7 @@ Microsoft's VALL-E research model (covered by HackerNews in 2026-05-01 research 
   - *WhisperSpeech* — open-source TTS built by inverting OpenAI Whisper (HackerNews, 464 pts); enables self-hosted zero-shot synthesis at low cost. Raises the floor for what "free" voice cloning looks like.
   - *StyleTTS2* — open-source, ElevenLabs-quality TTS (HackerNews, 725 pts); demonstrates that high-quality voice cloning is moving into the open-source commons.
   - *microsoft/VibeVoice* — open-source frontier voice AI from Microsoft (⭐46K on GitHub, featured in HN research brief 2026-05-01). Signals Microsoft's intent to commoditise the voice AI stack.
+  - *Voxtral (Mistral AI)* — **Mistral AI entered the open-source voice model market (May 2026, Actu IA)** with Voxtral. Another frontier AI lab commoditising the synthesis layer. Confirms the OSS displacement thesis — multiple well-resourced labs are now releasing open-source voice models, accelerating commoditisation.
   - **Gap:** No platform offers a turnkey STT → speaker-diarized intelligence → zero-shot TTS pipeline that creators and developers can embed without bespoke glue code.
 - **Customer signals:** AudioText media-vertical users have already requested voice synthesis export (AI-dubbed audio + show notes) — see `strategy/opportunities/voice-synthesis-integration.md` and `media-podcast-pipeline.md`. The HackerNews signal for VALL-E (524 pts, 445 comments) and related posts ("They stole my voice with AI" at 524 pts; "Real-time AI Voice Chat at ~500ms Latency" at 524 pts) confirm intense developer and public interest in zero-shot voice technology. StyleTTS2 alone generated 725 HN points — a clear signal that open-source parity with ElevenLabs-quality synthesis is a developer priority.
 
