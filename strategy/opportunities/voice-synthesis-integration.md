@@ -81,8 +81,9 @@ This opportunity has been repeatedly confirmed by recurring market signals acros
 | 2026-05-03 | `strategy/research/2026-05-03.md` | Signal recurs — brief reviewed, no new action required |
 | 2026-05-04 | `strategy/research/2026-05-04.md` | Signal recurs — brief remains validated, awaiting @fratei approval |
 | 2026-05-05 | `strategy/research/2026-05-05.md` | ElevenLabs tops **$500M ARR** + announces additional funding (The Economic Times) — new revenue milestone distinct from the prior $500M capital raise; further strengthens market conviction |
+| 2026-05-07 | `strategy/research/2026-05-07.md` | ARR milestone signal recurs (same Economic Times source) — opportunity remains *validated*; no additional action required |
 
-Signal persistence across 7+ research cycles further strengthens market conviction. No new action required until @fratei approves the [IMPLEMENT] issue.
+Signal persistence across 8+ research cycles further strengthens market conviction. No new action required until @fratei approves the [IMPLEMENT] issue.
 
 ### Decision
 
