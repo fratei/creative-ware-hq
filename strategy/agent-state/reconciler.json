@@ -1,6 +1,6 @@
 {
   "agent": "reconciler",
-  "last_run_utc": null,
+  "last_run_utc": "2026-05-08T14:08:13.503Z",
   "last_processed": {
     "opportunity_briefs": {
       "path": null,
