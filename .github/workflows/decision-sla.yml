@@ -1,0 +1,175 @@
+name: "⏱️ Decision SLA Tracker"
+
+# Monitors open issues with needs-owner-approval.
+# - Posts idempotent reminders after decision_sla_hours (48h).
+# - Triggers committee fallback path after auto_approve_after_hours (72h)
+#   for low/medium tier issues not labeled do-not-auto-approve.
+# - High-tier issues only get re-pinged, never auto-approved.
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"  # Every 6 hours
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: decision-sla
+  cancel-in-progress: true
+
+jobs:
+  sla-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: "⏱️ SLA Check — Owner Approval Queue"
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const ws = process.env.GITHUB_WORKSPACE;
+            const cfg = require(`${ws}/.github/scripts/agent-config.js`);
+            const { recordOutcome } = require(`${ws}/.github/scripts/record-outcome.js`);
+
+            const owner = context.repo.owner;
+            const hqRepo = context.repo.repo;
+            const ownerLogin = cfg.getOwner();
+            const slaHours = cfg.getDecisionSlaHours();
+            const autoApproveHours = cfg.getAutoApproveAfterHours();
+
+            // Find all open issues with needs-owner-approval in HQ repo
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner, repo: hqRepo, state: 'open',
+              labels: 'needs-owner-approval', per_page: 100,
+            });
+
+            console.log(`Found ${issues.length} issues with needs-owner-approval`);
+
+            for (const issue of issues) {
+              const hoursOpen = (Date.now() - new Date(issue.created_at).getTime()) / 3600000;
+              const labels = issue.labels.map(l => l.name);
+              const isDoNotAutoApprove = labels.includes('do-not-auto-approve');
+              const tier = labels.includes('risk/high') ? 'high'
+                : labels.includes('risk/low') ? 'low' : 'medium';
+
+              console.log(`Issue #${issue.number}: ${Math.round(hoursOpen)}h open, tier=${tier}`);
+
+              // ── SLA reminder (idempotent) ─────────────────────────────────
+              if (hoursOpen > slaHours) {
+                const { data: comments } = await github.rest.issues.listComments({
+                  owner, repo: hqRepo, issue_number: issue.number, per_page: 100,
+                });
+                const alreadyReminded = comments.some(c =>
+                  c.body.includes('⏱️ **Decision SLA Reminder**')
+                );
+                if (!alreadyReminded) {
+                  await github.rest.issues.createComment({
+                    owner, repo: hqRepo, issue_number: issue.number,
+                    body: [
+                      `## ⏱️ **Decision SLA Reminder**`,
+                      ``,
+                      `This decision has been open for **${Math.round(hoursOpen)} hours** (SLA: ${slaHours}h).`,
+                      ``,
+                      `@${ownerLogin} — please review and action this decision.`,
+                      ``,
+                      tier !== 'high'
+                        ? `> ℹ️ If no action is taken within ${autoApproveHours}h of creation, the agent committee will be triggered as a fallback (unless this issue is labeled \`do-not-auto-approve\`).`
+                        : `> ⚠️ This is a **high-tier** decision and will not be auto-approved. Owner review is required.`,
+                      ``,
+                      `---`,
+                      `*SLA Tracker — CreativeWare*`,
+                    ].join('\n'),
+                  });
+                  console.log(`  Posted SLA reminder for #${issue.number}`);
+                }
+              }
+
+              // ── Committee fallback (low/medium only, after auto_approve_after_hours) ──
+              if (
+                hoursOpen > autoApproveHours &&
+                tier !== 'high' &&
+                !isDoNotAutoApprove
+              ) {
+                // Skip if committee-vote already added
+                if (labels.includes('committee-vote')) {
+                  console.log(`  #${issue.number} already has committee-vote label`);
+                  continue;
+                }
+
+                console.log(`  Triggering committee fallback for #${issue.number} (${Math.round(hoursOpen)}h, tier=${tier})`);
+
+                await github.rest.issues.addLabels({
+                  owner, repo: hqRepo, issue_number: issue.number,
+                  labels: ['committee-vote'],
+                });
+
+                await github.rest.issues.createComment({
+                  owner, repo: hqRepo, issue_number: issue.number,
+                  body: [
+                    `## ⚙️ SLA Fallback — Agent Committee Triggered`,
+                    ``,
+                    `This \`${tier}\`-tier decision has been open for **${Math.round(hoursOpen)} hours** without owner action (threshold: ${autoApproveHours}h).`,
+                    ``,
+                    `The agent committee (CPO / CTO / CFO) has been triggered as a fallback approver per the [Decision SLA policy](https://github.com/${owner}/${hqRepo}/blob/main/docs/agents/HANDBOOK.md).`,
+                    ``,
+                    `To prevent committee action, add the \`do-not-auto-approve\` label.`,
+                    ``,
+                    `---`,
+                    `*SLA Tracker — CreativeWare*`,
+                  ].join('\n'),
+                });
+
+                // Dispatch committee-vote-requested
+                try {
+                  await github.rest.repos.createDispatchEvent({
+                    owner, repo: hqRepo,
+                    event_type: 'committee-vote-requested',
+                    client_payload: {
+                      issue_number: issue.number,
+                      tier,
+                      reason: 'sla-fallback',
+                    },
+                  });
+                } catch (e) {
+                  console.log(`  ⚠️ Committee dispatch failed: ${e.message}`);
+                }
+
+                await recordOutcome({
+                  kind: 'sla-fallback-approval',
+                  summary: issue.title.slice(0, 80),
+                  decisionRef: `${hqRepo}#${issue.number}`,
+                  result: '⚙️ committee-triggered',
+                  notes: `${Math.round(hoursOpen)}h without owner action`,
+                });
+              } else if (hoursOpen > autoApproveHours && tier === 'high') {
+                // Re-ping for high-tier issues
+                const { data: comments } = await github.rest.issues.listComments({
+                  owner, repo: hqRepo, issue_number: issue.number, per_page: 100,
+                });
+                const rePings = comments.filter(c => c.body.includes('🚨 **Urgent: High-Tier Decision Overdue**'));
+                if (rePings.length < 3) {
+                  await github.rest.issues.createComment({
+                    owner, repo: hqRepo, issue_number: issue.number,
+                    body: [
+                      `## 🚨 **Urgent: High-Tier Decision Overdue**`,
+                      ``,
+                      `This **high-tier** decision has been open for **${Math.round(hoursOpen)} hours** (auto-approve threshold: ${autoApproveHours}h).`,
+                      ``,
+                      `High-tier decisions require @${ownerLogin} review and cannot be auto-approved.`,
+                      ``,
+                      `---`,
+                      `*SLA Tracker — CreativeWare*`,
+                    ].join('\n'),
+                  });
+                  console.log(`  Re-pinged @${ownerLogin} for high-tier #${issue.number}`);
+                }
+              }
+            }

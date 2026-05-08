@@ -41,12 +41,22 @@ jobs:
           script: |
             const { execSync } = require('child_process');
             const fs = require('fs');
+            const path = require('path');
+            const ws = process.env.GITHUB_WORKSPACE;
+            const cfg = require(`${ws}/.github/scripts/agent-config.js`);
+            const { loadState, saveState } = require(`${ws}/.github/scripts/agent-state.js`);
+
             const owner = context.repo.owner;
+            const hqRepo = context.repo.repo;
+            const ownerLogin = cfg.getOwner();
             const now = new Date().toISOString();
             const today = now.split('T')[0];
 
+            // Load orchestrator state
+            const state = loadState('orchestrator');
+
             // Read product registry (machine-readable JSON)
-            const registry = JSON.parse(fs.readFileSync('products/registry.json', 'utf-8'));
+            const registry = JSON.parse(fs.readFileSync(path.join(ws, 'products', 'registry.json'), 'utf-8'));
             const productRepos = registry.products
               .filter(p => p.status === 'live')
               .map(p => p.repo.replace(/^[^/]+\//, ''));
@@ -73,6 +83,21 @@ jobs:
                 const bugs = openIssues.filter(i => i.labels?.some(l => l.name === 'bug')).length;
                 const incidents = openIssues.filter(i => i.labels?.some(l => l.name === 'incident')).length;
                 const awaitingOwner = openIssues.filter(i => i.labels?.some(l => l.name === 'needs-owner-approval')).length;
+                const assignmentFailed = openIssues.filter(i => i.labels?.some(l => l.name === 'assignment-failed')).length;
+
+                // Stuck implementations: open engineering issues older than 7 days
+                const stuckImpls = openIssues.filter(i => {
+                  const isEng = i.labels?.some(l => l.name === 'engineering');
+                  const ageDays = (Date.now() - new Date(i.created_at).getTime()) / 86400000;
+                  return isEng && ageDays > 7;
+                }).length;
+
+                // Blocked PRs: open PRs with needs-owner-approval older than 24h
+                const blockedPRs = openPRs.filter(pr => {
+                  const hasLabel = (pr.labels || []).some(l => l.name === 'needs-owner-approval');
+                  const ageHours = (Date.now() - new Date(pr.created_at).getTime()) / 3600000;
+                  return hasLabel && ageHours > 24;
+                }).length;
 
                 productStats.push({
                   repo,
@@ -83,6 +108,9 @@ jobs:
                   incidents,
                   mergedToday,
                   awaitingOwner,
+                  assignmentFailed,
+                  stuckImpls,
+                  blockedPRs,
                 });
                 console.log(`✅ ${repo}: ${openIssues.length} issues, ${openPRs.length} PRs, ${incidents} incidents`);
               } catch (e) {
@@ -91,7 +119,70 @@ jobs:
                   repo, status: '⚪ Error',
                   openIssues: '?', openPRs: '?', bugs: '?',
                   incidents: '?', mergedToday: '?', awaitingOwner: '?',
+                  assignmentFailed: 0, stuckImpls: 0, blockedPRs: 0,
                 });
+              }
+            }
+
+            // ── Read autonomy metrics from outcomes ────────────────────────
+            let autonomyMetrics = {
+              total: 0, committeeApproved: 0, slaFallback: 0, escalated: 0,
+              prsMergedLow: 0, prsMergedMed: 0, prsMergedHigh: 0,
+              circuitBreakersHit: [],
+            };
+            try {
+              const sevenDaysAgo = new Date(Date.now() - 7 * 86400000);
+              const months = [
+                `${now.split('-')[0]}-${now.split('-')[1]}`,
+              ];
+              if (new Date(today).getDate() <= 7) {
+                const prev = new Date(Date.now() - 8 * 86400000);
+                months.push(`${prev.getUTCFullYear()}-${String(prev.getUTCMonth() + 1).padStart(2, '0')}`);
+              }
+              for (const ym of months) {
+                const fp = path.join(ws, 'strategy', 'outcomes', `${ym}.md`);
+                if (!fs.existsSync(fp)) continue;
+                const lines = fs.readFileSync(fp, 'utf-8').split('\n')
+                  .filter(l => l.startsWith('|') && !l.includes('Date (UTC)') && !l.includes('---'));
+                for (const line of lines) {
+                  const cols = line.split('|').map(c => c.trim()).filter(Boolean);
+                  if (cols.length < 5) continue;
+                  const [date, kind, , , , result] = cols;
+                  if (!date || new Date(date) < sevenDaysAgo) continue;
+                  autonomyMetrics.total++;
+                  if (kind === 'committee-approval') autonomyMetrics.committeeApproved++;
+                  if (kind === 'sla-fallback-approval') autonomyMetrics.slaFallback++;
+                  if (kind === 'committee-escalation') autonomyMetrics.escalated++;
+                  if (kind === 'pr-merge') {
+                    const notes = cols[6] || '';
+                    if (notes.includes('tier=low')) autonomyMetrics.prsMergedLow++;
+                    else if (notes.includes('tier=medium')) autonomyMetrics.prsMergedMed++;
+                    else if (notes.includes('tier=high')) autonomyMetrics.prsMergedHigh++;
+                  }
+                }
+              }
+            } catch (e) {
+              console.log(`⚠️ Could not read outcomes: ${e.message}`);
+            }
+
+            const autonomyPct = autonomyMetrics.total > 0
+              ? Math.round((autonomyMetrics.committeeApproved + autonomyMetrics.slaFallback) / autonomyMetrics.total * 100)
+              : 0;
+            const escalatedPct = autonomyMetrics.total > 0
+              ? Math.round(autonomyMetrics.escalated / autonomyMetrics.total * 100)
+              : 0;
+
+            // ── Build anomalies list ────────────────────────────────────────
+            const anomalies = [];
+            for (const p of productStats) {
+              if (parseInt(p.assignmentFailed) > 0) {
+                anomalies.push(`⚠️ **${p.repo}:** ${p.assignmentFailed} issue(s) with \`assignment-failed\``);
+              }
+              if (parseInt(p.stuckImpls) > 0) {
+                anomalies.push(`🕐 **${p.repo}:** ${p.stuckImpls} implementation(s) stuck >7 days`);
+              }
+              if (parseInt(p.blockedPRs) > 0) {
+                anomalies.push(`🛑 **${p.repo}:** ${p.blockedPRs} PR(s) blocked >24h (needs-owner-approval)`);
               }
             }
 
@@ -120,6 +211,24 @@ jobs:
               `| PRs Merged Today | ${productStats.reduce((s, p) => s + (parseInt(p.mergedToday) || 0), 0)} |`,
               `| Decisions Pending | ${productStats.reduce((s, p) => s + (parseInt(p.awaitingOwner) || 0), 0)} |`,
               ``,
+              `## Agent Autonomy Metrics (last 7 days)`,
+              ``,
+              `| Metric | Value |`,
+              `|--------|-------|`,
+              `| Decisions made | ${autonomyMetrics.total} |`,
+              `| Auto-approved by committee | ${autonomyMetrics.committeeApproved} (${autonomyMetrics.total > 0 ? Math.round(autonomyMetrics.committeeApproved / autonomyMetrics.total * 100) : 0}%) |`,
+              `| SLA-fallback approvals | ${autonomyMetrics.slaFallback} |`,
+              `| Escalated to owner | ${autonomyMetrics.escalated} (${escalatedPct}%) |`,
+              `| Autonomy % | ${autonomyPct}% |`,
+              `| PRs auto-merged (low/med/high) | ${autonomyMetrics.prsMergedLow} / ${autonomyMetrics.prsMergedMed} / ${autonomyMetrics.prsMergedHigh} |`,
+              `| Circuit-breakers hit | ${autonomyMetrics.circuitBreakersHit.length > 0 ? autonomyMetrics.circuitBreakersHit.join(', ') : 'none'} |`,
+              ``,
+              `## 🚨 Anomalies`,
+              ``,
+              anomalies.length > 0
+                ? anomalies.join('\n')
+                : `*No anomalies detected.*`,
+              ``,
               `## Health Summary`,
               ...productStats.map(p => {
                 const issues = [];
@@ -136,7 +245,7 @@ jobs:
               `*Generated by HQ Orchestrator — CreativeWare*`,
             ].join('\n');
 
-            fs.writeFileSync('docs/agents/DASHBOARD.md', dashboard);
+            fs.writeFileSync(path.join(ws, 'docs', 'agents', 'DASHBOARD.md'), dashboard);
 
             // Commit dashboard
             try {
@@ -158,28 +267,32 @@ jobs:
             if (totalAwaiting > 5) {
               // Create a reminder issue in HQ
               const { data: existing } = await github.rest.issues.listForRepo({
-                owner, repo: context.repo.repo, state: 'open',
+                owner, repo: hqRepo, state: 'open',
                 labels: 'agent/orchestrator', per_page: 5,
               });
               if (!existing.some(i => i.title.includes('Decision Queue'))) {
                 await github.rest.issues.create({
-                  owner, repo: context.repo.repo,
+                  owner, repo: hqRepo,
                   title: `⚠️ [HQ] Decision Queue Backing Up — ${totalAwaiting} pending`,
                   body: [
                     `## Decision Queue Alert`,
                     ``,
-                    `${totalAwaiting} decisions are awaiting @fratei review across all products:`,
+                    `${totalAwaiting} decisions are awaiting @${ownerLogin} review across all products:`,
                     ...productStats.filter(p => parseInt(p.awaitingOwner) > 0).map(p =>
                       `- **${p.repo}:** ${p.awaitingOwner} pending`
                     ),
                     ``,
-                    `@fratei — please review pending decisions in each product repo.`,
+                    `@${ownerLogin} — please review pending decisions in each product repo.`,
                   ].join('\n'),
                   labels: ['agent/orchestrator', 'needs-owner-approval'],
-                  assignees: ['fratei'],
+                  assignees: [ownerLogin],
                 });
               }
             }
+
+            // Save orchestrator state
+            state.last_run_utc = new Date().toISOString();
+            saveState('orchestrator', state);
 
   # ─── Weekly Strategy Review (Mondays) ─────────────────────────────────
   strategy-review:

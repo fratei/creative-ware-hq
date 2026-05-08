@@ -55,7 +55,9 @@ jobs:
             const today = now.toISOString().split('T')[0];
             const shift = now.getUTCHours() < 8 ? 'Night' : now.getUTCHours() < 16 ? 'Morning' : 'Afternoon';
             const eightHoursAgo = new Date(Date.now() - 8 * 3600000).toISOString();
-            const OWNER_HANDLE = 'fratei';
+            const ws = process.env.GITHUB_WORKSPACE;
+            const cfg = require(`${ws}/.github/scripts/agent-config.js`);
+            const OWNER_HANDLE = cfg.getOwner();
 
             // ── Load registry ──
             const registry = JSON.parse(fs.readFileSync('products/registry.json', 'utf-8'));
@@ -516,8 +518,8 @@ jobs:
                 `## 🚨 Escalation Meeting`,
                 `**Context:** ${ctx}`,
                 ``,
-                `@fratei — This item requires your decision.`,
+                `@${OWNER_HANDLE} — This item requires your decision.`,
               ].join('\n'),
               labels: ['escalation', 'needs-owner-approval'],
-              assignees: ['fratei'],
+              assignees: [OWNER_HANDLE],
             });

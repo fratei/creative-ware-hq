@@ -136,7 +136,7 @@ jobs:
               let regContent = Buffer.from(regFile.content, 'base64').toString('utf-8');
 
               // Add new product row to the table
-              const newRow = `| ${productName} | [\`fratei/${repoName}\`](https://github.com/fratei/${repoName}) | 🏗️ Building | ${new Date().toISOString().split('T')[0]} | TBD |`;
+              const newRow = `| ${productName} | [\`${owner}/${repoName}\`](https://github.com/${owner}/${repoName}) | 🏗️ Building | ${new Date().toISOString().split('T')[0]} | TBD |`;
 
               // Insert before the empty line after the table
               regContent = regContent.replace(
@@ -165,7 +165,7 @@ jobs:
                 `| | |`,
                 `|---|---|`,
                 `| **Product** | ${productName} |`,
-                `| **Repository** | [\`fratei/${repoName}\`](https://github.com/fratei/${repoName}) |`,
+                `| **Repository** | [\`${owner}/${repoName}\`](https://github.com/${owner}/${repoName}) |`,
                 `| **Status** | 🏗️ Building |`,
                 `| **Description** | ${productDesc} |`,
                 `| **Created** | ${new Date().toISOString().split('T')[0]} |`,
@@ -177,7 +177,7 @@ jobs:
                 `Runs product-level autonomous agents (CPO/CFO/CTO, PR review, observability).`,
                 ``,
                 `## Strategic Direction`,
-                `> See strategy in the [product repo](https://github.com/fratei/${repoName}/blob/main/strategy/README.md).`,
+                `> See strategy in the [product repo](https://github.com/${owner}/${repoName}/blob/main/strategy/README.md).`,
               ].join('\n');
 
               await github.rest.repos.createOrUpdateFileContents({
@@ -202,7 +202,7 @@ jobs:
                   `**Product:** ${productName}`,
                   `**Description:** ${productDesc}`,
                   `**Created by:** Product Creation Pipeline`,
-                  sourceIssue ? `**Source Opportunity:** fratei/creative-ware-hq#${sourceIssue}` : '',
+                  sourceIssue ? `**Source Opportunity:** ${owner}/creative-ware-hq#${sourceIssue}` : '',
                   ``,
                   `### Setup Tasks`,
                   `- [ ] Define tech stack and architecture`,
@@ -246,7 +246,7 @@ jobs:
                     `## 🏗️ Product Created!`,
                     ``,
                     `**${productName}** has been bootstrapped:`,
-                    `- Repository: [\`fratei/${repoName}\`](https://github.com/fratei/${repoName})`,
+                    `- Repository: [\`${owner}/${repoName}\`](https://github.com/${owner}/${repoName})`,
                     `- Product Card: [products/${productSlug}.md](products/${productSlug}.md)`,
                     `- Initial roadmap issue created in the product repo`,
                     ``,

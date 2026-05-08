@@ -54,19 +54,52 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
+            const ws = process.env.GITHUB_WORKSPACE;
+            const cfg = require(`${ws}/.github/scripts/agent-config.js`);
+            const { classifyRisk } = require(`${ws}/.github/scripts/classify-risk.js`);
+            const { loadState, saveState } = require(`${ws}/.github/scripts/agent-state.js`);
             const owner = context.repo.owner;
+
+            // ── Load CPO agent state ──────────────────────────────────────
+            const state = loadState('cpo');
+            console.log(`📦 CPO state loaded: last_run=${state.last_run_utc}`);
+
+            // ── Read recent outcomes for decision history (last 30 days) ──
+            let recentDecisionHistory = '';
+            try {
+              const now = new Date();
+              const months = [
+                `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}`,
+              ];
+              if (now.getUTCDate() <= 5) {
+                const prev = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                months.push(`${prev.getUTCFullYear()}-${String(prev.getUTCMonth() + 1).padStart(2, '0')}`);
+              }
+              const rows = [];
+              for (const ym of months) {
+                const fp = path.join(ws, 'strategy', 'outcomes', `${ym}.md`);
+                if (fs.existsSync(fp)) {
+                  const lines = fs.readFileSync(fp, 'utf-8').split('\n');
+                  rows.push(...lines.filter(l => l.startsWith('|') && !l.includes('Date (UTC)')).slice(-10));
+                }
+              }
+              if (rows.length > 0) {
+                recentDecisionHistory = `### 📊 Recent Decision History (last 30 days)\n\n| Date (UTC) | Kind | Summary | Result |\n|------------|------|---------|--------|\n${rows.slice(-10).join('\n')}\n`;
+              }
+            } catch (e) {
+              console.log(`📊 Could not load outcomes: ${e.message}`);
+            }
 
             // ── Read latest web research brief for real-world evidence ──
             let latestResearch = '';
             try {
-              const researchDir = 'strategy/research';
+              const researchDir = path.join(ws, 'strategy', 'research');
               const files = fs.readdirSync(researchDir)
                 .filter(f => f.match(/^\d{4}-\d{2}-\d{2}\.md$/))
                 .sort()
                 .reverse();
               if (files.length > 0) {
                 const content = fs.readFileSync(path.join(researchDir, files[0]), 'utf-8');
-                // Extract actionable takeaways and key signals
                 const takeaways = content.match(/## 🎯 Actionable Takeaways\n([\s\S]*?)(?=\n---)/);
                 const marketSection = content.match(/## 📰 Market Signals\n([\s\S]*?)(?=\n## 👥)/);
                 const userSection = content.match(/## 👥 User Signals\n([\s\S]*?)(?=\n## 🎯 Competitor)/);
@@ -85,8 +118,9 @@ jobs:
               console.log(`📖 No research briefs found: ${e.message}`);
             }
 
-            const registry = JSON.parse(fs.readFileSync('products/registry.json', 'utf-8'));
+            const registry = JSON.parse(fs.readFileSync(path.join(ws, 'products', 'registry.json'), 'utf-8'));
             const products = registry.products.filter(p => p.status === 'live');
+            const ownerLogin = cfg.getOwner();
 
             const summarize = (text, max = 300) => {
               const n = (text || '').replace(/\s+/g, ' ').trim();
@@ -96,6 +130,8 @@ jobs:
               const b = Math.max(t.lastIndexOf('. '), t.lastIndexOf('! '), t.lastIndexOf('? '));
               return `${n.slice(0, b > max * 0.6 ? b + 1 : max).trimEnd()}…`;
             };
+
+            let totalCreated = 0;
 
             for (const product of products) {
               const repo = product.repo.replace(/^[^/]+\//, '');
@@ -143,35 +179,73 @@ jobs:
                 const problemMatch = content.match(/## Problem\n([\s\S]*?)(?=\n##)/);
                 const recMatch = content.match(/## Recommendation\n([\s\S]*?)(?=\n##|\n$)/);
 
+                // ── Classify risk ──────────────────────────────────────────
+                const riskTier = classifyRisk({
+                  title: briefTitle,
+                  body: content,
+                  files: [file.name],
+                  labels: [],
+                });
+                console.log(`  Risk classification: ${riskTier} for "${briefTitle}"`);
+
+                // ── Build issue body ───────────────────────────────────────
+                const isHighRisk = riskTier === 'high';
+                const approvalNote = isHighRisk
+                  ? `**Requires:** @${ownerLogin} approval (high-risk tier)`
+                  : `**Approval Path:** Agent Committee (CPO / CTO / CFO) — \`${riskTier}\` tier`;
+                const nextSteps = isHighRisk
+                  ? [
+                    `### Next Steps`,
+                    `1. @${ownerLogin}: Review the full brief`,
+                    `2. Comment with approval, modifications, or rejection`,
+                    `3. Close this issue to trigger autonomous implementation`,
+                  ]
+                  : [
+                    `### Next Steps`,
+                    `1. Agent Committee (CPO/CTO/CFO) will vote within ${riskTier === 'low' ? '6' : '24'}h`,
+                    `2. If approved, implementation will be dispatched automatically`,
+                    `3. If any voter defers to owner, @${ownerLogin} will be notified`,
+                  ];
+
                 const body = [
                   `## 📋 Opportunity Brief: ${briefTitle}`,
                   ``,
                   `**Agent:** 📦 CPO Agent (HQ)`,
                   `**Product:** ${product.name} (\`${product.repo}\`)`,
                   `**Brief:** \`strategy/opportunities/${file.name}\``,
-                  `**Requires:** @fratei approval to proceed`,
+                  `**Risk Tier:** \`${riskTier}\``,
+                  approvalNote,
                   ``,
                   `### Problem`, summarize(problemMatch ? problemMatch[1] : ''),
                   ``, `### Recommendation`, summarize(recMatch ? recMatch[1] : ''),
                   ``,
+                  recentDecisionHistory || '',
                   latestResearch ? `### 🔬 Supporting Web Research\n\n${latestResearch}\n` : '',
-                  `### Next Steps`,
-                  `1. @fratei: Review the full brief`,
-                  `2. Comment with approval, modifications, or rejection`,
-                  `3. Close this issue to trigger autonomous implementation`,
+                  ...nextSteps,
                   ``,
                   `---`,
                   `*Generated by CPO Agent (HQ) — CreativeWare*`,
-                ].filter(Boolean).join('\n');
+                ].filter(s => s !== undefined).join('\n');
+
+                // ── Create issue with tier-appropriate labels ──────────────
+                const issueLabels = ['opportunity', 'agent/cpo', `risk/${riskTier}`];
+                const issueAssignees = [];
+                if (isHighRisk) {
+                  issueLabels.push('needs-owner-approval');
+                  issueAssignees.push(ownerLogin);
+                } else {
+                  issueLabels.push('committee-vote');
+                }
 
                 try {
                   const { data: issue } = await github.rest.issues.create({
                     owner, repo, title: issueTitle, body,
-                    labels: ['opportunity', 'needs-owner-approval', 'agent/cpo'],
-                    assignees: ['fratei'],
+                    labels: issueLabels,
+                    assignees: issueAssignees,
                   });
-                  console.log(`  ✅ Created ${repo}#${issue.number}: ${issueTitle}`);
+                  console.log(`  ✅ Created ${repo}#${issue.number}: ${issueTitle} [${riskTier}]`);
                   created++;
+                  totalCreated++;
                   if (created >= 3) break;
                 } catch (err) {
                   console.error(`  Failed: ${file.name}: ${err.message}`);
@@ -179,6 +253,11 @@ jobs:
               }
               console.log(`  CPO: created ${created} opportunities in ${repo}`);
             }
+
+            // ── Update CPO agent state ─────────────────────────────────────
+            state.last_run_utc = new Date().toISOString();
+            state.metrics_30d.decisions_proposed = (state.metrics_30d.decisions_proposed || 0) + totalCreated;
+            saveState('cpo', state);
 
   cmo-market-analysis:
     if: >-

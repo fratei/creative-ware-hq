@@ -1,0 +1,18 @@
+{
+  "agent": "cpo",
+  "last_run_utc": null,
+  "last_processed": {
+    "opportunity_briefs": {
+      "path": null,
+      "sha": null
+    },
+    "outcomes_through": null
+  },
+  "pending_handoffs": [],
+  "metrics_30d": {
+    "decisions_proposed": 0,
+    "decisions_approved": 0,
+    "decisions_rejected": 0,
+    "autonomy_pct": 0
+  }
+}
