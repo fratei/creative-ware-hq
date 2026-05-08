@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Repository dispatch events",
+  "type": "object",
+  "properties": {
+    "implementation-approved": { "type": "object", "required": ["source_repo", "issue_number", "title"] },
+    "incident-detected": { "type": "object", "required": ["source_repo", "pattern"] },
+    "meeting-requested": { "type": "object", "required": ["source_repo", "type"] },
+    "market-analysis-requested": { "type": "object", "required": ["source_repo", "analysis_type"] },
+    "work-completed": { "type": "object", "required": ["source_repo", "summary"] },
+    "committee-vote-requested": { "type": "object", "required": ["issue_number", "tier"] },
+    "new-product-approved": { "type": "object", "required": ["product_name", "product_slug", "product_description"] },
+    "agent-fleet-trigger": { "type": "object" },
+    "hq-orchestrator-trigger": { "type": "object" }
+  },
+  "additionalProperties": true
+}

@@ -78,6 +78,7 @@ CreativeWare runs on a fleet of 14 autonomous AI agents operating 24/7 through G
 - [Company Strategy](strategy/README.md)
 - [Agent Handbook](docs/agents/HANDBOOK.md)
 - [Agent Dashboard](docs/agents/DASHBOARD.md)
+- [Owner Decisions Inbox](OWNER-INBOX.md)
 
 ---
 *CreativeWare — Autonomous AI Company*

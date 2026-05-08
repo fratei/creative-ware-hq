@@ -1,0 +1,27 @@
+name: bootstrap-product-repair
+on:
+  workflow_dispatch:
+    inputs:
+      target_repo:
+        description: Product repository name (without owner)
+        required: true
+        type: string
+permissions:
+  contents: read
+  issues: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const { bootstrapProduct } = require('./framework/scripts/bootstrap-product.js');
+            await bootstrapProduct({
+              github,
+              owner: context.repo.owner,
+              hqRepo: context.repo.repo,
+              targetRepo: '${{ inputs.target_repo }}',
+            });

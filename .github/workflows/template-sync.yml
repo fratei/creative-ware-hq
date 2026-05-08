@@ -1,0 +1,61 @@
+name: template-sync
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+      - uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const crypto = require('crypto');
+            const { execSync } = require('child_process');
+            const reg = JSON.parse(fs.readFileSync('products/registry.json','utf8'));
+            const release = fs.readFileSync('framework/RELEASE.md','utf8');
+            const latest = (release.match(/Current framework version:\s*(v[0-9.]+)/)||[])[1] || 'v1.0.0';
+            const actionsHash = crypto.createHash('sha256').update(fs.readdirSync('.github/actions').join('|')).digest('hex').slice(0,12);
+            const wfHash = crypto.createHash('sha256').update(fs.readdirSync('.github/workflows').filter(f=>f.startsWith('reusable-')).join('|')).digest('hex').slice(0,12);
+            const rows = [];
+            for (const p of reg.products) {
+              const [owner, repo] = p.repo.split('/');
+              let pinned = 'unknown';
+              let status = '🟡 pending-check';
+              try {
+                const { data } = await github.rest.repos.getContent({ owner, repo, path: 'framework-version' });
+                pinned = Buffer.from(data.content, 'base64').toString('utf8').trim();
+                status = pinned === latest ? '🟢 up-to-date' : '🟡 update-needed';
+              } catch {
+                status = '🔴 missing-framework-version';
+              }
+              rows.push(`| ${p.repo} | ${pinned} | ${latest} | ${status} | ${actionsHash}/${wfHash} |`);
+              if (status !== '🟢 up-to-date' && !process.env.AGENT_PAT) {
+                await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: `[DRIFT] ${p.repo} pinned to ${pinned}`,
+                  body: `Framework drift detected for ${p.repo}. Latest is ${latest}.`,
+                  labels: ['agent/orchestrator', 'needs-owner-approval'],
+                });
+              }
+            }
+            const dashPath = 'docs/agents/DASHBOARD.md';
+            const base = fs.readFileSync(dashPath,'utf8');
+            const section = `\n\n## Framework Version Drift\n\n| Repo | Pinned | Latest | Status | Hash |\n|---|---|---|---|---|\n${rows.join('\n')}\n`;
+            const updated = base.includes('## Framework Version Drift') ? base.replace(/\n## Framework Version Drift[\s\S]*$/m, section.trimEnd()) : `${base}${section}`;
+            fs.writeFileSync(dashPath, updated);
+            execSync('git config user.name \"CreativeWare Bot\"');
+            execSync('git config user.email \"bot@creative-ware.ai\"');
+            execSync('git add docs/agents/DASHBOARD.md');
+            const diff = execSync('git diff --cached --name-only').toString().trim();
+            if (diff) execSync('git commit -m \"chore: update framework drift dashboard [skip ci]\"');

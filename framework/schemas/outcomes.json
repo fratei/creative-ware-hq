@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Outcomes row",
+  "type": "object",
+  "required": ["date", "kind", "summary", "decision", "pr", "result", "notes"],
+  "properties": {
+    "date": { "type": "string" },
+    "kind": { "type": "string" },
+    "summary": { "type": "string" },
+    "decision": { "type": "string" },
+    "pr": { "type": "string" },
+    "result": { "type": "string" },
+    "notes": { "type": "string" }
+  }
+}

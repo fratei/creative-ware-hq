@@ -1,0 +1,23 @@
+name: render-prompt
+description: Render markdown prompt templates with {{var}} interpolation
+inputs:
+  template_name:
+    description: Template filename stem under framework/prompts
+    required: true
+  vars_json:
+    description: JSON object of variables
+    required: false
+    default: "{}"
+outputs:
+  rendered:
+    description: Rendered prompt content
+    value: ${{ steps.run.outputs.rendered }}
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      env:
+        INPUT_TEMPLATE_NAME: ${{ inputs.template_name }}
+        INPUT_VARS_JSON: ${{ inputs.vars_json }}
+      run: node "$GITHUB_ACTION_PATH/action.js"

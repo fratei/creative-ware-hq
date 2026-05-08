@@ -45,5 +45,10 @@
   "copilot": {
     "assignment_attempts": 3,
     "assignment_logins": ["copilot", "copilot[bot]"]
+  },
+  "budget": {
+    "monthly_minutes_total": 3000,
+    "warn_pct": 75,
+    "alert_pct": 90
   }
 }

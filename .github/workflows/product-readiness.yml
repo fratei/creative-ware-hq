@@ -1,0 +1,57 @@
+name: product-readiness
+on:
+  schedule:
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+  actions: read
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+      - uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const { execSync } = require('child_process');
+            const reg = JSON.parse(fs.readFileSync('products/registry.json','utf8'));
+            const dev = reg.products.filter(p => p.status === 'development');
+            const rows = [];
+            for (const p of dev) {
+              const [owner, repo] = p.repo.split('/');
+              let incidentsOpen = 0;
+              try {
+                const { data: incidentIssues } = await github.rest.issues.listForRepo({
+                  owner, repo, state: 'open', labels: 'incident', per_page: 100,
+                });
+                incidentsOpen = incidentIssues.length;
+              } catch (e) {
+                console.log(`incident check failed for ${p.repo}: ${e.message}`);
+              }
+              const checks = {
+                ci: false,
+                coverage: false,
+                incidents: incidentsOpen === 0,
+                runbook: false,
+                dashboardFresh: false,
+                monitoring: false,
+                prs: false,
+              };
+              rows.push(`| ${p.repo} | ${Object.values(checks).every(Boolean) ? '✅' : '❌'} | ${checks.ci?'✅':'❌'} | ${checks.coverage?'✅':'❌'} | ${checks.incidents?'✅':'❌'} | ${checks.runbook?'✅':'❌'} | ${checks.dashboardFresh?'✅':'❌'} | ${checks.monitoring?'✅':'❌'} | ${checks.prs?'✅':'❌'} |`);
+              if (Object.values(checks).every(Boolean)) {
+                await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title: `[OPPORTUNITY] Promote ${p.name} to live`, body: `All readiness gates passed for ${p.repo}.`, labels: ['opportunity','committee-vote','risk/medium'] });
+              }
+            }
+            const doc = ['# Product Readiness','',`Updated: ${new Date().toISOString()}`,'','| Product | Ready | CI | Coverage ≥70% | No Incidents | RUNBOOK | Dashboard <24h | Monitoring | 3 PRs/14d |','|---|---|---|---|---|---|---|---|---|',...rows].join('\n');
+            fs.writeFileSync('docs/agents/READINESS.md', doc);
+            execSync('git config user.name \"CreativeWare Bot\"');
+            execSync('git config user.email \"bot@creative-ware.ai\"');
+            execSync('git add docs/agents/READINESS.md');
+            const diff = execSync('git diff --cached --name-only').toString().trim();
+            if (diff) execSync('git commit -m \"chore: update product readiness report [skip ci]\"');

@@ -1,0 +1,29 @@
+name: agent-fleet-smoketest
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
+permissions:
+  issues: write
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - id: prompt
+        uses: ./.github/actions/render-prompt
+        with:
+          template_name: smoketest-opportunity
+          vars_json: '{"timestamp":"${{ github.run_id }}"}'
+      - uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner; const repo = context.repo.repo;
+            const ts = new Date().toISOString();
+            const title = `[OPPORTUNITY][SMOKETEST] ${ts}`;
+            const { data: issue } = await github.rest.issues.create({ owner, repo, title, body: `${{ steps.prompt.outputs.rendered }}`, labels: ['opportunity','smoke-test','committee-vote','risk/low'] });
+            const report = `## Smoke test run\n- Source issue: #${issue.number}\n- Status: started`;
+            await github.rest.issues.create({ owner, repo, title: `[SMOKETEST] Daily Result — ${ts.split('T')[0]}`, body: report, labels: ['smoke-test'] });

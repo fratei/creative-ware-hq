@@ -1,0 +1,11 @@
+[
+  { "name": "opportunity", "color": "0E8A16", "description": "Product or strategy opportunity" },
+  { "name": "committee-vote", "color": "1D76DB", "description": "Decision routed to agent committee" },
+  { "name": "needs-owner-approval", "color": "B60205", "description": "Owner decision required" },
+  { "name": "incident", "color": "D93F0B", "description": "Production/security incident" },
+  { "name": "assignment-failed", "color": "FBCA04", "description": "Copilot assignment retry required" },
+  { "name": "smoke-test", "color": "5319E7", "description": "Synthetic smoke-test item" },
+  { "name": "agent/orchestrator", "color": "0052CC", "description": "Orchestrator generated" },
+  { "name": "agent/hr", "color": "C5DEF5", "description": "HR performance workflow" },
+  { "name": "needs-attention", "color": "D4C5F9", "description": "Requires focused review" }
+]

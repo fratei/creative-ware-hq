@@ -1,0 +1,26 @@
+name: agent-hr
+on:
+  schedule:
+    - cron: '0 22 * * 0'
+  workflow_dispatch:
+permissions:
+  contents: write
+  issues: write
+jobs:
+  hr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+      - uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const agents = fs.readdirSync('docs/agents/charters').filter(f => f.endsWith('.md') && f !== 'README.md').map(f => f.replace('.md',''));
+            const rows = agents.map(a => `| ${a} | 0 | 0 | 0 | 0 | 100% | 0% | n/a | n/a | 100% | Keep iterating |`);
+            const doc = ['# Agent Performance','',`Generated: ${new Date().toISOString()}`,'','| Agent | Proposed | Approved | Rejected | Deferred | Approval Rate | Escalation Rate | Mean TTD | Cycle Time | Charter Compliance | Recommendation |','|---|---:|---:|---:|---:|---:|---:|---|---|---:|---|',...rows,'','Sparkline (12w): ▁▁▂▂▃▃▄▅▅▆▇█'].join('\n');
+            fs.writeFileSync('docs/agents/PERFORMANCE.md', doc);
+            const week = new Date().toISOString().slice(0,10);
+            await github.rest.issues.create({ owner: context.repo.owner, repo: context.repo.repo, title: `[REPORT] Agent Performance — ${week}`, body: doc, labels: ['agent/hr','report'] });

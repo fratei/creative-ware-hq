@@ -42,6 +42,12 @@ jobs:
         with:
           token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
 
+      - id: standup-template
+        uses: ./.github/actions/render-prompt
+        with:
+          template_name: handoff-meeting
+          vars_json: '{"meeting_type":"standup","context":"Cross-product status review and execution alignment"}'
+
       - name: "🗓️ Daily Standup Facilitator"
         uses: actions/github-script@v7
         with:
@@ -363,6 +369,8 @@ jobs:
             const report = [
               shiftMarker,
               `# 🗓️ Daily Standup — ${shift} Shift (${today})`,
+              ``,
+              `${{ steps.standup-template.outputs.rendered }}`,
               ``,
               `**Participants:** Orchestrator, CEO, CPO, CTO, Engineering, DevOps, QA, Marketing, Sales, CS, CFO, CISO, HR, Legal`,
               `**Facilitator:** Standup Facilitator Agent`,

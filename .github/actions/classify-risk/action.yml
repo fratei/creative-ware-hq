@@ -1,0 +1,36 @@
+name: classify-risk
+description: Pure risk classifier for PR/issue metadata
+inputs:
+  title:
+    description: Title
+    required: true
+  body:
+    description: Body
+    required: false
+    default: ""
+  files:
+    description: JSON array of file paths
+    required: false
+    default: "[]"
+  labels:
+    description: JSON array of labels
+    required: false
+    default: "[]"
+outputs:
+  tier:
+    description: Classified tier
+    value: ${{ steps.run.outputs.tier }}
+  matched_rules:
+    description: Matched rule metadata JSON
+    value: ${{ steps.run.outputs.matched_rules }}
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      env:
+        INPUT_TITLE: ${{ inputs.title }}
+        INPUT_BODY: ${{ inputs.body }}
+        INPUT_FILES: ${{ inputs.files }}
+        INPUT_LABELS: ${{ inputs.labels }}
+      run: node "$GITHUB_ACTION_PATH/action.js"

@@ -1,0 +1,18 @@
+name: framework-validate
+on:
+  pull_request:
+  schedule:
+    - cron: '0 4 * * 1'
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate framework schemas
+        run: node framework/scripts/validate-schemas.js
+      - name: Composite action smoke call
+        uses: ./.github/actions/load-config
+        with:
+          config_path: config/agents.config.json

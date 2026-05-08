@@ -1,0 +1,45 @@
+name: load-config
+description: Load HQ agent config and merge local overrides
+inputs:
+  config_path:
+    description: Path to local config file
+    required: false
+    default: config/agents.config.json
+  framework_version_file:
+    description: Path to framework version pin file
+    required: false
+    default: framework-version
+outputs:
+  config_json:
+    description: Final merged config JSON
+    value: ${{ steps.run.outputs.config_json }}
+  owner:
+    description: Owner login from config
+    value: ${{ steps.run.outputs.owner }}
+  tier_low_approval:
+    description: Low tier approval mode
+    value: ${{ steps.run.outputs.tier_low_approval }}
+  tier_medium_approval:
+    description: Medium tier approval mode
+    value: ${{ steps.run.outputs.tier_medium_approval }}
+  tier_high_approval:
+    description: High tier approval mode
+    value: ${{ steps.run.outputs.tier_high_approval }}
+  tier_low_required_votes:
+    description: Low tier required votes
+    value: ${{ steps.run.outputs.tier_low_required_votes }}
+  tier_medium_required_votes:
+    description: Medium tier required votes
+    value: ${{ steps.run.outputs.tier_medium_required_votes }}
+  tier_high_fallback_after_hours:
+    description: High tier fallback hours
+    value: ${{ steps.run.outputs.tier_high_fallback_after_hours }}
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      env:
+        INPUT_CONFIG_PATH: ${{ inputs.config_path }}
+        INPUT_FRAMEWORK_VERSION_FILE: ${{ inputs.framework_version_file }}
+      run: node "$GITHUB_ACTION_PATH/action.js"

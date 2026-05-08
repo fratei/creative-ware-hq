@@ -1,0 +1,17 @@
+name: reusable-docs
+on:
+  workflow_call:
+    inputs:
+      docs_path:
+        description: Docs root path
+        required: false
+        default: docs
+        type: string
+permissions:
+  contents: read
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Docs validation reusable workflow ready for ${{ inputs.docs_path }}"

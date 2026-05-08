@@ -1,0 +1,18 @@
+name: reusable-deps
+on:
+  workflow_call:
+    inputs:
+      lockfile_glob:
+        description: Lockfile glob
+        required: false
+        default: "**/package-lock.json"
+        type: string
+permissions:
+  contents: read
+  security-events: write
+jobs:
+  deps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Dependency scan reusable workflow ready for ${{ inputs.lockfile_glob }}"
