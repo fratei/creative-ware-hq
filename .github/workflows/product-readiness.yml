@@ -19,6 +19,7 @@ jobs:
           github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
+            const { execSync } = require('child_process');
             const reg = JSON.parse(fs.readFileSync('products/registry.json','utf8'));
             const dev = reg.products.filter(p => p.status === 'development');
             const rows = [];
@@ -49,3 +50,8 @@ jobs:
             }
             const doc = ['# Product Readiness','',`Updated: ${new Date().toISOString()}`,'','| Product | Ready | CI | Coverage ≥70% | No Incidents | RUNBOOK | Dashboard <24h | Monitoring | 3 PRs/14d |','|---|---|---|---|---|---|---|---|---|',...rows].join('\n');
             fs.writeFileSync('docs/agents/READINESS.md', doc);
+            execSync('git config user.name \"CreativeWare Bot\"');
+            execSync('git config user.email \"bot@creative-ware.ai\"');
+            execSync('git add docs/agents/READINESS.md');
+            const diff = execSync('git diff --cached --name-only').toString().trim();
+            if (diff) execSync('git commit -m \"chore: update product readiness report [skip ci]\"');

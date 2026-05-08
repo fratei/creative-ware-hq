@@ -37,7 +37,7 @@ jobs:
         uses: fratei/creative-ware-hq/.github/actions/render-prompt@v1
         with:
           template_name: dispatcher-implementation-task
-          vars_json: '{"decision_ref":"#{{decision_ref}}","approved_by":"{{approved_by}}","recommendation":"{{recommendation}}"}'
+          vars_json: '{"decision_ref":"decision_ref","approved_by":"approved_by","recommendation":"recommendation"}'
 
       - name: "🧠 Dispatcher — Route Event"
         uses: actions/github-script@v7
@@ -128,10 +128,7 @@ jobs:
                   break;
                 }
 
-                const templateBody = `${{ steps.implementation-template.outputs.rendered }}`
-                  .replace('{{decision_ref}}', String(issueNumber || 'n/a'))
-                  .replace('{{approved_by}}', approvedBy)
-                  .replace('{{recommendation}}', payload.recommendation || 'See decision issue for details');
+                const templateBody = `${{ steps.implementation-template.outputs.rendered }}`;
 
                 const implBody = [
                   templateBody,

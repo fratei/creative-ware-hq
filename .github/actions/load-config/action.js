@@ -76,7 +76,7 @@ function setOutput(name, value) {
   }
 
   setOutput('config_json', JSON.stringify(cfg));
-  setOutput('owner', cfg.owner?.primary || process.env.GITHUB_REPOSITORY_OWNER || 'owner');
+  setOutput('owner', cfg.owner?.primary || process.env.GITHUB_REPOSITORY_OWNER || 'UNCONFIGURED_OWNER');
   setOutput('tier_low_approval', cfg.autonomy?.tiers?.low?.approval || 'agent-committee');
   setOutput('tier_medium_approval', cfg.autonomy?.tiers?.medium?.approval || 'agent-committee-plus-silent');
   setOutput('tier_high_approval', cfg.autonomy?.tiers?.high?.approval || 'owner');

@@ -325,7 +325,13 @@ jobs:
               }
             }
 
-            const bucket = (x) => x.ageH > 72 || x.tier === 'high' ? 'high' : x.ageH >= 24 ? 'medium' : 'low';
+            const HIGH_PRIORITY_HOURS = 72;
+            const MEDIUM_PRIORITY_HOURS = 24;
+            const bucket = (x) => x.ageH > HIGH_PRIORITY_HOURS || x.tier === 'high'
+              ? 'high'
+              : x.ageH >= MEDIUM_PRIORITY_HOURS
+                ? 'medium'
+                : 'low';
             const groups = { high: [], medium: [], low: [] };
             pending.sort((a, b) => b.ageH - a.ageH).forEach(p => groups[bucket(p)].push(p));
 

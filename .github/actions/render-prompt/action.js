@@ -28,7 +28,7 @@ function setOutput(name, value) {
 
   content = content.replace(/^---[\s\S]*?---\n?/, '');
   content = content.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, key) => {
-    return Object.prototype.hasOwnProperty.call(vars, key) ? String(vars[key]) : '';
+    return Object.prototype.hasOwnProperty.call(vars, key) ? String(vars[key]) : `{{MISSING:${key}}}`;
   });
 
   setOutput('rendered', content.trim());

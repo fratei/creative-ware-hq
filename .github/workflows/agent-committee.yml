@@ -37,19 +37,19 @@ jobs:
         uses: fratei/creative-ware-hq/.github/actions/render-prompt@v1
         with:
           template_name: committee-voter-cpo
-          vars_json: '{"issue_title":"{{issue_title}}","brief_summary":"{{brief_summary}}","charter_url":"{{charter_url}}"}'
+          vars_json: '{"issue_title":"issue_title","brief_summary":"brief_summary","charter_url":"charter_url"}'
 
       - id: prompt-cto
         uses: fratei/creative-ware-hq/.github/actions/render-prompt@v1
         with:
           template_name: committee-voter-cto
-          vars_json: '{"issue_title":"{{issue_title}}","brief_summary":"{{brief_summary}}","charter_url":"{{charter_url}}"}'
+          vars_json: '{"issue_title":"issue_title","brief_summary":"brief_summary","charter_url":"charter_url"}'
 
       - id: prompt-cfo
         uses: fratei/creative-ware-hq/.github/actions/render-prompt@v1
         with:
           template_name: committee-voter-cfo
-          vars_json: '{"issue_title":"{{issue_title}}","brief_summary":"{{brief_summary}}","charter_url":"{{charter_url}}"}'
+          vars_json: '{"issue_title":"issue_title","brief_summary":"brief_summary","charter_url":"charter_url"}'
 
       - name: "🗳️ Post Voter Comments"
         uses: actions/github-script@v7
@@ -162,13 +162,9 @@ jobs:
                 : voter.id === 'CTO'
                   ? `${{ steps.prompt-cto.outputs.rendered }}`
                   : `${{ steps.prompt-cfo.outputs.rendered }}`;
-              const renderedVoteHeader = baseTemplate
-                .replace('{{issue_title}}', `#${issueNumber} — ${issue.title}`)
-                .replace('{{brief_summary}}', researchSummary || 'Based on issue content and product registry.')
-                .replace('{{charter_url}}', voter.charter);
 
               const commentBody = [
-                renderedVoteHeader,
+                baseTemplate,
                 ``,
                 `**Tier:** \`${tier}\` | **Silent consensus:** ${silentHours}h after first vote`,
                 ``,

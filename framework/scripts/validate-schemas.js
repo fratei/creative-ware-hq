@@ -41,7 +41,7 @@ function requireKeys(obj, keys, where) {
     for (const line of lines) {
       const cols = line.split('|').map(c => c.trim()).filter(Boolean);
       if (cols.length >= 7) continue;
-      if (cols.length === 3) continue; // legacy summary mini-tables in historical files
+      if (cols.length === 3) continue; // legacy monthly rollup tables: Product | Issues Closed | PRs Merged
       fail(`${full}: malformed outcome row '${line}'`);
     }
   }
