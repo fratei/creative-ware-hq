@@ -342,7 +342,7 @@ jobs:
               `| Key Fact | Value |`,
               `|----------|-------|`,
               `| Market signals | ${marketSignals.length} |`,
-              `| Opportunities tracked | ${opportunities.length + oppUpdates.length} |`,
+              `| Opportunities tracked | ${oppUpdates.length} |`,
               `| Feedback items | ${allFeedback.length} |`,
               `| Bugs open | ${totalBugs} |`,
               `| Decisions pending | ${pendingDecisions.length} |`,
