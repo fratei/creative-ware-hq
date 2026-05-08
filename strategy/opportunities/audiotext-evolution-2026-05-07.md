@@ -6,7 +6,7 @@
 **Last Updated:** 2026-05-07
 
 ### Problem / Pain Point
-AudioText is well-positioned for teams that need accurate transcription, speaker diarization, and multi-model flexibility, but the market is moving past raw transcripts toward workflow-ready outputs, deeper integrations, and enterprise-safe controls. The main risk is not core transcription quality; it is that users can get the transcript and then leave AudioText to summarise, distribute, analyse, or operationalise it elsewhere.
+AudioText is well-positioned for teams that need accurate transcription, speaker diarization, and multi-model flexibility, but the market is moving past raw transcripts toward workflow-ready outputs, deeper integrations, and enterprise-safe controls. The main risk is not core transcription quality; it is that users can get the transcript and then leave AudioText to summarize, distribute, analyze, or operationalize it elsewhere.
 
 ### Target ICP (Ideal Customer Profile)
 - **Industry/vertical:** B2B SaaS, agencies, media/podcasting, recruiting, customer-facing teams
@@ -22,7 +22,7 @@ AudioText is well-positioned for teams that need accurate transcription, speaker
 AudioText already has unusually strong reuse for this next phase:
 - multi-model transcription and quality/cost trade-offs
 - speaker diarization and real-time WebSocket transcription
-- GPT-4o-based extraction/summarisation primitives
+- GPT-4o-based extraction/summarization primitives
 - team workspaces and sharing
 - REST API v1 for enterprise customers
 
