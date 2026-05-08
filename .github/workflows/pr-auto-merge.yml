@@ -268,6 +268,9 @@ jobs:
                 });
                 const runs = checkRuns.check_runs || [];
                 const pending = runs.filter(r => r.status !== 'completed');
+                // 'skipped' = conditionally excluded steps (e.g. path filters)
+                // 'neutral' = informational checks that don't gate merge
+                // Both are treated as non-blocking per GitHub's branch protection semantics.
                 const failed = runs.filter(r =>
                   r.status === 'completed' && r.conclusion !== 'success' && r.conclusion !== 'skipped' && r.conclusion !== 'neutral'
                 );

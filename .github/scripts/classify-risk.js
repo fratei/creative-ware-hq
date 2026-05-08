@@ -17,13 +17,14 @@ const cfg = require(path.join(__dirname, 'agent-config.js'));
  * Handles patterns like "docs/**", "**\/auth\/**", "**\/.env*".
  */
 function matchGlob(pattern, filePath) {
-  // Normalise separators
+  // Normalise separators (convert backslashes to forward slashes first)
   const p = filePath.replace(/\\/g, '/');
-  // Convert glob to regex
+  // Convert glob to regex — escape ALL regex special chars (including backslash)
+  // before substituting wildcards, so user-supplied pattern chars are treated literally.
   const regexStr = pattern
     .replace(/\\/g, '/')
-    // Escape regex special chars except * and ?
-    .replace(/[.+^${}()|[\]]/g, '\\$&')
+    // Escape regex special chars (backslash must be first in the list)
+    .replace(/[\\/.+^${}()|[\]]/g, '\\$&')
     // ** matches anything including slashes
     .replace(/\*\*/g, '__DOUBLE_STAR__')
     // * matches anything except slashes
