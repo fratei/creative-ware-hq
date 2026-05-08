@@ -1,0 +1,49 @@
+{
+  "owner": {
+    "primary": "fratei",
+    "backup_approvers": [],
+    "decision_sla_hours": 48,
+    "auto_approve_after_hours": 72
+  },
+  "autonomy": {
+    "tiers": {
+      "low": {
+        "description": "Reversible, single-product, no spend, no security/auth/billing",
+        "approval": "agent-committee",
+        "required_votes": 2,
+        "voters": ["cpo", "cto", "cfo"],
+        "silent_consensus_hours": 6
+      },
+      "medium": {
+        "description": "Cross-product or first-time vendor under $100/mo or schema change",
+        "approval": "agent-committee-plus-silent",
+        "required_votes": 3,
+        "voters": ["cpo", "cto", "cfo"],
+        "silent_consensus_hours": 24
+      },
+      "high": {
+        "description": "Pricing, security posture, new product, vendor >$100/mo, billing/auth code",
+        "approval": "owner",
+        "fallback_after_hours": 72,
+        "fallback_approval": "agent-committee-unanimous"
+      }
+    },
+    "auto_classify_rules": {
+      "high_paths": ["**/auth/**", "**/billing/**", "**/security/**", "**/.env*", "**/secrets/**"],
+      "high_keywords": ["pricing", "vendor", "new product", "acquisition", "hire"],
+      "low_paths": ["docs/**", "**/*.md", "tests/**", "**/__tests__/**"],
+      "low_keywords": ["typo", "docs", "comment", "rename"]
+    }
+  },
+  "circuit_breakers": {
+    "max_auto_merges_per_day": 10,
+    "max_dispatcher_issues_per_day": 20,
+    "max_incidents_per_hour": 3,
+    "max_hop_count": 5,
+    "max_committee_decisions_per_day": 15
+  },
+  "copilot": {
+    "assignment_attempts": 3,
+    "assignment_logins": ["copilot", "copilot[bot]"]
+  }
+}

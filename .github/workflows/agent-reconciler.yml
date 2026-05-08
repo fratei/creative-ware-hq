@@ -43,10 +43,21 @@ jobs:
           github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
+            const path = require('path');
+            const ws = process.env.GITHUB_WORKSPACE;
+            const cfg = require(`${ws}/.github/scripts/agent-config.js`);
+            const { assignCopilotWithRetry } = require(`${ws}/.github/scripts/assign-copilot.js`);
+            const { recordOutcome } = require(`${ws}/.github/scripts/record-outcome.js`);
+            const { loadState, saveState } = require(`${ws}/.github/scripts/agent-state.js`);
+
             const owner = context.repo.owner;
             const hqRepo = context.repo.repo;
+            const ownerLogin = cfg.getOwner();
 
-            const registry = JSON.parse(fs.readFileSync('products/registry.json', 'utf-8'));
+            const state = loadState('reconciler');
+            console.log(`🔄 Reconciler state loaded: last_run=${state.last_run_utc}`);
+
+            const registry = JSON.parse(fs.readFileSync(path.join(ws, 'products', 'registry.json'), 'utf-8'));
             const products = registry.products.filter(p => p.status === 'live');
 
             let totalDispatched = 0;
@@ -100,28 +111,81 @@ jobs:
                         title: decision.title,
                         recommendation: (rec || 'See decision issue').trim().slice(0, 500),
                         hop_count: 0,
+                        approved_by: 'reconciler',
                       },
                     });
                     totalDispatched++;
+                    await recordOutcome({
+                      kind: 'implementation-reconciled',
+                      summary: decision.title.slice(0, 80),
+                      decisionRef: `${repo}#${decision.number}`,
+                      result: '✅ dispatched',
+                      notes: 'reconciler catch-up',
+                    });
                   } catch (e) {
                     console.log(`  ⚠️ Dispatch failed: ${e.message}`);
                   }
                 }
 
-                // Check for stuck unassigned bugs
+                // ── Retry failed Copilot assignments ─────────────────────
+                const { data: failedAssignments } = await github.rest.issues.listForRepo({
+                  owner, repo, state: 'open',
+                  labels: 'assignment-failed', per_page: 20,
+                });
+                for (const issue of failedAssignments) {
+                  console.log(`  🔁 Retrying Copilot assignment for #${issue.number}`);
+                  const assigned = await assignCopilotWithRetry({
+                    github, owner, repo, issue_number: issue.number,
+                  });
+                  if (assigned) {
+                    // Remove assignment-failed label on success
+                    try {
+                      await github.rest.issues.removeLabel({
+                        owner, repo, issue_number: issue.number, name: 'assignment-failed',
+                      });
+                    } catch {}
+                  } else {
+                    // Check if stuck for >3 reconciler cycles (approximated by age)
+                    const hoursOld = (Date.now() - new Date(issue.created_at).getTime()) / 3600000;
+                    if (hoursOld > 18) { // 3 cycles × 6h
+                      const escalationTitle = `[URGENT] Copilot assignment repeatedly failed — ${repo}#${issue.number}`;
+                      const { data: existing } = await github.rest.issues.listForRepo({
+                        owner, repo: hqRepo, state: 'open', labels: 'agent/reconciler', per_page: 10,
+                      });
+                      if (!existing.some(i => i.title === escalationTitle)) {
+                        await github.rest.issues.create({
+                          owner, repo: hqRepo,
+                          title: escalationTitle,
+                          body: [
+                            `## 🚨 Persistent Copilot Assignment Failure`,
+                            ``,
+                            `**Issue:** [${repo}#${issue.number}](https://github.com/${owner}/${repo}/issues/${issue.number})`,
+                            `**Age:** ${Math.round(hoursOld)}h`,
+                            ``,
+                            `The reconciler has failed to assign Copilot to this issue after multiple cycles.`,
+                            ``,
+                            `@${ownerLogin} — please manually assign and investigate.`,
+                          ].join('\n'),
+                          labels: ['agent/reconciler', 'needs-owner-approval'],
+                          assignees: [ownerLogin],
+                        });
+                      }
+                    }
+                  }
+                }
+
+                // ── Check for stuck unassigned bugs ───────────────────────
                 const { data: bugs } = await github.rest.issues.listForRepo({
                   owner, repo, state: 'open', labels: 'bug', per_page: 20,
                 });
                 for (const bug of bugs) {
-                  if (bug.assignees.length === 0) {
+                  if (bug.assignees.length === 0 && !bug.labels.some(l => l.name === 'assignment-failed')) {
                     const hours = (Date.now() - new Date(bug.created_at).getTime()) / 3600000;
                     if (hours > 2) {
                       console.log(`  🐛 Assigning bug #${bug.number} to copilot`);
-                      try {
-                        await github.rest.issues.addAssignees({
-                          owner, repo, issue_number: bug.number, assignees: ['copilot'],
-                        });
-                      } catch {}
+                      await assignCopilotWithRetry({
+                        github, owner, repo, issue_number: bug.number,
+                      });
                     }
                   }
                 }
@@ -130,6 +194,10 @@ jobs:
               }
             }
             console.log(`\n🔄 Reconciler: dispatched ${totalDispatched} items across ${products.length} products`);
+
+            // Save reconciler state
+            state.last_run_utc = new Date().toISOString();
+            saveState('reconciler', state);
 
   security-audit:
     if: >-
@@ -147,9 +215,13 @@ jobs:
           github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
+            const path = require('path');
+            const ws = process.env.GITHUB_WORKSPACE;
+            const cfg = require(`${ws}/.github/scripts/agent-config.js`);
             const owner = context.repo.owner;
             const hqRepo = context.repo.repo;
             const today = new Date().toISOString().split('T')[0];
+            const ownerLogin = cfg.getOwner();
 
             // Skip if already audited today
             const { data: existingSec } = await github.rest.issues.listForRepo({
@@ -160,7 +232,7 @@ jobs:
               return;
             }
 
-            const registry = JSON.parse(fs.readFileSync('products/registry.json', 'utf-8'));
+            const registry = JSON.parse(fs.readFileSync(path.join(ws, 'products', 'registry.json'), 'utf-8'));
             const products = registry.products.filter(p => p.status === 'live');
             const allFindings = [];
 
@@ -359,7 +431,7 @@ jobs:
                       `*Detected by CISO Agent (HQ) — CreativeWare*`,
                     ].join('\n'),
                     labels: ['security', 'agent/ciso'],
-                    assignees: ['fratei'],
+                    assignees: [ownerLogin],
                   });
                   console.log(`🔒 Created security follow-up in ${repo}`);
                 }
@@ -385,11 +457,11 @@ jobs:
                   ``,
                   `> Follow-up issues have been created in each affected product repo.`,
                   ``,
-                  `@fratei — potential security issues found. Please review and take action.`,
+                  `@${ownerLogin} — potential security issues found. Please review and take action.`,
                 ] : [
                   `Informational findings only. No immediate action required.`,
                 ]),
               ].join('\n'),
               labels: ['security', 'agent/ciso'],
-              assignees: hasCritical ? ['fratei'] : [],
+              assignees: hasCritical ? [ownerLogin] : [],
             });

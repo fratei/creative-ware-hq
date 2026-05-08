@@ -47,13 +47,16 @@ jobs:
           github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
+            const path = require('path');
+            const ws = process.env.GITHUB_WORKSPACE;
+            const cfg = require(`${ws}/.github/scripts/agent-config.js`);
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const today = new Date().toISOString().split('T')[0];
             const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
 
             // Read product registry
-            const registry = JSON.parse(fs.readFileSync('products/registry.json', 'utf-8'));
+            const registry = JSON.parse(fs.readFileSync(path.join(ws, 'products', 'registry.json'), 'utf-8'));
             const products = registry.products.filter(p => p.status === 'live');
             const productList = products.map(p => `- **${p.name}** (\`${p.repo}\`): ${p.description}`).join('\n');
 
@@ -75,7 +78,7 @@ jobs:
               `**Agent:** 🔍 Market Analysis Agent (HQ)`,
               `**Type:** Market Trends`,
               `**Date:** ${today}`,
-              `**Requires:** @fratei review after Copilot completes`,
+              `**Requires:** @${cfg.getOwner()} review after Copilot completes`,
               ``,
               `---`,
               ``,
@@ -191,6 +194,8 @@ jobs:
           script: |
             const fs = require('fs');
             const path = require('path');
+            const ws = process.env.GITHUB_WORKSPACE;
+            const cfg = require(`${ws}/.github/scripts/agent-config.js`);
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const today = new Date().toISOString().split('T')[0];
@@ -233,7 +238,7 @@ jobs:
               `**Agent:** 🔍 Market Analysis Agent (HQ)`,
               `**Type:** Competitive Whitespace`,
               `**Date:** ${today}`,
-              `**Requires:** @fratei review after Copilot completes`,
+              `**Requires:** @${cfg.getOwner()} review after Copilot completes`,
               ``,
               `---`,
               ``,
@@ -335,6 +340,9 @@ jobs:
           github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
+            const path = require('path');
+            const ws = process.env.GITHUB_WORKSPACE;
+            const cfg = require(`${ws}/.github/scripts/agent-config.js`);
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const today = new Date().toISOString().split('T')[0];
@@ -352,7 +360,7 @@ jobs:
             }
 
             // Read product registry
-            const registry = JSON.parse(fs.readFileSync('products/registry.json', 'utf-8'));
+            const registry = JSON.parse(fs.readFileSync(path.join(ws, 'products', 'registry.json'), 'utf-8'));
             const products = registry.products.filter(p => p.status === 'live');
 
             // Gather open issues & recent PRs per product for context
@@ -392,7 +400,7 @@ jobs:
               `**Agent:** 🔍 Market Analysis Agent (HQ)`,
               `**Type:** Product Evolution`,
               `**Date:** ${today}`,
-              `**Requires:** @fratei review after Copilot completes`,
+              `**Requires:** @${cfg.getOwner()} review after Copilot completes`,
               ``,
               `---`,
               ``,

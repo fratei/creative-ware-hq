@@ -39,6 +39,12 @@ jobs:
           github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
+            const path = require('path');
+            const ws = process.env.GITHUB_WORKSPACE;
+            const cfg = require(`${ws}/.github/scripts/agent-config.js`);
+            const { assignCopilotWithRetry } = require(`${ws}/.github/scripts/assign-copilot.js`);
+            const { recordOutcome } = require(`${ws}/.github/scripts/record-outcome.js`);
+
             const owner = context.repo.owner;
             const event = context.payload.action;
             const payload = context.payload.client_payload || {};
@@ -47,7 +53,7 @@ jobs:
             console.log(`   Payload: ${JSON.stringify(payload).slice(0, 500)}`);
 
             // Validate source repo is in registry
-            const registry = JSON.parse(fs.readFileSync('products/registry.json', 'utf-8'));
+            const registry = JSON.parse(fs.readFileSync(path.join(ws, 'products', 'registry.json'), 'utf-8'));
             const validRepos = new Set(registry.products.map(p => p.repo));
             const sourceRepo = payload.source_repo || '';
             const targetRepo = sourceRepo.replace(/^[^/]+\//, '') || '';
@@ -64,21 +70,23 @@ jobs:
             }
 
             // Circuit breaker: hop count
+            const maxHops = cfg.getMaxHopCount();
             const hopCount = (payload.hop_count || 0) + 1;
-            if (hopCount > 5) {
-              console.log('🛑 CIRCUIT BREAKER: hop count exceeded 5');
+            if (hopCount > maxHops) {
+              console.log(`🛑 CIRCUIT BREAKER: hop count exceeded ${maxHops}`);
               return;
             }
 
             // Circuit breaker: max issues per day
+            const maxIssues = cfg.getMaxDispatcherIssuesPerDay();
             const today = new Date().toISOString().split('T')[0];
             if (targetRepo) {
               const { data: todayIssues } = await github.rest.issues.listForRepo({
                 owner, repo: targetRepo, state: 'all', since: `${today}T00:00:00Z`,
                 labels: 'agent/dispatcher', per_page: 100,
               });
-              if (todayIssues.length > 20) {
-                console.log(`🛑 CIRCUIT BREAKER: >20 dispatcher issues today in ${targetRepo}`);
+              if (todayIssues.length > maxIssues) {
+                console.log(`🛑 CIRCUIT BREAKER: >${maxIssues} dispatcher issues today in ${targetRepo}`);
                 return;
               }
             }
@@ -101,6 +109,7 @@ jobs:
                 }
                 const issueNumber = payload.issue_number;
                 const title = payload.title || 'Approved implementation';
+                const approvedBy = payload.approved_by || 'owner';
                 const implTitle = `[IMPLEMENT] ${title.replace(/\[(DECISION|OPPORTUNITY)\]\s*/gi, '').trim()}`;
 
                 // Dedup: check for existing open IMPLEMENT issue
@@ -117,6 +126,7 @@ jobs:
                   `## 🔧 Implementation Task`,
                   ``,
                   `**Decision:** #${issueNumber}`,
+                  `**Approved by:** ${approvedBy}`,
                   `**Dispatched by:** 🧠 HQ Dispatcher`,
                   `**Hop:** ${hopCount}`,
                   ``,
@@ -145,34 +155,22 @@ jobs:
                   labels: ['engineering', 'agent/dispatcher', 'copilot'],
                 });
 
-                // Assign to Copilot coding agent
-                let assigned = false;
-                for (const login of ['copilot', 'copilot[bot]']) {
-                  try {
-                    await github.rest.issues.addAssignees({
-                      owner, repo: targetRepo,
-                      issue_number: impl.number,
-                      assignees: [login],
-                    });
-                    const { data: check } = await github.rest.issues.get({
-                      owner, repo: targetRepo, issue_number: impl.number,
-                    });
-                    if (check.assignees.some(a => a.login.toLowerCase().includes('copilot'))) {
-                      assigned = true;
-                      break;
-                    }
-                  } catch {}
-                }
+                // Assign to Copilot coding agent using reliable helper
+                const assigned = await assignCopilotWithRetry({
+                  github, owner, repo: targetRepo, issue_number: impl.number,
+                });
 
-                console.log(`✅ Created ${targetRepo}#${impl.number}${assigned ? ' → @copilot' : ' (manual assignment needed)'}`);
+                console.log(`✅ Created ${targetRepo}#${impl.number}${assigned ? ' → @copilot' : ' (assignment-failed)'}`);
 
-                if (!assigned) {
-                  await github.rest.issues.createComment({
-                    owner, repo: targetRepo,
-                    issue_number: impl.number,
-                    body: `⚠️ Auto-assignment to Copilot failed. Please assign manually in the GitHub UI.`,
-                  });
-                }
+                // Record in outcomes
+                await recordOutcome({
+                  kind: 'implementation-dispatched',
+                  summary: implTitle.slice(0, 80),
+                  decisionRef: `${targetRepo}#${issueNumber}`,
+                  prRef: `${targetRepo}#${impl.number}`,
+                  result: assigned ? '✅ dispatched' : '⚠️ assignment-failed',
+                  notes: `approved-by=${approvedBy}`,
+                });
 
                 // Comment on decision issue
                 if (issueNumber) {
@@ -196,13 +194,14 @@ jobs:
                 const pattern = payload.pattern || 'Unknown error';
                 const severity = payload.severity || 'medium';
 
+                const maxIncidents = cfg.getMaxIncidentsPerHour();
                 const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
                 const { data: recent } = await github.rest.issues.listForRepo({
                   owner, repo: targetRepo, state: 'all', labels: 'incident',
                   since: oneHourAgo, per_page: 10,
                 });
-                if (recent.length >= 3) {
-                  console.log('🛑 CIRCUIT BREAKER: ≥3 incidents in last hour');
+                if (recent.length >= maxIncidents) {
+                  console.log(`🛑 CIRCUIT BREAKER: ≥${maxIncidents} incidents in last hour`);
                   break;
                 }
 
@@ -220,13 +219,9 @@ jobs:
                   labels: ['bug', 'incident', 'agent/dispatcher'],
                 });
 
-                try {
-                  await github.rest.issues.addAssignees({
-                    owner, repo: targetRepo,
-                    issue_number: incident.number,
-                    assignees: ['copilot'],
-                  });
-                } catch {}
+                await assignCopilotWithRetry({
+                  github, owner, repo: targetRepo, issue_number: incident.number,
+                });
                 console.log(`🚨 Incident ${targetRepo}#${incident.number} created`);
                 break;
               }

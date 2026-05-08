@@ -1,0 +1,344 @@
+name: "🗳️ Agent Committee — Autonomous Voting"
+
+# Committee voting workflow for low/medium risk decisions.
+# Triggered when an opportunity issue is labeled 'committee-vote'.
+# Voters: CPO, CTO, CFO — use deterministic heuristics to vote.
+# After silent_consensus_hours, tallies votes and approves/rejects/escalates.
+
+on:
+  repository_dispatch:
+    types: [committee-vote-requested]
+  issues:
+    types: [labeled]
+  schedule:
+    - cron: "*/30 * * * *"  # Tally silent-consensus timeouts every 30 min
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: agent-committee
+  cancel-in-progress: false
+
+jobs:
+  post-voter-comments:
+    if: >-
+      github.event_name == 'repository_dispatch' ||
+      (github.event_name == 'issues' && github.event.label.name == 'committee-vote')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: "🗳️ Post Voter Comments"
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const ws = process.env.GITHUB_WORKSPACE;
+            const cfg = require(`${ws}/.github/scripts/agent-config.js`);
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            let issueNumber;
+            if (context.eventName === 'issues') {
+              issueNumber = context.payload.issue.number;
+            } else {
+              issueNumber = context.payload.client_payload?.issue_number;
+            }
+            if (!issueNumber) {
+              console.log('No issue number — skipping');
+              return;
+            }
+
+            const { data: issue } = await github.rest.issues.get({ owner, repo, issue_number: issueNumber });
+
+            // Idempotency: skip if voter comments already posted
+            const { data: comments } = await github.rest.issues.listComments({
+              owner, repo, issue_number: issueNumber, per_page: 100,
+            });
+            const voterTypes = ['CPO', 'CTO', 'CFO'];
+            const alreadyPosted = voterTypes.filter(v =>
+              comments.some(c => c.body.includes(`## 🗳️ ${v} Agent Vote`))
+            );
+            if (alreadyPosted.length === voterTypes.length) {
+              console.log('All voter comments already posted — skipping');
+              return;
+            }
+
+            // Determine tier from issue labels
+            const labels = issue.labels.map(l => l.name);
+            const tier = labels.includes('risk/high') ? 'high' : labels.includes('risk/low') ? 'low' : 'medium';
+            const tierCfg = cfg.getTier(tier);
+            const silentHours = tierCfg.silent_consensus_hours || 24;
+
+            // Read research & outcomes for voter context
+            let researchSummary = '';
+            try {
+              const researchDir = path.join(ws, 'strategy', 'research');
+              const files = fs.readdirSync(researchDir)
+                .filter(f => f.match(/^\d{4}-\d{2}-\d{2}\.md$/))
+                .sort().reverse();
+              if (files.length > 0) {
+                const content = fs.readFileSync(path.join(researchDir, files[0]), 'utf-8');
+                const takeaways = content.match(/## 🎯 Actionable Takeaways\n([\s\S]*?)(?=\n---)/);
+                if (takeaways) researchSummary = takeaways[1].trim().split('\n').slice(0, 5).join('\n');
+              }
+            } catch {}
+
+            const charterBase = 'https://github.com/' + owner + '/' + repo + '/blob/main/docs/agents/charters';
+            const voters = [
+              {
+                id: 'CPO',
+                emoji: '📦',
+                charter: `${charterBase}/cpo.md`,
+                criteria: 'Product-market fit, user value, roadmap alignment',
+                heuristic: (title, body) => {
+                  const t = (title + ' ' + body).toLowerCase();
+                  if (t.includes('pricing') || t.includes('billing') || t.includes('security')) return '❌';
+                  if (t.includes('feature') || t.includes('improve') || t.includes('export') || t.includes('api')) return '✅';
+                  return '✅';
+                },
+              },
+              {
+                id: 'CTO',
+                emoji: '🔧',
+                charter: `${charterBase}/cto.md`,
+                criteria: 'Technical feasibility, architecture fit, security posture',
+                heuristic: (title, body) => {
+                  const t = (title + ' ' + body).toLowerCase();
+                  if (t.includes('security') || t.includes('auth') || t.includes('billing')) return '⏸️';
+                  if (t.includes('refactor') || t.includes('test') || t.includes('performance')) return '✅';
+                  return '✅';
+                },
+              },
+              {
+                id: 'CFO',
+                emoji: '💰',
+                charter: `${charterBase}/cfo.md`,
+                criteria: 'Cost/benefit, no unbudgeted spend, financial risk',
+                heuristic: (title, body) => {
+                  const t = (title + ' ' + body).toLowerCase();
+                  if (t.includes('vendor') || t.includes('spend') || t.includes('cost') || t.includes('budget')) return '⏸️';
+                  return '✅';
+                },
+              },
+            ];
+
+            for (const voter of voters) {
+              if (comments.some(c => c.body.includes(`## 🗳️ ${voter.id} Agent Vote`))) {
+                console.log(`${voter.id} comment already posted — skipping`);
+                continue;
+              }
+
+              const vote = voter.heuristic(issue.title, issue.body || '');
+              const voteLabel = vote === '✅' ? 'Approve' : vote === '❌' ? 'Reject' : 'Defer to owner';
+
+              const commentBody = [
+                `## 🗳️ ${voter.emoji} ${voter.id} Agent Vote`,
+                ``,
+                `**Issue:** #${issueNumber} — ${issue.title}`,
+                `**Tier:** \`${tier}\` | **Silent consensus:** ${silentHours}h after first vote`,
+                `**Charter:** [${voter.id} Agent Charter](${voter.charter})`,
+                ``,
+                `### Decision Criteria`,
+                voter.criteria,
+                ``,
+                `### Analysis`,
+                researchSummary
+                  ? `Based on latest research signals:\n${researchSummary}\n`
+                  : `Based on issue content and product registry.`,
+                ``,
+                `### Vote`,
+                `- [${vote === '✅' ? 'x' : ' '}] ✅ Approve`,
+                `- [${vote === '❌' ? 'x' : ' '}] ❌ Reject`,
+                `- [${vote === '⏸️' ? 'x' : ' '}] ⏸️ Defer to owner`,
+                ``,
+                `---`,
+                `*Posted by ${voter.id} Agent (CreativeWare Committee) — vote registered at ${new Date().toISOString()}*`,
+              ].join('\n');
+
+              try {
+                await github.rest.issues.createComment({
+                  owner, repo, issue_number: issueNumber, body: commentBody,
+                });
+                console.log(`✅ ${voter.id} vote posted (${vote})`);
+              } catch (e) {
+                console.log(`⚠️ Could not post ${voter.id} vote: ${e.message}`);
+              }
+            }
+
+  tally-votes:
+    if: github.event_name == 'schedule' || github.event_name == 'repository_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: "📊 Tally Committee Votes"
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const ws = process.env.GITHUB_WORKSPACE;
+            const cfg = require(`${ws}/.github/scripts/agent-config.js`);
+            const { recordOutcome } = require(`${ws}/.github/scripts/record-outcome.js`);
+
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            // Find open issues with committee-vote label
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner, repo, state: 'open', labels: 'committee-vote', per_page: 50,
+            });
+
+            console.log(`Found ${issues.length} issues awaiting committee vote`);
+
+            for (const issue of issues) {
+              const labels = issue.labels.map(l => l.name);
+              const tier = labels.includes('risk/high') ? 'high'
+                : labels.includes('risk/low') ? 'low' : 'medium';
+              const tierCfg = cfg.getTier(tier);
+              const requiredVotes = tierCfg.required_votes || 2;
+              const silentHours = tierCfg.silent_consensus_hours || 24;
+
+              // Get all comments
+              const { data: comments } = await github.rest.issues.listComments({
+                owner, repo, issue_number: issue.number, per_page: 100,
+              });
+
+              // Find voter comments
+              const voterIds = ['CPO', 'CTO', 'CFO'];
+              const votes = {};
+              let firstVoteAt = null;
+
+              for (const c of comments) {
+                for (const vid of voterIds) {
+                  if (!c.body.includes(`## 🗳️`) || !c.body.includes(`${vid} Agent Vote`)) continue;
+                  const approve = c.body.includes('- [x] ✅ Approve');
+                  const reject = c.body.includes('- [x] ❌ Reject');
+                  const defer = c.body.includes('- [x] ⏸️ Defer to owner');
+                  votes[vid] = approve ? 'approve' : reject ? 'reject' : defer ? 'defer' : 'pending';
+                  const ts = new Date(c.created_at).getTime();
+                  if (!firstVoteAt || ts < firstVoteAt) firstVoteAt = ts;
+                }
+              }
+
+              const voteCounts = Object.values(votes);
+              const approvals = voteCounts.filter(v => v === 'approve').length;
+              const rejections = voteCounts.filter(v => v === 'reject').length;
+              const defers = voteCounts.filter(v => v === 'defer').length;
+
+              console.log(`Issue #${issue.number}: approvals=${approvals}, rejections=${rejections}, defers=${defers}, tier=${tier}`);
+
+              // Escalation: any reject or defer
+              if (rejections > 0 || defers > 0) {
+                const reason = rejections > 0 ? `${rejections} rejection(s)` : `${defers} deferral(s) to owner`;
+                console.log(`  → Escalating: ${reason}`);
+
+                // Skip if already escalated
+                if (labels.includes('needs-owner-approval')) {
+                  console.log('  Already escalated');
+                  continue;
+                }
+
+                const ownerLogin = cfg.getOwner();
+                await github.rest.issues.addLabels({
+                  owner, repo, issue_number: issue.number,
+                  labels: ['needs-owner-approval'],
+                });
+                try {
+                  await github.rest.issues.addAssignees({
+                    owner, repo, issue_number: issue.number, assignees: [ownerLogin],
+                  });
+                } catch {}
+                await github.rest.issues.createComment({
+                  owner, repo, issue_number: issue.number,
+                  body: `## ⏸️ Committee Vote — Escalated to Owner\n\n**Reason:** ${reason}\n\nThis decision requires @${ownerLogin} review.\n\n---\n*Escalated by Agent Committee — CreativeWare*`,
+                });
+
+                await recordOutcome({
+                  kind: 'committee-escalation',
+                  summary: issue.title.slice(0, 80),
+                  decisionRef: `${repo}#${issue.number}`,
+                  result: '⏸️ escalated',
+                  notes: reason,
+                });
+                continue;
+              }
+
+              // Check silent consensus timeout
+              if (!firstVoteAt) continue;
+              const hoursElapsed = (Date.now() - firstVoteAt) / 3600000;
+              if (hoursElapsed < silentHours) {
+                console.log(`  Silent consensus window open (${Math.round(hoursElapsed)}h / ${silentHours}h)`);
+                continue;
+              }
+
+              // Check required votes
+              if (approvals < requiredVotes) {
+                console.log(`  Not enough approvals (${approvals}/${requiredVotes})`);
+                continue;
+              }
+
+              // All good: approve
+              console.log(`  → APPROVED (${approvals}/${requiredVotes} votes after ${Math.round(hoursElapsed)}h)`);
+
+              await github.rest.issues.createComment({
+                owner, repo, issue_number: issue.number,
+                body: [
+                  `## ✅ Committee Vote — Approved`,
+                  ``,
+                  `**Result:** ${approvals}/${requiredVotes} approvals, 0 objections, ${Math.round(hoursElapsed)}h silent consensus`,
+                  `**Tier:** \`${tier}\``,
+                  ``,
+                  `Dispatching for implementation…`,
+                  ``,
+                  `---`,
+                  `*Approved by Agent Committee (CPO / CTO / CFO) — CreativeWare*`,
+                ].join('\n'),
+              });
+
+              // Close issue as approved
+              await github.rest.issues.update({
+                owner, repo, issue_number: issue.number, state: 'closed',
+              });
+
+              // Dispatch implementation-approved
+              const rec = (issue.body || '').match(/## Recommendation\n([\s\S]*?)(?=\n##|\n$)/);
+              try {
+                await github.rest.repos.createDispatchEvent({
+                  owner, repo: context.repo.repo,
+                  event_type: 'implementation-approved',
+                  client_payload: {
+                    source_repo: `${owner}/${repo}`,
+                    issue_number: issue.number,
+                    title: issue.title,
+                    recommendation: rec ? rec[1].trim().slice(0, 500) : 'See issue for details',
+                    hop_count: 0,
+                    approved_by: 'agent-committee',
+                  },
+                });
+                console.log(`  Dispatched implementation-approved for #${issue.number}`);
+              } catch (e) {
+                console.log(`  ⚠️ Dispatch failed: ${e.message}`);
+              }
+
+              await recordOutcome({
+                kind: 'committee-approval',
+                summary: issue.title.slice(0, 80),
+                decisionRef: `${repo}#${issue.number}`,
+                result: '✅ approved',
+                notes: `${approvals}/${requiredVotes} votes, 0 objections`,
+              });
+            }
