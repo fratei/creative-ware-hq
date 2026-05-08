@@ -29,13 +29,13 @@ jobs:
           token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
 
       - id: reminder-template
-        uses: fratei/creative-ware-hq/.github/actions/render-prompt@v1
+        uses: ./.github/actions/render-prompt
         with:
           template_name: sla-reminder-48h
           vars_json: '{"hours_open":"hours_open","sla_hours":"sla_hours","owner":"owner"}'
 
       - id: fallback-template
-        uses: fratei/creative-ware-hq/.github/actions/render-prompt@v1
+        uses: ./.github/actions/render-prompt
         with:
           template_name: sla-fallback-72h
           vars_json: '{"hours_open":"hours_open","tier":"tier"}'

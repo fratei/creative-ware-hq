@@ -13,6 +13,6 @@ jobs:
       - name: Validate framework schemas
         run: node framework/scripts/validate-schemas.js
       - name: Composite action smoke call
-        uses: fratei/creative-ware-hq/.github/actions/load-config@v1
+        uses: ./.github/actions/load-config
         with:
           config_path: config/agents.config.json

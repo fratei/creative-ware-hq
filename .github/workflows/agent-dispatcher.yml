@@ -34,7 +34,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - id: implementation-template
-        uses: fratei/creative-ware-hq/.github/actions/render-prompt@v1
+        uses: ./.github/actions/render-prompt
         with:
           template_name: dispatcher-implementation-task
           vars_json: '{"decision_ref":"decision_ref","approved_by":"approved_by","recommendation":"recommendation"}'

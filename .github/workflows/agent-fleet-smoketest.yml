@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: prompt
-        uses: fratei/creative-ware-hq/.github/actions/render-prompt@v1
+        uses: ./.github/actions/render-prompt
         with:
           template_name: smoketest-opportunity
           vars_json: '{"timestamp":"${{ github.run_id }}"}'
