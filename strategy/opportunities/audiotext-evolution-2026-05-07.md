@@ -29,7 +29,7 @@ AudioText already has unusually strong reuse for this next phase:
 That means the highest-value roadmap moves mostly require packaging, workflow orchestration, UI, usage controls, and integrations rather than a foundational platform rebuild.
 
 ### Revenue Potential
-- **Pricing model:** Keep core transcription plans, but add packaging that monetises workflow depth: a Teams tier, workflow/integration add-ons, and API usage-based expansion above subscription quotas.
+- **Pricing model:** Keep core transcription plans, but add packaging that monetizes workflow depth: a Teams tier, workflow/integration add-ons, and API usage-based expansion above subscription quotas.
 - **Path to first paying customer:** Ship retention-oriented transcript intelligence and self-serve integrations to existing users first, then expand into developer/API and sales-call workflows already approved in adjacent briefs.
 - **Estimated time to revenue:** 2-6 weeks for pricing/packaging changes and transcript-intelligence upsells; 4-8 weeks for integration-led expansion revenue.
 
@@ -66,7 +66,7 @@ Retention/NPS inference should remain cautious. With 0 visible issues and 0 open
 ### Recommended Execution Order
 1. Ship post-transcription workflow automation
 2. Add Teams + freemium/API packaging changes
-3. Launch Slack/Notion/Zapier or Make integrations
+3. Launch Slack/Notion/Zapier/Make integrations
 4. Deepen multilingual/compliance-ready packaging
 5. Continue execution on the already-approved adjacent bets:
    - [`strategy/opportunities/developer-api-sdk.md`](./developer-api-sdk.md)
