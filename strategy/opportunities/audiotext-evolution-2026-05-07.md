@@ -48,7 +48,7 @@ Retention/NPS inference should remain cautious. With 0 visible issues and 0 open
 
 #### 2. Feature Evolution Opportunities
 1. **Post-transcription workflow automation (highest priority):** ship default summaries, action items, topic tags, highlights, and export-ready templates for common workflows. This most directly reduces churn because it keeps users inside AudioText after the transcript lands.
-2. **Integration-led retention:** prioritise Slack, Notion, Zapier/Make, and HubSpot so transcripts and insights flow into the tools customers already use. Competitors are increasingly winning by becoming part of the system of record.
+2. **Integration-led retention:** prioritize Slack, Notion, Zapier/Make, and HubSpot so transcripts and insights flow into the tools customers already use. Competitors are increasingly winning by becoming part of the system of record.
 3. **Multilingual and quality-packaging improvements:** surface language-specific quality modes, domain vocab packs, and optional human-review/compliance workflows for higher-stakes accounts. This strengthens fit without requiring a full vertical product launch.
 4. **Self-serve developer motion:** expand from enterprise-only API access toward clearer self-serve API packaging, webhooks, and SDK-led onboarding. This is already partially captured by the approved `developer-api-sdk.md` opportunity and should now be treated as a go-to-market accelerant, not just a technical extension.
 
