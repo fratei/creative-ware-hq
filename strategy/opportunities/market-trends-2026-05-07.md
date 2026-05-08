@@ -33,7 +33,7 @@ The market is increasingly splitting into two layers:
 
 ### Year-over-year growth drivers
 
-- **Voice AI funding and platform investment remain strong.** Deepgram raised **$130M Series C at a $1.3B valuation** in January 2026, while ElevenLabs reportedly reached **$500M+ ARR** and raised a **$500M Series D at an $11B valuation**, signalling sustained investor confidence in audio infrastructure and voice interfaces.
+- **Voice AI funding and platform investment remain strong.** Deepgram raised **$130M Series C at a $1.3B valuation** in January 2026, while ElevenLabs reportedly reached **$500M+ ARR** and raised a **$500M Series D at an $11B valuation**, signaling sustained investor confidence in audio infrastructure and voice interfaces.
 - **Contact centre and call automation** continue to be the clearest ROI-backed enterprise use case, especially where voice AI reduces handling time and improves containment.
 - **Ambient documentation** in healthcare and adjacent regulated workflows continues to pull demand for accurate, compliant transcription plus summarisation.
 - **Developer adoption** is accelerating because modern APIs, streaming WebSockets, and open-source models dramatically reduce time-to-market for audio-native products.
