@@ -50,7 +50,11 @@ async function bootstrapProduct({ github, owner, hqRepo, targetRepo }) {
   }
 
   const cfg = JSON.parse(fs.readFileSync('config/agents.config.json', 'utf8'));
-  cfg.circuit_breakers.max_auto_merges_per_day = Math.min(cfg.circuit_breakers.max_auto_merges_per_day, 5);
+  const originalMaxMerges = cfg.circuit_breakers.max_auto_merges_per_day;
+  cfg.circuit_breakers.max_auto_merges_per_day = Math.min(originalMaxMerges, 5);
+  if (cfg.circuit_breakers.max_auto_merges_per_day !== originalMaxMerges) {
+    console.log(`circuit breaker adjusted for bootstrap defaults: max_auto_merges_per_day ${originalMaxMerges} -> ${cfg.circuit_breakers.max_auto_merges_per_day}`);
+  }
   await github.rest.repos.createOrUpdateFileContents({
     owner,
     repo: targetRepo,

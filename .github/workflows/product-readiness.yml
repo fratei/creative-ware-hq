@@ -24,10 +24,19 @@ jobs:
             const rows = [];
             for (const p of dev) {
               const [owner, repo] = p.repo.split('/');
+              let incidentsOpen = 0;
+              try {
+                const { data: incidentIssues } = await github.rest.issues.listForRepo({
+                  owner, repo, state: 'open', labels: 'incident', per_page: 100,
+                });
+                incidentsOpen = incidentIssues.length;
+              } catch (e) {
+                console.log(`incident check failed for ${p.repo}: ${e.message}`);
+              }
               const checks = {
                 ci: false,
                 coverage: false,
-                incidents: true,
+                incidents: incidentsOpen === 0,
                 runbook: false,
                 dashboardFresh: false,
                 monitoring: false,

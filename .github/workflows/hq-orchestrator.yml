@@ -363,6 +363,8 @@ jobs:
             const baselinePath = path.join(ws, 'strategy', 'agent-state', 'dashboard-baseline.json');
             let baseline = fs.existsSync(baselinePath) ? JSON.parse(fs.readFileSync(baselinePath, 'utf8')) : {};
             const anomalies = [];
+            const RED_Z_THRESHOLD = 2;
+            const YELLOW_Z_THRESHOLD = 1;
             dash = dash.replace(/^\| ([^|]+) \| ([^|]+) \|$/gm, (line, metric, value) => {
               const m = value.match(/-?\d+/);
               if (!m) return line;
@@ -372,8 +374,8 @@ jobs:
               const variance = history.length ? history.reduce((s, n) => s + Math.pow(n - mean, 2), 0) / history.length : 0;
               const std = Math.sqrt(variance) || 1;
               const z = (num - mean) / std;
-              const emoji = Math.abs(z) >= 2 ? '🔴' : Math.abs(z) >= 1 ? '🟡' : '🟢';
-              if (Math.abs(z) >= 2) anomalies.push(`- **${metric}:** ${num} (z=${z.toFixed(2)})`);
+              const emoji = Math.abs(z) >= RED_Z_THRESHOLD ? '🔴' : Math.abs(z) >= YELLOW_Z_THRESHOLD ? '🟡' : '🟢';
+              if (Math.abs(z) >= RED_Z_THRESHOLD) anomalies.push(`- **${metric}:** ${num} (z=${z.toFixed(2)})`);
               baseline[metric] = [...history.slice(-6), num];
               return `| ${metric} | ${emoji} ${value.replace(/^[🟢🟡🔴]\s*/, '')} |`;
             });

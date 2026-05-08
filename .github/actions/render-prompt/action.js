@@ -14,6 +14,17 @@ function setOutput(name, value) {
   const vars = JSON.parse(process.env.INPUT_VARS_JSON || '{}');
   const file = path.join(ws, 'framework', 'prompts', `${name}.md`);
   let content = fs.readFileSync(file, 'utf8');
+  const fm = content.match(/^---\n([\s\S]*?)\n---\n?/);
+  const requiredVarsMatch = fm ? fm[1].match(/required_vars:\s*\[([^\]]*)\]/) : null;
+  const requiredVars = requiredVarsMatch
+    ? requiredVarsMatch[1].split(',').map(s => s.trim()).filter(Boolean)
+    : [];
+
+  for (const reqVar of requiredVars) {
+    if (!Object.prototype.hasOwnProperty.call(vars, reqVar)) {
+      throw new Error(`Missing required template variable: ${reqVar}`);
+    }
+  }
 
   content = content.replace(/^---[\s\S]*?---\n?/, '');
   content = content.replace(/\{\{\s*([a-zA-Z0-9_]+)\s*\}\}/g, (_, key) => {
