@@ -3,7 +3,7 @@
 **Status:** validated
 **Owner:** CPO + CTO
 **Created:** 2026-04-24
-**Last Updated:** 2026-05-05
+**Last Updated:** 2026-05-07
 
 ### Problem / Pain Point
 
@@ -19,7 +19,8 @@ Developers building applications that need audio transcription, speaker diarizat
 
 - **TAM/SAM estimate:** Global speech recognition API market ~$2.5B in 2025, growing ~20% YoY; developer tier SAM ~$300M
 - **Competitor landscape:**
-  - *AssemblyAI* — developer-focused, strong docs; Voice Agent API now GA
+  - *Gladia* — **French AI startup raised $16M Series A (May 2026, SiliconANGLE / Slator)** and launched a multilingual real-time transcription engine. Reached $5.6M revenue with a 51-person team in 2025 (GetLatka). Directly targets the developer/API STT market with multilingual and real-time capabilities — a credible new entrant to monitor. Validates VC appetite for developer-facing STT APIs and confirms the market is not yet winner-takes-all.
+  - *AssemblyAI* — developer-focused, strong docs; Voice Agent API now GA. **NEW (May 2026):** expanded LLM Gateway to deepen role in AI infrastructure (TipRanks), positioning as a full AI stack for voice — adds competitive urgency for AudioText to ship SDK and post-transcription intelligence features.
   - *Deepgram* — low-latency, real-time; **raised $130M Series C at $1.3B valuation (Apr 2026); expanded Flux model to 10 languages with mid-call switching for voice agents (May 2026); announced enterprise voice AI partnership with IBM (May 2026)** — accelerating DX improvements, multilingual capabilities, and enterprise distribution
   - *Rev AI* — accuracy-focused; no pay-as-you-go
   - *OpenAI Whisper* — free OSS but no managed API SLAs or support
@@ -47,7 +48,7 @@ Very high reuse from existing AudioText infrastructure:
 - Need to decide on metering granularity (per-second vs per-minute)
 - Documentation quality is a key differentiator — requires dedicated effort
 - Competition from OpenAI / Google at the commodity end of the market
-- **Deepgram $130M Series C (Apr 2026) — accelerated competitive threat:** Deepgram's raise (~$1.3B valuation, The SaaS News) sharpens the urgency on three fronts:
+- **Deepgram $130M Series C (reconfirmed in 2026-05-07 research signal) — accelerated competitive threat:** Deepgram's raise (~$1.3B valuation, Reuters / The SaaS News) sharpens the urgency on three fronts:
   - *DX timeline:* Fresh capital funds faster SDK quality improvements and developer onboarding enhancements — the exact dimensions AudioText must win on. SDK v1 and developer docs portal should ship before Deepgram's DX roadmap closes the gap.
   - *Feature expansion risk:* Deepgram may use new capital to build post-transcription intelligence (summarisation, action items, topic detection) — features currently absent from their product and AudioText's primary differentiation.
   - *Counter-strategy:* Compete on intelligence depth and developer experience, not on raw transcription price or latency where Deepgram already leads.

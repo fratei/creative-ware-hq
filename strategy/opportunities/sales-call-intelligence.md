@@ -3,7 +3,7 @@
 **Status:** validated
 **Owner:** CPO + CTO
 **Created:** 2026-04-24
-**Last Updated:** 2026-05-05
+**Last Updated:** 2026-05-07
 
 ### Problem / Pain Point
 
@@ -19,7 +19,7 @@ Sales teams lose revenue because insights from customer calls are buried in reco
 
 - **TAM/SAM estimate:** Sales enablement & conversation intelligence market ~$2B in 2025, expected ~$5B by 2028 (Gartner); direct SAM for SMB/mid-market ~$400M
 - **Competitor landscape:**
-  - *Gong* — $7.25B valuation; enterprise sales intelligence leader ($100–$200/seat/mo); out of reach for SMBs
+  - *Gong* — $7.25B valuation; enterprise sales intelligence leader ($100–$200/seat/mo); out of reach for SMBs. **NEW (May 2026):** Gong launched "Mission Andromeda" — AI sales coaching, a built-in chatbot, and open MCP connections to competitor tools (Venturebeat). By opening MCP integrations, Gong is attempting to entrench itself as the conversation intelligence hub — integrating with dialer software and CRMs rather than being displaced by them. This increases competitive pressure but also validates that the enterprise conversation intelligence market is entering a new phase of platform consolidation. AudioText's SMB/mid-market segment remains underserved by Gong's enterprise pricing.
   - *Chorus* — acquired by ZoomInfo; enterprise-tier pricing
   - *Salesloft* — enterprise conversation intelligence; not SMB-friendly
   - *Fireflies.ai* — SMB-friendly meeting transcription; lacks deep call scoring and CRM auto-fill
@@ -49,6 +49,7 @@ High reuse from existing AudioText infrastructure:
 - Call recording consent and compliance requirements vary by jurisdiction (must address before GA)
 - Model accuracy for sales-specific jargon and objection patterns needs fine-tuning
 - Distribution: need partnerships or integrations with dialer software (Aircall, Dialpad, etc.)
+- **NEW risk (May 2026):** Fireflies.AI is facing a class action lawsuit for alleged unlawful biometric data collection from meeting participants (The National Law Review / Class Action Lawsuits). This is a direct warning signal for AudioText's Sales Call Intelligence product: recording and analysing call audio involving multiple parties requires robust consent workflows, biometric data disclosures (where applicable under BIPA and similar statutes), and clear data retention and deletion policies. **Action required:** Legal agent must review call recording consent requirements before GA and ensure BIPA/GDPR-equivalent disclosures are part of the onboarding flow.
 - **New risk (May 2026):** Deepgram raised $130M Series C at $1.3B valuation (Apr 2026). As the key STT infrastructure layer for many voice-AI platforms, their increased capitalisation will accelerate STT accuracy and real-time API improvements — raising the baseline transcription quality available to all application-layer competitors (Gong, Fireflies.ai, Salesloft) — while also creating the risk of upstack expansion into conversation intelligence and sales call analytics. AudioText must differentiate on application-layer intelligence (CRM automation, call coaching, objection detection) and affordable pricing rather than raw transcription.
 
 ### Decision
