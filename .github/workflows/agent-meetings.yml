@@ -43,7 +43,7 @@ jobs:
           token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
 
       - id: standup-template
-        uses: fratei/creative-ware-hq/.github/actions/render-prompt@v1
+        uses: ./.github/actions/render-prompt
         with:
           template_name: handoff-meeting
           vars_json: '{"meeting_type":"standup","context":"Cross-product status review and execution alignment"}'

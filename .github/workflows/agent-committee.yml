@@ -34,19 +34,19 @@ jobs:
           token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
 
       - id: prompt-cpo
-        uses: fratei/creative-ware-hq/.github/actions/render-prompt@v1
+        uses: ./.github/actions/render-prompt
         with:
           template_name: committee-voter-cpo
           vars_json: '{"issue_title":"issue_title","brief_summary":"brief_summary","charter_url":"charter_url"}'
 
       - id: prompt-cto
-        uses: fratei/creative-ware-hq/.github/actions/render-prompt@v1
+        uses: ./.github/actions/render-prompt
         with:
           template_name: committee-voter-cto
           vars_json: '{"issue_title":"issue_title","brief_summary":"brief_summary","charter_url":"charter_url"}'
 
       - id: prompt-cfo
-        uses: fratei/creative-ware-hq/.github/actions/render-prompt@v1
+        uses: ./.github/actions/render-prompt
         with:
           template_name: committee-voter-cfo
           vars_json: '{"issue_title":"issue_title","brief_summary":"brief_summary","charter_url":"charter_url"}'
