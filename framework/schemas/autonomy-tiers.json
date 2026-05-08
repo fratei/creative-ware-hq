@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Autonomy tiers",
+  "type": "object",
+  "required": ["low", "medium", "high"],
+  "properties": {
+    "low": {
+      "type": "object",
+      "required": ["description", "approval", "required_votes", "voters", "silent_consensus_hours"]
+    },
+    "medium": {
+      "type": "object",
+      "required": ["description", "approval", "required_votes", "voters", "silent_consensus_hours"]
+    },
+    "high": {
+      "type": "object",
+      "required": ["description", "approval"]
+    }
+  }
+}

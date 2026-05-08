@@ -33,6 +33,24 @@ jobs:
         with:
           token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
 
+      - id: prompt-cpo
+        uses: fratei/creative-ware-hq/.github/actions/render-prompt@v1
+        with:
+          template_name: committee-voter-cpo
+          vars_json: '{"issue_title":"{{issue_title}}","brief_summary":"{{brief_summary}}","charter_url":"{{charter_url}}"}'
+
+      - id: prompt-cto
+        uses: fratei/creative-ware-hq/.github/actions/render-prompt@v1
+        with:
+          template_name: committee-voter-cto
+          vars_json: '{"issue_title":"{{issue_title}}","brief_summary":"{{brief_summary}}","charter_url":"{{charter_url}}"}'
+
+      - id: prompt-cfo
+        uses: fratei/creative-ware-hq/.github/actions/render-prompt@v1
+        with:
+          template_name: committee-voter-cfo
+          vars_json: '{"issue_title":"{{issue_title}}","brief_summary":"{{brief_summary}}","charter_url":"{{charter_url}}"}'
+
       - name: "🗳️ Post Voter Comments"
         uses: actions/github-script@v7
         with:
@@ -139,21 +157,26 @@ jobs:
 
               const vote = voter.heuristic(issue.title, issue.body || '');
               const voteLabel = vote === '✅' ? 'Approve' : vote === '❌' ? 'Reject' : 'Defer to owner';
+              const baseTemplate = voter.id === 'CPO'
+                ? `${{ steps.prompt-cpo.outputs.rendered }}`
+                : voter.id === 'CTO'
+                  ? `${{ steps.prompt-cto.outputs.rendered }}`
+                  : `${{ steps.prompt-cfo.outputs.rendered }}`;
+              const renderedVoteHeader = baseTemplate
+                .replace('{{issue_title}}', `#${issueNumber} — ${issue.title}`)
+                .replace('{{brief_summary}}', researchSummary || 'Based on issue content and product registry.')
+                .replace('{{charter_url}}', voter.charter);
 
               const commentBody = [
-                `## 🗳️ ${voter.emoji} ${voter.id} Agent Vote`,
+                renderedVoteHeader,
                 ``,
-                `**Issue:** #${issueNumber} — ${issue.title}`,
                 `**Tier:** \`${tier}\` | **Silent consensus:** ${silentHours}h after first vote`,
-                `**Charter:** [${voter.id} Agent Charter](${voter.charter})`,
                 ``,
                 `### Decision Criteria`,
                 voter.criteria,
                 ``,
                 `### Analysis`,
-                researchSummary
-                  ? `Based on latest research signals:\n${researchSummary}\n`
-                  : `Based on issue content and product registry.`,
+                researchSummary ? `Based on latest research signals:\n${researchSummary}\n` : `Based on issue content and product registry.`,
                 ``,
                 `### Vote`,
                 `- [${vote === '✅' ? 'x' : ' '}] ✅ Approve`,

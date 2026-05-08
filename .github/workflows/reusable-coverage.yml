@@ -1,0 +1,17 @@
+name: reusable-coverage
+on:
+  workflow_call:
+    inputs:
+      coverage_path:
+        description: Coverage artifact path
+        required: false
+        default: coverage/coverage-summary.json
+        type: string
+permissions:
+  contents: read
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "Coverage reusable workflow ready for path ${{ inputs.coverage_path }}"

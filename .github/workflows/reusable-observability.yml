@@ -1,0 +1,21 @@
+name: reusable-observability
+on:
+  workflow_call:
+    inputs:
+      product_name:
+        description: Product name
+        required: true
+        type: string
+      dashboard_path:
+        description: Dashboard path
+        required: true
+        type: string
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          echo "# Observability\n\nProduct: ${{ inputs.product_name }}\nUpdated: $(date -u +%FT%TZ)" > "${{ inputs.dashboard_path }}"

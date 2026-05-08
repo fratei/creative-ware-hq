@@ -1,0 +1,30 @@
+name: assign-copilot
+description: Retry Copilot assignment and escalate failures
+inputs:
+  repo:
+    description: Target repository (owner/repo)
+    required: true
+  issue_number:
+    description: Issue number
+    required: true
+  attempts:
+    description: Retry attempts
+    required: false
+    default: "3"
+outputs:
+  assigned:
+    description: Whether assignment succeeded
+    value: ${{ steps.run.outputs.assigned }}
+  login:
+    description: Successful login if assigned
+    value: ${{ steps.run.outputs.login }}
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      env:
+        INPUT_REPO: ${{ inputs.repo }}
+        INPUT_ISSUE_NUMBER: ${{ inputs.issue_number }}
+        INPUT_ATTEMPTS: ${{ inputs.attempts }}
+      run: node "$GITHUB_ACTION_PATH/action.js"

@@ -1,0 +1,38 @@
+name: reusable-pr-pipeline
+on:
+  workflow_call:
+    inputs:
+      owner:
+        description: Repository owner
+        required: true
+        type: string
+      repo:
+        description: Repository name
+        required: true
+        type: string
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+jobs:
+  classify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: cfg
+        uses: fratei/creative-ware-hq/.github/actions/load-config@v1
+      - id: classify
+        uses: fratei/creative-ware-hq/.github/actions/classify-risk@v1
+        with:
+          title: ${{ github.event.pull_request.title || github.event.head_commit.message || 'scheduled-run' }}
+          body: ${{ github.event.pull_request.body || '' }}
+          files: "[]"
+          labels: "[]"
+      - name: Gate high risk
+        if: steps.classify.outputs.tier == 'high'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            if (!context.payload.pull_request) return;
+            await github.rest.issues.addLabels({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.payload.pull_request.number, labels: ['needs-owner-approval', 'risk/high'] });

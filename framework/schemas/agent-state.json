@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agent state",
+  "type": "object",
+  "required": ["agent", "last_run_utc", "pending_handoffs", "metrics_30d"],
+  "properties": {
+    "agent": { "type": "string" },
+    "last_run_utc": { "type": ["string", "null"] },
+    "pending_handoffs": { "type": "array" },
+    "metrics_30d": { "type": "object" }
+  }
+}

@@ -1,0 +1,30 @@
+name: committee-vote
+description: Tally committee votes from issue comments
+inputs:
+  issue_number:
+    description: Issue number
+    required: true
+  tier:
+    description: Risk tier
+    required: true
+  voters:
+    description: JSON array of voter names
+    required: false
+    default: '["CPO","CTO","CFO"]'
+outputs:
+  decision:
+    description: approved/rejected/escalated
+    value: ${{ steps.run.outputs.decision }}
+  votes:
+    description: Vote breakdown JSON
+    value: ${{ steps.run.outputs.votes }}
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      env:
+        INPUT_ISSUE_NUMBER: ${{ inputs.issue_number }}
+        INPUT_TIER: ${{ inputs.tier }}
+        INPUT_VOTERS: ${{ inputs.voters }}
+      run: node "$GITHUB_ACTION_PATH/action.js"

@@ -1,0 +1,41 @@
+name: record-outcome
+description: Append outcome rows idempotently and commit with skip ci
+inputs:
+  kind:
+    description: Outcome kind
+    required: true
+  summary:
+    description: Outcome summary
+    required: true
+  decision_ref:
+    description: Decision reference
+    required: false
+    default: ""
+  pr_ref:
+    description: PR reference
+    required: false
+    default: ""
+  result:
+    description: Result text
+    required: true
+  notes:
+    description: Notes
+    required: false
+    default: ""
+outputs:
+  outcome_path:
+    description: File path written
+    value: ${{ steps.run.outputs.outcome_path }}
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      env:
+        INPUT_KIND: ${{ inputs.kind }}
+        INPUT_SUMMARY: ${{ inputs.summary }}
+        INPUT_DECISION_REF: ${{ inputs.decision_ref }}
+        INPUT_PR_REF: ${{ inputs.pr_ref }}
+        INPUT_RESULT: ${{ inputs.result }}
+        INPUT_NOTES: ${{ inputs.notes }}
+      run: node "$GITHUB_ACTION_PATH/action.js"

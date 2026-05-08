@@ -1,0 +1,27 @@
+name: agent-state
+description: Read/write per-agent state files
+inputs:
+  agent:
+    description: Agent name
+    required: true
+  op:
+    description: Operation (read/write)
+    required: true
+  state_json:
+    description: JSON state for writes
+    required: false
+    default: ""
+outputs:
+  state_json:
+    description: Returned state for reads
+    value: ${{ steps.run.outputs.state_json }}
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      env:
+        INPUT_AGENT: ${{ inputs.agent }}
+        INPUT_OP: ${{ inputs.op }}
+        INPUT_STATE_JSON: ${{ inputs.state_json }}
+      run: node "$GITHUB_ACTION_PATH/action.js"

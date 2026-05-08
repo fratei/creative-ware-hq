@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agent handoff comment format",
+  "type": "object",
+  "required": ["from", "to", "action", "priority", "context", "deadline"],
+  "properties": {
+    "from": { "type": "string" },
+    "to": { "type": "string" },
+    "action": { "type": "string" },
+    "priority": { "type": "string" },
+    "context": { "type": "string" },
+    "deadline": { "type": "string" }
+  }
+}

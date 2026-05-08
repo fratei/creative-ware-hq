@@ -317,7 +317,8 @@ jobs:
                   owner, repo, state: 'open', per_page: 100,
                 });
                 const engineeringIssues = openIssues.filter(i =>
-                  i.labels.some(l => l.name === 'engineering')
+                  i.labels.some(l => l.name === 'engineering') &&
+                  !i.labels.some(l => l.name === 'smoke-test')
                 ).length;
 
                 console.log(`💰 ${repo}: ${openPRs.length} PRs, ${engineeringIssues} engineering tasks`);

@@ -40,6 +40,7 @@ jobs:
           script: |
             const { execSync } = require('child_process');
             const fs = require('fs');
+            const { bootstrapProduct } = require('./framework/scripts/bootstrap-product.js');
             const owner = context.repo.owner;
 
             // Get product details from dispatch payload or workflow inputs
@@ -127,6 +128,14 @@ jobs:
                 console.log(`⚠️ Failed to update ${filePath}: ${e.message}`);
               }
             }
+
+            // Step 2b: Idempotent framework bootstrap in new product repo
+            await bootstrapProduct({
+              github,
+              owner,
+              hqRepo: context.repo.repo,
+              targetRepo: repoName,
+            });
 
             // Step 3: Register product in HQ
             try {
