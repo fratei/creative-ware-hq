@@ -32,13 +32,13 @@ jobs:
         uses: ./.github/actions/render-prompt
         with:
           template_name: sla-reminder-48h
-          vars_json: '{"hours_open":"hours_open","sla_hours":"sla_hours","owner":"owner"}'
+          vars_json: '{"hours_open":"__HOURS_OPEN__","sla_hours":"__SLA_HOURS__","owner":"__OWNER__"}'
 
       - id: fallback-template
         uses: ./.github/actions/render-prompt
         with:
           template_name: sla-fallback-72h
-          vars_json: '{"hours_open":"hours_open","tier":"tier"}'
+          vars_json: '{"hours_open":"__HOURS_OPEN__","tier":"__TIER__"}'
 
       - name: "⏱️ SLA Check — Owner Approval Queue"
         uses: actions/github-script@v7
@@ -56,6 +56,9 @@ jobs:
             const ownerLogin = cfg.getOwner();
             const slaHours = cfg.getDecisionSlaHours();
             const autoApproveHours = cfg.getAutoApproveAfterHours();
+            // Pre-rendered templates reused across reminder and fallback paths.
+            const reminderBodyTemplate = ${{ toJSON(steps.reminder-template.outputs.rendered) }};
+            const fallbackBodyTemplate = ${{ toJSON(steps.fallback-template.outputs.rendered) }};
 
             // Find all open issues with needs-owner-approval in HQ repo
             const { data: issues } = await github.rest.issues.listForRepo({
@@ -83,7 +86,10 @@ jobs:
                   c.body.includes('⏱️ **Decision SLA Reminder**')
                 );
                 if (!alreadyReminded) {
-                  const reminderBody = `${{ steps.reminder-template.outputs.rendered }}`;
+                  const reminderBody = reminderBodyTemplate
+                    .replaceAll('__HOURS_OPEN__', String(Math.round(hoursOpen)))
+                    .replaceAll('__SLA_HOURS__', String(slaHours))
+                    .replaceAll('__OWNER__', ownerLogin);
                   await github.rest.issues.createComment({
                     owner, repo: hqRepo, issue_number: issue.number,
                     body: [
@@ -123,7 +129,9 @@ jobs:
                 await github.rest.issues.createComment({
                   owner, repo: hqRepo, issue_number: issue.number,
                   body: [
-                    `${{ steps.fallback-template.outputs.rendered }}`,
+                    fallbackBodyTemplate
+                      .replaceAll('__HOURS_OPEN__', String(Math.round(hoursOpen)))
+                      .replaceAll('__TIER__', tier),
                     ``,
                     `The agent committee (CPO / CTO / CFO) has been triggered as a fallback approver per the [Decision SLA policy](https://github.com/${owner}/${hqRepo}/blob/main/docs/agents/HANDBOOK.md).`,
                     ``,
