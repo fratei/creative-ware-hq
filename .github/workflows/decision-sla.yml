@@ -56,6 +56,8 @@ jobs:
             const ownerLogin = cfg.getOwner();
             const slaHours = cfg.getDecisionSlaHours();
             const autoApproveHours = cfg.getAutoApproveAfterHours();
+            const reminderBodyTemplate = ${{ toJSON(steps.reminder-template.outputs.rendered) }};
+            const fallbackBodyTemplate = ${{ toJSON(steps.fallback-template.outputs.rendered) }};
 
             // Find all open issues with needs-owner-approval in HQ repo
             const { data: issues } = await github.rest.issues.listForRepo({
@@ -83,7 +85,10 @@ jobs:
                   c.body.includes('⏱️ **Decision SLA Reminder**')
                 );
                 if (!alreadyReminded) {
-                  const reminderBody = `${{ steps.reminder-template.outputs.rendered }}`;
+                  const reminderBody = reminderBodyTemplate
+                    .replaceAll('hours_open', String(Math.round(hoursOpen)))
+                    .replaceAll('sla_hours', String(slaHours))
+                    .replaceAll('owner', ownerLogin);
                   await github.rest.issues.createComment({
                     owner, repo: hqRepo, issue_number: issue.number,
                     body: [
@@ -123,7 +128,9 @@ jobs:
                 await github.rest.issues.createComment({
                   owner, repo: hqRepo, issue_number: issue.number,
                   body: [
-                    `${{ steps.fallback-template.outputs.rendered }}`,
+                    fallbackBodyTemplate
+                      .replaceAll('hours_open', String(Math.round(hoursOpen)))
+                      .replaceAll('tier', tier),
                     ``,
                     `The agent committee (CPO / CTO / CFO) has been triggered as a fallback approver per the [Decision SLA policy](https://github.com/${owner}/${hqRepo}/blob/main/docs/agents/HANDBOOK.md).`,
                     ``,
