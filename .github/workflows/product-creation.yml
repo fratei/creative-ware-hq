@@ -226,7 +226,7 @@ jobs:
                   `- [ ] Set up development environment`,
                   `- [ ] Create initial project structure`,
                   `- [ ] Set up AGENT_PAT secret for autonomous operations`,
-                  '- [ ] Configure `copilot` environment secrets/variables',
+                  '- [ ] Configure copilot environment secrets/variables',
                   `- [ ] Validate \`.github/workflows/copilot-setup-steps.yml\` runs successfully`,
                   `- [ ] Enable branch protection + required checks on \`main\``,
                   `- [ ] Confirm firewall allow-list/network policy for agent endpoints`,
