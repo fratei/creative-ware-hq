@@ -1,0 +1,13 @@
+{
+  "name": "creative-ware-hq",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "postCreateCommand": "node framework/scripts/validate-schemas.js",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "files.trimTrailingWhitespace": true,
+        "editor.formatOnSave": true
+      }
+    }
+  }
+}

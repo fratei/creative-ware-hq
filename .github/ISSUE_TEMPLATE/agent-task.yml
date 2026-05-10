@@ -1,0 +1,52 @@
+name: Agent Task
+description: Structured task for autonomous agents
+title: "[AGENT] "
+labels:
+  - copilot
+  - agent/orchestrator
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: What outcome should be achieved?
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and repositories
+      description: Include exact repositories and paths the agent can modify.
+      placeholder: |
+        - fratei/creative-ware-hq: docs/agents/**
+        - fratei/audiotext-app: .github/workflows/**
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints and guardrails
+      description: Include non-goals, security constraints, and risk tolerance.
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation commands
+      description: Existing lint/build/test commands the agent must run.
+      placeholder: |
+        node framework/scripts/validate-schemas.js
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: Definition of done
+      description: Checklist the PR must satisfy.
+      value: |
+        - [ ] Minimal scoped changes
+        - [ ] Existing validations pass
+        - [ ] Docs/config updated
+        - [ ] Risk + rollback notes included
+    validations:
+      required: true

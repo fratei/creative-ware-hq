@@ -27,9 +27,14 @@ permissions:
   contents: read
   issues: write
 
+concurrency:
+  group: agent-dispatcher-${{ github.event.client_payload.source_repo || github.run_id }}
+  cancel-in-progress: false
+
 jobs:
   route-event:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
 
