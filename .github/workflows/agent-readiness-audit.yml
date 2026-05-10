@@ -51,7 +51,8 @@ jobs:
               results.push(row);
             }
 
-            const header = '| Repository | AGENTS.md | copilot-instructions | devcontainer | copilot-setup-steps |\n|---|---|---|---|---|';
+            const header = '| Repository | AGENTS.md | copilot-instructions | devcontainer | copilot-setup-steps |';
+            const divider = '|---|---|---|---|---|';
             const lines = results.map(r => `| ${owner}/${r.repo} | ${r['AGENTS.md']} | ${r['.github/copilot-instructions.md']} | ${r['.devcontainer/devcontainer.json']} | ${r['.github/workflows/copilot-setup-steps.yml']} |`);
             const missing = results.filter(r => Object.values(r).includes('❌'));
 
@@ -61,6 +62,7 @@ jobs:
               `Generated: ${new Date().toISOString()}`,
               '',
               header,
+              divider,
               ...lines,
               '',
               missing.length === 0

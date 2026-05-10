@@ -23,7 +23,7 @@ Use this checklist to enable end-to-end autonomous operation across:
 - [ ] `copilot` environment created and required vars/secrets added.
 
 ## 4) MCP / third-party integration readiness
-- [ ] MCP tools enabled in repository/org settings for agents that need them.
+- [ ] MCP tools enabled in repository/organization settings for agents that need them.
 - [ ] Third-party API keys stored as secrets (never committed to repo).
 - [ ] Least-privilege token scopes verified quarterly.
 
