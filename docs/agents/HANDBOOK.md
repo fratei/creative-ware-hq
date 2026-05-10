@@ -96,7 +96,7 @@ All decisions are tracked in `strategy/outcomes/YYYY-MM.md`:
   - live product repos that are not reachable by `${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}`
 - The guardrail issue (`[AUTONOMY][PHASE-3] Guardrail blockers`) is auto-opened/updated/closed.
 - `pr-area-labels.yml` applies path-based `area/*` labels to PRs for faster triage.
-- Secret hygiene policy: rotate `AGENT_PAT` on a regular cadence and re-verify cross-repo coverage immediately after rotation.
+- Secret hygiene policy: rotate `AGENT_PAT` on a regular cadence and reverify cross-repo coverage immediately after rotation.
 
 ## Agent Roles
 

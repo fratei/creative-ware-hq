@@ -90,7 +90,7 @@ jobs:
               ``,
               `### Required Actions`,
               `- [ ] Ensure Actions policy allows bot PR workflows to run automatically (no manual approval gate).`,
-              `- [ ] If coverage failures exist, rotate/re-scope \`AGENT_PAT\` and grant all live repos.`,
+              `- [ ] If coverage failures exist, rotate/rescope \`AGENT_PAT\` and grant all live repos.`,
               `- [ ] Keep branch protection and rulesets aligned with required CI checks.`,
             ].join('\n');
 
