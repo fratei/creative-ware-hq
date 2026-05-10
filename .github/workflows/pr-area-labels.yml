@@ -6,8 +6,9 @@ on:
 
 permissions:
   contents: read
+  # PR labels are managed via the Issues API because pull requests are issue-backed resources.
   issues: write
-  pull-requests: read
+  pull-requests: write
 
 jobs:
   label:
