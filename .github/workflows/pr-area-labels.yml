@@ -24,7 +24,7 @@ jobs:
             const pr = context.payload.pull_request;
             if (!pr) return;
 
-            const { data: files } = await github.rest.pulls.listFiles({
+            const files = await github.paginate(github.rest.pulls.listFiles, {
               owner, repo, pull_number: pr.number, per_page: 100,
             });
             const paths = files.map(f => f.filename);

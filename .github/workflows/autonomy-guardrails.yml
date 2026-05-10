@@ -35,12 +35,12 @@ jobs:
               .filter(p => p.status === 'live')
               .map(p => p.repo.replace(/^[^/]+\//, ''));
 
-            const { data: runsResp } = await github.rest.actions.listWorkflowRunsForRepo({
-              owner, repo, event: 'pull_request', per_page: 50,
+            const runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
+              owner, repo, event: 'pull_request', per_page: 100,
             });
 
             const blockedRuns = [];
-            for (const run of runsResp.workflow_runs || []) {
+            for (const run of runs.slice(0, 200)) {
               if (run.conclusion !== 'action_required') continue;
               const jobs = await github.request(run.jobs_url);
               if ((jobs.data.total_count || 0) === 0) {
