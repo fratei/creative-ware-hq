@@ -90,6 +90,14 @@ All decisions are tracked in `strategy/outcomes/YYYY-MM.md`:
 - Products dispatch to HQ via `repository_dispatch` for cross-product concerns
 - AGENT_PAT must have access to all CreativeWare repos
 
+### 8. Environment & Guardrail Automation
+- `autonomy-guardrails.yml` runs every 6 hours and auto-tracks autonomy blockers:
+  - PR-event workflows stuck as `action_required` with zero jobs
+  - live product repos that are not reachable by `${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}`
+- The guardrail issue (`[AUTONOMY][PHASE-3] Guardrail blockers`) is auto-opened/updated/closed.
+- `pr-area-labels.yml` applies path-based `area/*` labels to PRs for faster triage.
+- Secret hygiene policy: rotate `AGENT_PAT` on a regular cadence and re-verify cross-repo coverage immediately after rotation.
+
 ## Agent Roles
 
 ### HQ-Level Agents
@@ -126,4 +134,3 @@ Escalation criteria:
 5. Circuit breaker triggered
 
 High-tier issues are never auto-approved; only re-pinging occurs.
-
