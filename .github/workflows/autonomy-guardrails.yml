@@ -77,7 +77,7 @@ jobs:
                 ? `Found **${blockedRuns.length}** PR-event runs in \`action_required\` with zero jobs.`
                 : `No blocked PR-event runs detected in latest sample.`,
               ...blockedRuns.slice(0, 20).map(r =>
-                `- ${r.name} (run ${r.id}, branch \`${r.branch}\`, ${r.created}) — ${r.url}`
+                `- ${r.name} (run ${r.id}, branch '${r.branch}', ${r.created}) — ${r.url}`
               ),
               ``,
               `### Cross-Repo Token Coverage (AGENT_PAT fallback path)`,
