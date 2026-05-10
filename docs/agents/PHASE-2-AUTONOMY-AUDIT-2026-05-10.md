@@ -33,8 +33,8 @@ These should be tracked as follow-up issues/tasks:
 1. **Unblock PR-event workflow execution for bot PRs**
    - Verify/adjust Actions approval policy so Copilot-created PR workflow runs do not remain in `action_required`.
    - Acceptance: PR-event runs execute jobs (not `total_count: 0`) and reach success/failure conclusively.
-2. **Verify cross-repo AGENT_PAT coverage for all four CreativeWare repos**
-   - Confirm token scopes and repository access are valid end-to-end (`creative-ware-hq`, `creative-ware-product-template`, `audiotext-app`, `synthdata-app`).
+2. **Verify cross-repo AGENT_PAT coverage for all active CreativeWare repos**
+   - Confirm token scopes and repository access are valid end-to-end for HQ plus every active product listed in `products/REGISTRY.md`.
    - Acceptance: dispatcher/reconciler cross-repo actions can create/label/assign/dispatch without fallback to owner intervention.
 3. **Run a full autonomy canary after settings update**
    - Trigger: decision requiring committee vote → implementation dispatch → Copilot assignment → PR checks → auto-merge → outcome record.

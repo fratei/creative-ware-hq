@@ -56,6 +56,7 @@ jobs:
             const ownerLogin = cfg.getOwner();
             const slaHours = cfg.getDecisionSlaHours();
             const autoApproveHours = cfg.getAutoApproveAfterHours();
+            // Pre-rendered templates reused across reminder and fallback paths.
             const reminderBodyTemplate = ${{ toJSON(steps.reminder-template.outputs.rendered) }};
             const fallbackBodyTemplate = ${{ toJSON(steps.fallback-template.outputs.rendered) }};
 
