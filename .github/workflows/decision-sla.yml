@@ -32,13 +32,13 @@ jobs:
         uses: ./.github/actions/render-prompt
         with:
           template_name: sla-reminder-48h
-          vars_json: '{"hours_open":"hours_open","sla_hours":"sla_hours","owner":"owner"}'
+          vars_json: '{"hours_open":"__HOURS_OPEN__","sla_hours":"__SLA_HOURS__","owner":"__OWNER__"}'
 
       - id: fallback-template
         uses: ./.github/actions/render-prompt
         with:
           template_name: sla-fallback-72h
-          vars_json: '{"hours_open":"hours_open","tier":"tier"}'
+          vars_json: '{"hours_open":"__HOURS_OPEN__","tier":"__TIER__"}'
 
       - name: "⏱️ SLA Check — Owner Approval Queue"
         uses: actions/github-script@v7
@@ -86,9 +86,9 @@ jobs:
                 );
                 if (!alreadyReminded) {
                   const reminderBody = reminderBodyTemplate
-                    .replaceAll('hours_open', String(Math.round(hoursOpen)))
-                    .replaceAll('sla_hours', String(slaHours))
-                    .replaceAll('owner', ownerLogin);
+                    .replaceAll('__HOURS_OPEN__', String(Math.round(hoursOpen)))
+                    .replaceAll('__SLA_HOURS__', String(slaHours))
+                    .replaceAll('__OWNER__', ownerLogin);
                   await github.rest.issues.createComment({
                     owner, repo: hqRepo, issue_number: issue.number,
                     body: [
@@ -129,8 +129,8 @@ jobs:
                   owner, repo: hqRepo, issue_number: issue.number,
                   body: [
                     fallbackBodyTemplate
-                      .replaceAll('hours_open', String(Math.round(hoursOpen)))
-                      .replaceAll('tier', tier),
+                      .replaceAll('__HOURS_OPEN__', String(Math.round(hoursOpen)))
+                      .replaceAll('__TIER__', tier),
                     ``,
                     `The agent committee (CPO / CTO / CFO) has been triggered as a fallback approver per the [Decision SLA policy](https://github.com/${owner}/${hqRepo}/blob/main/docs/agents/HANDBOOK.md).`,
                     ``,
