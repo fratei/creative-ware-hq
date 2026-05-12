@@ -78,6 +78,8 @@ CreativeWare runs on a fleet of 14 autonomous AI agents operating 24/7 through G
 - [Company Strategy](strategy/README.md)
 - [Agent Handbook](docs/agents/HANDBOOK.md)
 - [Agent Dashboard](docs/agents/DASHBOARD.md)
+- [Agent Entry Point](AGENTS.md)
+- [Autonomy Admin Checklist](docs/agents/AUTONOMY-ADMIN-CHECKLIST.md)
 - [Phase 2 Autonomy Audit (2026-05-10)](docs/agents/PHASE-2-AUTONOMY-AUDIT-2026-05-10.md)
 - [Phase 3 Autonomy Progress (2026-05-10)](docs/agents/PHASE-3-AUTONOMY-PROGRESS-2026-05-10.md)
 - [Owner Decisions Inbox](OWNER-INBOX.md)

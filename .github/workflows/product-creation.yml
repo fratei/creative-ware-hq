@@ -25,9 +25,14 @@ permissions:
   contents: write
   issues: write
 
+concurrency:
+  group: product-creation-${{ github.event.client_payload.product_slug || inputs.product_slug || github.run_id }}
+  cancel-in-progress: false
+
 jobs:
   create-product:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -88,8 +93,11 @@ jobs:
               { file: 'README.md', find: '{{PRODUCT_DESCRIPTION}}', replace: productDesc },
               { file: 'README.md', find: '{{REPO_NAME}}', replace: repoName },
               { file: 'README.md', find: '{{PRODUCT_SLUG}}', replace: productSlug },
+              { file: 'AGENTS.md', find: '{{PRODUCT_NAME}}', replace: productName },
+              { file: 'AGENTS.md', find: '{{PRODUCT_SLUG}}', replace: productSlug },
               { file: '.github/copilot-instructions.md', find: '{{PRODUCT_NAME}}', replace: productName },
               { file: '.github/copilot-instructions.md', find: '{{PRODUCT_DESCRIPTION}}', replace: productDesc },
+              { file: '.devcontainer/devcontainer.json', find: '{{PRODUCT_NAME}}', replace: productName },
               { file: '.github/workflows/observability-agent.yml', find: '{{PRODUCT_NAME}}', replace: productName },
               { file: 'docs/agents/HANDBOOK.md', find: '{{PRODUCT_NAME}}', replace: productName },
               { file: 'docs/agents/DASHBOARD.md', find: '{{PRODUCT_NAME}}', replace: productName },
@@ -218,6 +226,10 @@ jobs:
                   `- [ ] Set up development environment`,
                   `- [ ] Create initial project structure`,
                   `- [ ] Set up AGENT_PAT secret for autonomous operations`,
+                  '- [ ] Configure copilot environment secrets/variables',
+                  `- [ ] Validate \`.github/workflows/copilot-setup-steps.yml\` runs successfully`,
+                  `- [ ] Enable branch protection + required checks on \`main\``,
+                  `- [ ] Confirm firewall allow-list/network policy for agent endpoints`,
                   `- [ ] Configure deployment pipeline`,
                   ``,
                   `### MVP Features`,

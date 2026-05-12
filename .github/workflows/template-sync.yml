@@ -7,9 +7,15 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
+
+concurrency:
+  group: template-sync-${{ github.workflow }}
+  cancel-in-progress: false
+
 jobs:
   drift:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
