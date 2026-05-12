@@ -14,7 +14,7 @@ on:
     - cron: "*/30 * * * *"  # Tally silent-consensus timeouts every 30 min
 
 permissions:
-  contents: write
+  contents: read
   issues: write
 
 concurrency:

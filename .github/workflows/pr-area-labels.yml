@@ -1,0 +1,66 @@
+name: "🏷️ PR Area Labels"
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  # PR labels are managed via the Issues API because pull requests are issue-backed resources.
+  issues: write
+  pull-requests: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Apply path-based labels
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pr = context.payload.pull_request;
+            if (!pr) return;
+
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner, repo, pull_number: pr.number, per_page: 100,
+            });
+            const paths = files.map(f => f.filename);
+
+            const desired = new Set();
+            if (paths.some(p => p.startsWith('.github/workflows/'))) desired.add('area/workflows');
+            if (paths.some(p => p.startsWith('.github/actions/') || p.startsWith('framework/'))) desired.add('area/framework');
+            if (paths.some(p => p.startsWith('docs/agents/'))) desired.add('area/agents');
+            if (paths.some(p => p.startsWith('strategy/'))) desired.add('area/strategy');
+            if (paths.some(p => p.startsWith('products/'))) desired.add('area/products');
+
+            if (desired.size === 0) return;
+
+            const palette = {
+              'area/workflows': { color: '1D76DB', description: 'Workflow and CI automation changes' },
+              'area/framework': { color: '5319E7', description: 'Framework assets or composite actions' },
+              'area/agents': { color: '0E8A16', description: 'Agent docs, handbooks, or charters' },
+              'area/strategy': { color: '0052CC', description: 'Strategy and research updates' },
+              'area/products': { color: 'FBCA04', description: 'Product registry and product metadata' },
+            };
+
+            for (const label of desired) {
+              try {
+                await github.rest.issues.getLabel({ owner, repo, name: label });
+              } catch (e) {
+                if (e.status === 404) {
+                  await github.rest.issues.createLabel({
+                    owner, repo, name: label, color: palette[label].color, description: palette[label].description,
+                  });
+                } else {
+                  throw e;
+                }
+              }
+            }
+
+            await github.rest.issues.addLabels({
+              owner, repo, issue_number: pr.number, labels: [...desired],
+            });
