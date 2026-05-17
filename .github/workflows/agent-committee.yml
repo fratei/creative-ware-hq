@@ -257,8 +257,24 @@ jobs:
               const approvals = voteCounts.filter(v => v === 'approve').length;
               const rejections = voteCounts.filter(v => v === 'reject').length;
               const defers = voteCounts.filter(v => v === 'defer').length;
+              const missingVoters = voterIds.filter(v => !votes[v]);
 
               console.log(`Issue #${issue.number}: approvals=${approvals}, rejections=${rejections}, defers=${defers}, tier=${tier}`);
+
+              if (missingVoters.length > 0) {
+                console.log(`  Missing votes from: ${missingVoters.join(', ')} — requesting voter comments`);
+                try {
+                  await github.rest.repos.createDispatchEvent({
+                    owner,
+                    repo,
+                    event_type: 'committee-vote-requested',
+                    client_payload: { issue_number: issue.number },
+                  });
+                } catch (e) {
+                  console.log(`  ⚠️ Could not request voter comments: ${e.message}`);
+                }
+                continue;
+              }
 
               // Escalation: any reject or defer
               if (rejections > 0 || defers > 0) {
