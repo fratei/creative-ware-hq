@@ -216,9 +216,9 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 
-            // Find open issues with committee-vote label
-            const { data: issues } = await github.rest.issues.listForRepo({
-              owner, repo, state: 'open', labels: 'committee-vote', per_page: 50,
+            // Find all open issues with committee-vote label
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner, repo, state: 'open', labels: 'committee-vote', per_page: 100,
             });
 
             console.log(`Found ${issues.length} issues awaiting committee vote`);
