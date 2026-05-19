@@ -3,7 +3,7 @@
 **Status:** researching
 **Owner:** Market Analysis Agent (HQ) / CPO Agent (HQ)
 **Created:** 2026-05-07
-**Last Updated:** 2026-05-07
+**Last Updated:** 2026-05-19
 
 ### Problem / Pain Point
 AudioText is well-positioned for teams that need accurate transcription, speaker diarization, and multi-model flexibility, but the market is moving past raw transcripts toward workflow-ready outputs, deeper integrations, and enterprise-safe controls. The main risk is not core transcription quality; it is that users can get the transcript and then leave AudioText to summarize, distribute, analyze, or operationalize it elsewhere.
@@ -15,7 +15,7 @@ AudioText is well-positioned for teams that need accurate transcription, speaker
 
 ### Market Evidence
 - **Current product signals:** AudioText is live, has 0 open issues, 0 open feature requests, and 2 PRs merged this week per the issue brief. That suggests product stability, but the lack of visible inbound feedback also implies a weak external signal loop; NPS/retention should be treated as neutral-to-unclear rather than proven strong.
-- **Competitor landscape:** Deepgram raised a $130M Series C and expanded multilingual conversational speech recognition; AssemblyAI is pushing further into voice infrastructure and real-time developer workflows; Otter.ai is reinforcing meeting-system-of-record positioning; Fireflies.ai continues to compete on meeting automation; Descript is packaging transcript-adjacent creator workflows. These moves confirm that the market is rewarding vendors that layer workflow automation and distribution on top of speech-to-text, not vendors that stop at transcription.
+- **Competitor landscape:** Deepgram raised a $130M Series C and expanded multilingual conversational speech recognition; AssemblyAI is pushing further into voice infrastructure and real-time developer workflows; Otter.ai is reinforcing meeting-system-of-record positioning; Fireflies.ai continues to compete on meeting automation; Descript is packaging transcript-adjacent creator workflows; and iFlytek’s iFlyrec surpassing 100 million users shows that a focused, paid transcription SaaS can still scale against bundled office suites when it adds workflow-ready drafting on top of core speech-to-text. These moves confirm that the market is rewarding vendors that layer workflow automation and distribution on top of speech-to-text, not vendors that stop at transcription.
 - **Buyer signals:** The 2026-05-07 research brief surfaces demand for multilingual accuracy, real-time voice workflows, downstream AI extraction, and easier developer onboarding. Hacker News and OSS trends also show persistent interest in local/offline speech tooling, which increases pressure on hosted products to win on convenience, integrations, collaboration, and compliance rather than on transcript generation alone.
 
 ### Technical Leverage
