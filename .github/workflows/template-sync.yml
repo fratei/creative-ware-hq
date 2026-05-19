@@ -28,12 +28,13 @@ jobs:
             const crypto = require('crypto');
             const { execSync } = require('child_process');
             const reg = JSON.parse(fs.readFileSync('products/registry.json','utf8'));
+            const products = reg.products.filter(p => p.status === 'live');
             const release = fs.readFileSync('framework/RELEASE.md','utf8');
             const latest = (release.match(/Current framework version:\s*(v[0-9.]+)/)||[])[1] || 'v1.0.0';
             const actionsHash = crypto.createHash('sha256').update(fs.readdirSync('.github/actions').join('|')).digest('hex').slice(0,12);
             const wfHash = crypto.createHash('sha256').update(fs.readdirSync('.github/workflows').filter(f=>f.startsWith('reusable-')).join('|')).digest('hex').slice(0,12);
             const rows = [];
-            for (const p of reg.products) {
+            for (const p of products) {
               const [owner, repo] = p.repo.split('/');
               let pinned = 'unknown';
               let status = '🟡 pending-check';
