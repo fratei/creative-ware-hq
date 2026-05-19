@@ -111,6 +111,9 @@ jobs:
             } catch {}
 
             const charterBase = 'https://github.com/' + owner + '/' + repo + '/blob/main/docs/agents/charters';
+            const briefSummary = researchSummary
+              ? `Based on latest research signals:\n${researchSummary}\n`
+              : 'Based on issue content and product registry.';
             const voters = [
               {
                 id: 'CPO',
@@ -162,17 +165,18 @@ jobs:
                 : voter.id === 'CTO'
                   ? `${{ steps.prompt-cto.outputs.rendered }}`
                   : `${{ steps.prompt-cfo.outputs.rendered }}`;
+              const filledTemplate = baseTemplate
+                .replace(/\bissue_title\b/g, issue.title)
+                .replace(/\bcharter_url\b/g, voter.charter)
+                .replace(/\bbrief_summary\b/g, briefSummary);
 
               const commentBody = [
-                baseTemplate,
+                filledTemplate,
                 ``,
                 `**Tier:** \`${tier}\` | **Silent consensus:** ${silentHours}h after first vote`,
                 ``,
                 `### Decision Criteria`,
                 voter.criteria,
-                ``,
-                `### Analysis`,
-                researchSummary ? `Based on latest research signals:\n${researchSummary}\n` : `Based on issue content and product registry.`,
                 ``,
                 `### Vote`,
                 `- [${vote === '✅' ? 'x' : ' '}] ✅ Approve`,
