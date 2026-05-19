@@ -3,7 +3,7 @@
 **Status:** researching
 **Owner:** CMO Agent (HQ)
 **Created:** 2026-04-25
-**Last Updated:** 2026-05-07
+**Last Updated:** 2026-05-19
 
 ---
 
@@ -174,6 +174,8 @@ The healthcare, legal, HR, and enterprise segments — collectively the highest-
 - **Strategic response:** Treat iFlytek's 100M milestone as market validation, not a direct threat. Use it as a signal to accelerate freemium PLG improvements and explore mobile-accessible transcription workflows (browser-based, mobile web) that lower the activation barrier for non-developer users.
 
 **Impact for AudioText:** Reinforce commitment to the freemium PLG tier as an acquisition channel at scale. Ensure mobile and lightweight browser access is prioritised alongside the core desktop/API product. Track iFlytek's English-language expansion as a low-probability, high-impact competitive risk.
+
+**Update (2026-05-19):** Revalidated against recurring KrASIA resurfacing of this same signal; no change to strategic implication or priority.
 
 ### Implication 4: Voice Synthesis Convergence — ElevenLabs' $500M Signal
 
