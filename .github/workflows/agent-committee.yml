@@ -212,13 +212,47 @@ jobs:
             const ws = process.env.GITHUB_WORKSPACE;
             const cfg = require(`${ws}/.github/scripts/agent-config.js`);
             const { recordOutcome } = require(`${ws}/.github/scripts/record-outcome.js`);
+            const {
+              buildSmoketestResultBody,
+              findSmoketestDailyResultIssue,
+            } = require(`${ws}/.github/scripts/smoketest-result.js`);
 
             const owner = context.repo.owner;
             const repo = context.repo.repo;
+            const now = new Date().toISOString();
+            const smokeTestIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner,
+              repo,
+              state: 'open',
+              labels: 'smoke-test',
+              per_page: 100,
+            });
+
+            async function syncSmoketestResult(sourceIssueNumber, status, outcome) {
+              const resultIssue = findSmoketestDailyResultIssue(smokeTestIssues, sourceIssueNumber);
+              if (!resultIssue) {
+                console.log(`  No open smoke test result issue found for #${sourceIssueNumber}`);
+                return;
+              }
+
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number: resultIssue.number,
+                state: 'closed',
+                body: buildSmoketestResultBody({
+                  sourceIssueNumber,
+                  status,
+                  outcome,
+                  updatedAt: now,
+                }),
+              });
+              console.log(`  Updated smoke test daily result #${resultIssue.number} → ${status}`);
+            }
 
             // Find open issues with committee-vote label
-            const { data: issues } = await github.rest.issues.listForRepo({
-              owner, repo, state: 'open', labels: 'committee-vote', per_page: 50,
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              owner, repo, state: 'open', labels: 'committee-vote', per_page: 100,
             });
 
             console.log(`Found ${issues.length} issues awaiting committee vote`);
@@ -268,7 +302,11 @@ jobs:
                     owner,
                     repo,
                     event_type: 'committee-vote-requested',
-                    client_payload: { issue_number: issue.number },
+                    client_payload: {
+                      issue_number: issue.number,
+                      tier,
+                      reason: 'missing-voter-comments',
+                    },
                   });
                 } catch (e) {
                   console.log(`  ⚠️ Could not request voter comments: ${e.message}`);
@@ -309,6 +347,13 @@ jobs:
                   result: '⏸️ escalated',
                   notes: reason,
                 });
+                if (labels.includes('smoke-test')) {
+                  await syncSmoketestResult(
+                    issue.number,
+                    'failed',
+                    `Committee escalated the synthetic smoke-test issue: ${reason}.`
+                  );
+                }
                 continue;
               }
 
@@ -376,4 +421,11 @@ jobs:
                 result: '✅ approved',
                 notes: `${approvals}/${requiredVotes} votes, 0 objections`,
               });
+              if (labels.includes('smoke-test')) {
+                await syncSmoketestResult(
+                  issue.number,
+                  'passed',
+                  `Committee approved after ${Math.round(hoursElapsed)}h silent consensus and closed the synthetic source issue.`
+                );
+              }
             }
