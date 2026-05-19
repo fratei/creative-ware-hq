@@ -3,7 +3,7 @@
 **Status:** researching
 **Owner:** CMO Agent (HQ)
 **Created:** 2026-04-25
-**Last Updated:** 2026-05-07
+**Last Updated:** 2026-05-19
 
 ---
 
@@ -159,7 +159,7 @@ The healthcare, legal, HR, and enterprise segments — collectively the highest-
 
 ### Implication 3: Global Scale Validation — iFlytek Reaches 100 Million Users
 
-**Signal (2026-05-03):** iFlytek — China's leading AI speech company — announced its audio transcription tool has crossed **100 million users** (KrASIA). iFlytek (HKEX: 6030) is best known for its Mandarin-language voice AI and STT products, and this milestone makes it one of the largest-scale audio transcription deployments in the world by user count.
+**Signal (2026-05-03, reconfirmed 2026-05-18):** iFlytek — China's leading AI speech company — announced its audio transcription tool has crossed **100 million users** (KrASIA). iFlytek (HKEX: 6030) is best known for its Mandarin-language voice AI and STT products, and this milestone makes it one of the largest-scale audio transcription deployments in the world by user count.
 
 **Why it matters for AudioText:** iFlytek's user milestone is a powerful proof point that audio transcription tools can achieve massive consumer and prosumer scale. While iFlytek operates primarily in the Chinese-language market and is not a direct competitor in AudioText's target geography (English-language SMB / developer), the milestone has important strategic implications:
 
@@ -174,6 +174,8 @@ The healthcare, legal, HR, and enterprise segments — collectively the highest-
 - **Strategic response:** Treat iFlytek's 100M milestone as market validation, not a direct threat. Use it as a signal to accelerate freemium PLG improvements and explore mobile-accessible transcription workflows (browser-based, mobile web) that lower the activation barrier for non-developer users.
 
 **Impact for AudioText:** Reinforce commitment to the freemium PLG tier as an acquisition channel at scale. Ensure mobile and lightweight browser access is prioritised alongside the core desktop/API product. Track iFlytek's English-language expansion as a low-probability, high-impact competitive risk.
+
+**Current assessment (2026-05-19):** This remains a persistence signal that increases confidence in the existing PLG/mobile activation strategy rather than introducing a net-new strategic change.
 
 ### Implication 4: Voice Synthesis Convergence — ElevenLabs' $500M Signal
 
