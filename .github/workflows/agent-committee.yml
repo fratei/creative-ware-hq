@@ -351,12 +351,18 @@ jobs:
 
               // Dispatch implementation-approved
               const rec = (issue.body || '').match(/## Recommendation\n([\s\S]*?)(?=\n##|\n$)/);
+              const driftRepo = (
+                issue.title.match(/^\[DRIFT\]\s+([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)\s+pinned to\b/i)
+                || (issue.body || '').match(/Framework drift detected for\s+([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)/i)
+                || []
+              )[1];
               try {
                 await github.rest.repos.createDispatchEvent({
                   owner, repo: context.repo.repo,
                   event_type: 'implementation-approved',
                   client_payload: {
-                    source_repo: `${owner}/${repo}`,
+                    source_repo: driftRepo || `${owner}/${repo}`,
+                    decision_repo: `${owner}/${repo}`,
                     issue_number: issue.number,
                     title: issue.title,
                     recommendation: rec ? rec[1].trim().slice(0, 500) : 'See issue for details',
