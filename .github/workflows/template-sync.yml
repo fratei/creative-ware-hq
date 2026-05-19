@@ -35,6 +35,7 @@ jobs:
             const wfHash = crypto.createHash('sha256').update(fs.readdirSync('.github/workflows').filter(f=>f.startsWith('reusable-')).join('|')).digest('hex').slice(0,12);
             const rows = [];
             for (const p of products) {
+              if (p.status !== 'live') continue;
               const [owner, repo] = p.repo.split('/');
               let pinned = 'unknown';
               let status = '🟡 pending-check';
@@ -47,10 +48,18 @@ jobs:
               }
               rows.push(`| ${p.repo} | ${pinned} | ${latest} | ${status} | ${actionsHash}/${wfHash} |`);
               if (status !== '🟢 up-to-date' && !process.env.AGENT_PAT) {
+                const issueTitle = `[DRIFT] ${p.repo} pinned to ${pinned}`;
+                const { data: openIssues } = await github.rest.issues.listForRepo({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  state: 'open',
+                  per_page: 100,
+                });
+                if (openIssues.some(i => i.title === issueTitle)) continue;
                 await github.rest.issues.create({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  title: `[DRIFT] ${p.repo} pinned to ${pinned}`,
+                  title: issueTitle,
                   body: `Framework drift detected for ${p.repo}. Latest is ${latest}.`,
                   labels: ['agent/orchestrator', 'needs-owner-approval'],
                 });
