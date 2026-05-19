@@ -27,3 +27,13 @@ jobs:
             const { data: issue } = await github.rest.issues.create({ owner, repo, title, body: `${{ steps.prompt.outputs.rendered }}`, labels: ['opportunity','smoke-test','committee-vote','risk/low'] });
             const report = `## Smoke test run\n- Source issue: #${issue.number}\n- Status: started`;
             await github.rest.issues.create({ owner, repo, title: `[SMOKETEST] Daily Result — ${ts.split('T')[0]}`, body: report, labels: ['smoke-test'] });
+            await github.rest.repos.createDispatchEvent({
+              owner,
+              repo,
+              event_type: 'committee-vote-requested',
+              client_payload: {
+                issue_number: issue.number,
+                tier: 'low',
+                reason: 'smoketest-bootstrap',
+              },
+            });
