@@ -65,6 +65,7 @@ async function bootstrapProduct({ github, owner, hqRepo, targetRepo }) {
 
   const release = fs.readFileSync('framework/RELEASE.md', 'utf8');
   const version = (release.match(/Current framework version:\s*(v[0-9.]+)/) || [])[1] || 'v1.0.0';
+  const majorVersion = (version.match(/^v[0-9]+/) || [])[0] || version;
   await github.rest.repos.createOrUpdateFileContents({
     owner,
     repo: targetRepo,
@@ -72,6 +73,65 @@ async function bootstrapProduct({ github, owner, hqRepo, targetRepo }) {
     message: `chore: pin framework ${version} [skip ci]`,
     content: Buffer.from(`${version}\n`).toString('base64')
   });
+
+  try {
+    const { data: workflowEntries } = await github.rest.repos.getContent({
+      owner,
+      repo: targetRepo,
+      path: '.github/workflows'
+    });
+    if (Array.isArray(workflowEntries)) {
+      for (const entry of workflowEntries.filter(file => file.type === 'file' && /\.ya?ml$/i.test(file.name))) {
+        const { data: workflowFile } = await github.rest.repos.getContent({
+          owner,
+          repo: targetRepo,
+          path: entry.path
+        });
+        const content = Buffer.from(workflowFile.content, 'base64').toString('utf8');
+        const updated = content.replace(
+          /(fratei\/creative-ware-hq\/\.github\/workflows\/[^@\s'"]+?)@main\b/g,
+          `$1@${majorVersion}`
+        );
+        if (updated !== content) {
+          await github.rest.repos.createOrUpdateFileContents({
+            owner,
+            repo: targetRepo,
+            path: entry.path,
+            message: `chore: pin framework workflows ${majorVersion} [skip ci]`,
+            content: Buffer.from(updated).toString('base64'),
+            sha: workflowFile.sha
+          });
+        }
+      }
+    }
+  } catch (e) {
+    console.log(`workflow pin sync skipped: ${e.message}`);
+  }
+
+  try {
+    const { data: handbookFile } = await github.rest.repos.getContent({
+      owner,
+      repo: targetRepo,
+      path: 'docs/agents/HANDBOOK.md'
+    });
+    const content = Buffer.from(handbookFile.content, 'base64').toString('utf8');
+    const updated = content.replace(
+      /copied from framework main \(switch to v1 after tag\)/g,
+      `copied from framework ${majorVersion}`
+    );
+    if (updated !== content) {
+      await github.rest.repos.createOrUpdateFileContents({
+        owner,
+        repo: targetRepo,
+        path: 'docs/agents/HANDBOOK.md',
+        message: `chore: pin framework docs ${majorVersion} [skip ci]`,
+        content: Buffer.from(updated).toString('base64'),
+        sha: handbookFile.sha
+      });
+    }
+  } catch (e) {
+    console.log(`handbook pin sync skipped: ${e.message}`);
+  }
 
   for (const charter of fs.readdirSync('docs/agents/charters').filter(f => f.endsWith('.md'))) {
     const body = fs.readFileSync(`docs/agents/charters/${charter}`, 'utf8');
