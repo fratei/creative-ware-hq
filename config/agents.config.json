@@ -37,7 +37,7 @@
     }
   },
   "circuit_breakers": {
-    "max_auto_merges_per_day": 25,
+    "max_auto_merges_per_day": 50,
     "max_dispatcher_issues_per_day": 20,
     "max_incidents_per_hour": 3,
     "max_hop_count": 5,
