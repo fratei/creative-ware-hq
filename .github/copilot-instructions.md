@@ -39,3 +39,9 @@ This repo is configured for **fully autonomous PR merging**. Human approval is i
 - To temporarily disable auto-merge on a single PR, add the label `do-not-merge`.
 
 Copilot-authored PRs: after opening a PR, do nothing extra — the autonomous pipeline will pick it up, classify it, wait out the soak window, and merge once CI is green.
+
+## Recovery: re-trigger stuck CI
+
+- Run via **Actions → 🔁 Re-run stuck PR checks (one-shot) → Run workflow**.
+- Useful after enabling/disabling the "Allow Actions on Copilot PRs" setting, after a credentials rotation, or when many PRs have `action_required` checks.
+- Safe to run multiple times.
