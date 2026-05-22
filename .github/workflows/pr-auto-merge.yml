@@ -116,6 +116,11 @@ jobs:
             const cfg = require(`${ws}/.github/scripts/agent-config.js`);
             const { classifyRisk } = require(`${ws}/.github/scripts/classify-risk.js`);
             const { recordOutcome } = require(`${ws}/.github/scripts/record-outcome.js`);
+            const {
+              findBlockingLabels,
+              hasPendingReviewerRequests,
+              hasChangesRequested,
+            } = require(`${ws}/.github/scripts/pr-automerge-policy.js`);
 
             const owner = context.repo.owner;
             const repo = context.repo.repo;
@@ -166,8 +171,9 @@ jobs:
             for (const pr of openPRs) {
               if (pr.draft) continue;
               const prLabels = (pr.labels || []).map(l => l.name);
-              if (prLabels.includes('do-not-merge')) {
-                console.log(`PR #${pr.number}: skipped — do-not-merge label present`);
+              const matchedBlocking = findBlockingLabels(prLabels);
+              if (matchedBlocking.length > 0) {
+                console.log(`PR #${pr.number}: skipped — blocking labels present (${matchedBlocking.join(', ')})`);
                 continue;
               }
 
@@ -175,6 +181,14 @@ jobs:
               const { data: prDetail } = await github.rest.pulls.get({
                 owner, repo, pull_number: pr.number,
               });
+              const pendingReviewers = (prDetail.requested_reviewers || []).map(r => r.login);
+              const pendingTeams = (prDetail.requested_teams || []).map(t => t.slug);
+              if (hasPendingReviewerRequests(prDetail)) {
+                console.log(
+                  `PR #${pr.number}: reviewer workflow still active — requested reviewers=${pendingReviewers.join(',') || 'none'} teams=${pendingTeams.join(',') || 'none'}`
+                );
+                continue;
+              }
 
               const { data: prFiles } = await github.rest.pulls.listFiles({
                 owner, repo, pull_number: pr.number, per_page: 100,
@@ -241,6 +255,19 @@ jobs:
                 }
               } catch (e) {
                 console.log(`PR #${pr.number}: Could not get check runs: ${e.message}`);
+              }
+
+              // Respect human review feedback before auto-approval/merge
+              try {
+                const { data: reviews } = await github.rest.pulls.listReviews({
+                  owner, repo, pull_number: pr.number, per_page: 100,
+                });
+                if (hasChangesRequested(reviews)) {
+                  console.log(`PR #${pr.number}: changes requested by reviewer — skipping`);
+                  continue;
+                }
+              } catch (e) {
+                console.log(`PR #${pr.number}: Could not inspect reviews: ${e.message}`);
               }
 
               // Check mergeable state

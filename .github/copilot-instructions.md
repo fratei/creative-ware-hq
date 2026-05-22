@@ -33,10 +33,12 @@ This repo is configured for **fully autonomous PR merging**. Human approval is i
 
 - Every PR is auto-classified into `risk/low`, `risk/medium`, or `risk/high`.
 - Soak window before merge: low = 2 min, medium = 10 min, high = 60 min.
-- Merge requires: all required status checks green, no merge conflicts, branch not blocked by protection rules.
+- Merge requires: all required status checks green, no merge conflicts, no active reviewer requests, and branch not blocked by protection rules.
 - Merge method is **squash** with co-author attribution to Copilot.
-- Circuit breaker: max 25 auto-merges per day (see `config/agents.config.json`).
-- To temporarily disable auto-merge on a single PR, add the label `do-not-merge`.
+- Circuit breaker: max 50 auto-merges per day (see `config/agents.config.json`).
+- To temporarily disable auto-merge on a single PR, add `do-not-merge`.
+- To block autonomous approval/merge while still allowing CI, add `do-not-auto-approve` or `needs-owner-approval`.
+- Requesting a reviewer/team also pauses autonomous merge until requests are cleared.
 
 Copilot-authored PRs: after opening a PR, do nothing extra — the autonomous pipeline will pick it up, classify it, wait out the soak window, and merge once CI is green.
 
