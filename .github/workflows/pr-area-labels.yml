@@ -67,8 +67,6 @@ jobs:
                   } else {
                     throw e;
                   }
-                } else {
-                  // Label exists.
                 }
               }
 
