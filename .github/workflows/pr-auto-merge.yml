@@ -166,8 +166,10 @@ jobs:
             for (const pr of openPRs) {
               if (pr.draft) continue;
               const prLabels = (pr.labels || []).map(l => l.name);
-              if (prLabels.includes('do-not-merge')) {
-                console.log(`PR #${pr.number}: skipped — do-not-merge label present`);
+              const blockingLabels = ['do-not-merge', 'do-not-auto-approve', 'needs-owner-approval'];
+              const matchedBlocking = blockingLabels.filter(label => prLabels.includes(label));
+              if (matchedBlocking.length > 0) {
+                console.log(`PR #${pr.number}: skipped — blocking labels present (${matchedBlocking.join(', ')})`);
                 continue;
               }
 
@@ -175,6 +177,14 @@ jobs:
               const { data: prDetail } = await github.rest.pulls.get({
                 owner, repo, pull_number: pr.number,
               });
+              const pendingReviewers = (prDetail.requested_reviewers || []).map(r => r.login);
+              const pendingTeams = (prDetail.requested_teams || []).map(t => t.slug);
+              if (pendingReviewers.length > 0 || pendingTeams.length > 0) {
+                console.log(
+                  `PR #${pr.number}: reviewer workflow still active — requested reviewers=${pendingReviewers.join(',') || 'none'} teams=${pendingTeams.join(',') || 'none'}`
+                );
+                continue;
+              }
 
               const { data: prFiles } = await github.rest.pulls.listFiles({
                 owner, repo, pull_number: pr.number, per_page: 100,
@@ -241,6 +251,27 @@ jobs:
                 }
               } catch (e) {
                 console.log(`PR #${pr.number}: Could not get check runs: ${e.message}`);
+              }
+
+              // Respect human review feedback before auto-approval/merge
+              try {
+                const { data: reviews } = await github.rest.pulls.listReviews({
+                  owner, repo, pull_number: pr.number, per_page: 100,
+                });
+                const latestByUser = new Map();
+                for (const review of reviews) {
+                  if (!review?.user?.login) continue;
+                  latestByUser.set(review.user.login, review);
+                }
+                const hasRequestedChanges = [...latestByUser.values()].some(
+                  review => review.state === 'CHANGES_REQUESTED'
+                );
+                if (hasRequestedChanges) {
+                  console.log(`PR #${pr.number}: changes requested by reviewer — skipping`);
+                  continue;
+                }
+              } catch (e) {
+                console.log(`PR #${pr.number}: Could not inspect reviews: ${e.message}`);
               }
 
               // Check mergeable state

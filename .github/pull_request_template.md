@@ -16,6 +16,11 @@
 - [ ] Timeout(s) set for long-running jobs
 - [ ] Duplicate/race behavior considered
 
+## Autonomous merge controls
+- [ ] `do-not-merge` added (if this PR must not auto-merge)
+- [ ] `do-not-auto-approve` added (if agent approval should be blocked)
+- [ ] Reviewer/team requested (if human review should gate auto-merge)
+
 ## Manual/admin follow-ups (if any)
 - [ ] Secrets/environment changes
 - [ ] Branch protection updates
