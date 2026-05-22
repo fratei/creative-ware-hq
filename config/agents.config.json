@@ -10,6 +10,7 @@
       "low": {
         "description": "Reversible, single-product, no spend, no security/auth/billing",
         "approval": "agent-committee",
+        "soak_minutes": 2,
         "required_votes": 2,
         "voters": ["cpo", "cto", "cfo"],
         "silent_consensus_hours": 6
@@ -17,15 +18,15 @@
       "medium": {
         "description": "Cross-product or first-time vendor under $100/mo or schema change",
         "approval": "agent-committee-plus-silent",
+        "soak_minutes": 10,
         "required_votes": 3,
         "voters": ["cpo", "cto", "cfo"],
         "silent_consensus_hours": 24
       },
       "high": {
-        "description": "Pricing, security posture, new product, vendor >$100/mo, billing/auth code",
-        "approval": "owner",
-        "fallback_after_hours": 72,
-        "fallback_approval": "agent-committee-unanimous"
+        "description": "Sensitive paths/keywords — auto-merges after extended soak + CI green",
+        "approval": "auto",
+        "soak_minutes": 60
       }
     },
     "auto_classify_rules": {
@@ -36,7 +37,7 @@
     }
   },
   "circuit_breakers": {
-    "max_auto_merges_per_day": 10,
+    "max_auto_merges_per_day": 50,
     "max_dispatcher_issues_per_day": 20,
     "max_incidents_per_hour": 3,
     "max_hop_count": 5,

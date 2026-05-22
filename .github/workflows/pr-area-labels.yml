@@ -3,6 +3,8 @@ name: "🏷️ PR Area Labels"
 on:
   pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
+  schedule:
+    - cron: "*/30 * * * *"
 
 permissions:
   contents: read
@@ -22,45 +24,56 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const pr = context.payload.pull_request;
-            if (!pr) return;
+            const prs = context.eventName === 'pull_request_target'
+              ? [context.payload.pull_request].filter(Boolean)
+              : await github.paginate(github.rest.pulls.list, {
+                owner, repo, state: 'open', per_page: 100,
+              });
 
-            const files = await github.paginate(github.rest.pulls.listFiles, {
-              owner, repo, pull_number: pr.number, per_page: 100,
-            });
-            const paths = files.map(f => f.filename);
+            for (const pr of prs) {
+              const files = await github.paginate(github.rest.pulls.listFiles, {
+                owner, repo, pull_number: pr.number, per_page: 100,
+              });
+              const paths = files.map(f => f.filename);
 
-            const desired = new Set();
-            if (paths.some(p => p.startsWith('.github/workflows/'))) desired.add('area/workflows');
-            if (paths.some(p => p.startsWith('.github/actions/') || p.startsWith('framework/'))) desired.add('area/framework');
-            if (paths.some(p => p.startsWith('docs/agents/'))) desired.add('area/agents');
-            if (paths.some(p => p.startsWith('strategy/'))) desired.add('area/strategy');
-            if (paths.some(p => p.startsWith('products/'))) desired.add('area/products');
+              const desired = new Set();
+              if (paths.some(p => p.startsWith('.github/workflows/'))) desired.add('area/workflows');
+              if (paths.some(p => p.startsWith('.github/actions/') || p.startsWith('framework/'))) desired.add('area/framework');
+              if (paths.some(p => p.startsWith('docs/agents/'))) desired.add('area/agents');
+              if (paths.some(p => p.startsWith('strategy/'))) desired.add('area/strategy');
+              if (paths.some(p => p.startsWith('products/'))) desired.add('area/products');
 
-            if (desired.size === 0) return;
+              if (desired.size === 0) {
+                console.log(`PR #${pr.number}: no area labels matched`);
+                continue;
+              }
 
-            const palette = {
-              'area/workflows': { color: '1D76DB', description: 'Workflow and CI automation changes' },
-              'area/framework': { color: '5319E7', description: 'Framework assets or composite actions' },
-              'area/agents': { color: '0E8A16', description: 'Agent docs, handbooks, or charters' },
-              'area/strategy': { color: '0052CC', description: 'Strategy and research updates' },
-              'area/products': { color: 'FBCA04', description: 'Product registry and product metadata' },
-            };
+              const palette = {
+                'area/workflows': { color: '1D76DB', description: 'Workflow and CI automation changes' },
+                'area/framework': { color: '5319E7', description: 'Framework assets or composite actions' },
+                'area/agents': { color: '0E8A16', description: 'Agent docs, handbooks, or charters' },
+                'area/strategy': { color: '0052CC', description: 'Strategy and research updates' },
+                'area/products': { color: 'FBCA04', description: 'Product registry and product metadata' },
+              };
 
-            for (const label of desired) {
-              try {
-                await github.rest.issues.getLabel({ owner, repo, name: label });
-              } catch (e) {
-                if (e.status === 404) {
-                  await github.rest.issues.createLabel({
-                    owner, repo, name: label, color: palette[label].color, description: palette[label].description,
-                  });
+              for (const label of desired) {
+                try {
+                  await github.rest.issues.getLabel({ owner, repo, name: label });
+                } catch (e) {
+                  if (e.status === 404) {
+                    await github.rest.issues.createLabel({
+                      owner, repo, name: label, color: palette[label].color, description: palette[label].description,
+                    });
+                  } else {
+                    throw e;
+                  }
                 } else {
-                  throw e;
+                  // Label exists.
                 }
               }
-            }
 
-            await github.rest.issues.addLabels({
-              owner, repo, issue_number: pr.number, labels: [...desired],
-            });
+              await github.rest.issues.addLabels({
+                owner, repo, issue_number: pr.number, labels: [...desired],
+              });
+              console.log(`PR #${pr.number}: applied labels ${[...desired].join(', ')}`);
+            }

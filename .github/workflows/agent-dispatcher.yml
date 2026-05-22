@@ -67,7 +67,9 @@ jobs:
             const registry = JSON.parse(fs.readFileSync(path.join(ws, 'products', 'registry.json'), 'utf-8'));
             const validRepos = new Set(registry.products.map(p => p.repo));
             const sourceRepo = payload.source_repo || '';
+            const decisionRepo = payload.decision_repo || sourceRepo;
             const targetRepo = sourceRepo.replace(/^[^/]+\//, '') || '';
+            const decisionTargetRepo = decisionRepo.replace(/^[^/]+\//, '') || '';
 
             if (sourceRepo && !validRepos.has(sourceRepo)) {
               console.log(`🛑 Rejected: source repo '${sourceRepo}' not in registry`);
@@ -121,6 +123,9 @@ jobs:
                 const issueNumber = payload.issue_number;
                 const title = payload.title || 'Approved implementation';
                 const approvedBy = payload.approved_by || 'owner';
+                const decisionRef = issueNumber && decisionRepo
+                  ? `${decisionRepo}#${issueNumber}`
+                  : `${targetRepo}#${issueNumber}`;
                 const implTitle = `[IMPLEMENT] ${title.replace(/\[(DECISION|OPPORTUNITY)\]\s*/gi, '').trim()}`;
 
                 // Dedup: check for existing open IMPLEMENT issue
@@ -142,7 +147,7 @@ jobs:
                   `**Hop:** ${hopCount}`,
                   ``,
                   `### Instructions`,
-                  `1. Read the full decision in #${issueNumber}`,
+                  `1. Read the full decision in ${decisionRef}`,
                   `2. Review strategy docs in \`strategy/\``,
                   `3. Follow the Agent Handbook (\`docs/agents/HANDBOOK.md\`)`,
                   `4. Implement the approved changes`,
@@ -174,14 +179,14 @@ jobs:
                 await recordOutcome({
                   kind: 'implementation-dispatched',
                   summary: implTitle.slice(0, 80),
-                  decisionRef: `${targetRepo}#${issueNumber}`,
+                  decisionRef,
                   prRef: `${targetRepo}#${impl.number}`,
                   result: assigned ? '✅ dispatched' : '⚠️ assignment-failed',
                   notes: `approved-by=${approvedBy}`,
                 });
 
                 // Comment on decision issue
-                if (issueNumber) {
+                if (issueNumber && decisionTargetRepo) {
                   const handoff = formatHandoff(
                     '🧠 HQ Dispatcher', '💻 Engineering (@copilot)',
                     'implement', 'high',
@@ -189,7 +194,7 @@ jobs:
                     '48h'
                   );
                   await github.rest.issues.createComment({
-                    owner, repo: targetRepo,
+                    owner, repo: decisionTargetRepo,
                     issue_number: issueNumber,
                     body: handoff,
                   });

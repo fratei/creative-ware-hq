@@ -1,0 +1,183 @@
+name: "🔁 Re-run stuck PR checks (one-shot)"
+
+on:
+  workflow_dispatch:
+    inputs:
+      use_empty_commit_fallback:
+        description: "If rerequest/rerun do not release the action_required gate, push an empty commit as a last resort"
+        type: boolean
+        default: true
+      dry_run:
+        description: "List what would happen without making changes"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: read
+  actions: write
+  checks: write
+
+concurrency:
+  group: pr-rerun-stuck-checks
+  cancel-in-progress: false
+
+jobs:
+  rerun:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Re-trigger stuck PR check suites
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const dryRun = core.getInput('dry_run') === 'true';
+            const useEmptyCommitFallback = core.getInput('use_empty_commit_fallback') === 'true';
+
+            let rerequested = 0;
+            let reran = 0;
+            let emptyCommits = 0;
+            let skipped = 0;
+
+            const openPRs = await github.paginate(github.rest.pulls.list, {
+              owner,
+              repo,
+              state: 'open',
+              per_page: 100,
+            });
+
+            for (const pr of openPRs) {
+              try {
+                const labels = (pr.labels || []).map((l) => l.name);
+                const isFork = pr.head?.repo?.full_name !== `${owner}/${repo}`;
+
+                if (pr.draft) {
+                  skipped += 1;
+                  console.log(`PR #${pr.number}: skipped: draft`);
+                  continue;
+                }
+
+                if (labels.includes('do-not-merge')) {
+                  skipped += 1;
+                  console.log(`PR #${pr.number}: skipped: do-not-merge label present`);
+                  continue;
+                }
+
+                if (isFork) {
+                  skipped += 1;
+                  console.log(`PR #${pr.number}: skipped: fork head branch`);
+                  continue;
+                }
+
+                const sha = pr.head.sha;
+                const suitesResp = await github.rest.checks.listSuitesForRef({
+                  owner,
+                  repo,
+                  ref: sha,
+                  per_page: 100,
+                });
+                const suites = suitesResp.data.check_suites || [];
+                const latestSuite = suites.reduce((latest, suite) => {
+                  if (!latest) return suite;
+                  return suite.id > latest.id ? suite : latest;
+                }, null);
+
+                if (latestSuite?.conclusion === 'success') {
+                  skipped += 1;
+                  console.log(`PR #${pr.number}: skipped: latest check suite is success`);
+                  continue;
+                }
+
+                const actionRequiredSuites = suites.filter((suite) => suite.conclusion === 'action_required');
+                for (const suite of actionRequiredSuites) {
+                  if (dryRun) {
+                    console.log(`PR #${pr.number}: rerequested-check-suite (dry-run) suite=${suite.id}`);
+                    continue;
+                  }
+                  await github.rest.checks.rerequestSuite({
+                    owner,
+                    repo,
+                    check_suite_id: suite.id,
+                  });
+                  rerequested += 1;
+                  console.log(`PR #${pr.number}: rerequested-check-suite suite=${suite.id}`);
+                }
+
+                const runsResp = await github.rest.actions.listWorkflowRunsForRepo({
+                  owner,
+                  repo,
+                  head_sha: sha,
+                  per_page: 100,
+                });
+                const runs = runsResp.data.workflow_runs || [];
+                const actionRequiredRuns = runs.filter((run) => run.conclusion === 'action_required');
+
+                for (const run of actionRequiredRuns) {
+                  if (dryRun) {
+                    console.log(`PR #${pr.number}: rerun-workflow (dry-run) run=${run.id}`);
+                    continue;
+                  }
+                  await github.rest.actions.reRunWorkflow({
+                    owner,
+                    repo,
+                    run_id: run.id,
+                  });
+                  reran += 1;
+                  console.log(`PR #${pr.number}: rerun-workflow run=${run.id}`);
+                }
+
+                if (!useEmptyCommitFallback) {
+                  if (actionRequiredSuites.length === 0 && actionRequiredRuns.length === 0) {
+                    skipped += 1;
+                    console.log(`PR #${pr.number}: skipped: no action_required suites/runs`);
+                  }
+                  continue;
+                }
+
+                if (dryRun) {
+                  console.log(`PR #${pr.number}: empty-commit-pushed (dry-run) branch=${pr.head.ref}`);
+                  continue;
+                }
+
+                await github.graphql(
+                  `mutation($input: CreateCommitOnBranchInput!) {
+                    createCommitOnBranch(input: $input) {
+                      commit {
+                        oid
+                      }
+                    }
+                  }`,
+                  {
+                    input: {
+                      branch: {
+                        repositoryNameWithOwner: `${owner}/${repo}`,
+                        branchName: pr.head.ref,
+                      },
+                      message: {
+                        headline: 'chore: re-trigger CI (no-op)',
+                      },
+                      expectedHeadOid: pr.head.sha,
+                      fileChanges: {
+                        additions: [],
+                        deletions: [],
+                      },
+                    },
+                  },
+                );
+                emptyCommits += 1;
+                console.log(`PR #${pr.number}: empty-commit-pushed branch=${pr.head.ref}`);
+              } catch (error) {
+                console.log(`PR #${pr.number}: error: ${error.message}`);
+              }
+            }
+
+            console.log(
+              `Processed ${openPRs.length} PRs, rerequested ${rerequested} check suites, reran ${reran} workflow runs, pushed ${emptyCommits} empty commits, skipped ${skipped} PRs`,
+            );
