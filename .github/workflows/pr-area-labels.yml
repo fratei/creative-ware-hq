@@ -1,7 +1,13 @@
 name: "🏷️ PR Area Labels"
 
 on:
-  pull_request_target:
+  # Use pull_request (not pull_request_target) so each PR's label check runs the
+  # workflow definition from the PR head. This avoids a self-reference deadlock
+  # where a bug in this workflow on the base branch fails the check on the very
+  # PR that fixes it. All PRs here originate from same-repo branches, which keep
+  # write access and secrets, so labeling still works. The scheduled run below
+  # reconciles labels for all open PRs from the base branch.
+  pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
   schedule:
     - cron: "*/30 * * * *"
@@ -24,7 +30,7 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const prs = context.eventName === 'pull_request_target'
+            const prs = context.eventName === 'pull_request'
               ? [context.payload.pull_request].filter(Boolean)
               : await github.paginate(github.rest.pulls.list, {
                 owner, repo, state: 'open', per_page: 100,
@@ -59,6 +65,7 @@ jobs:
               for (const label of desired) {
                 try {
                   await github.rest.issues.getLabel({ owner, repo, name: label });
+                  // Label exists.
                 } catch (e) {
                   if (e.status === 404) {
                     await github.rest.issues.createLabel({
@@ -67,8 +74,6 @@ jobs:
                   } else {
                     throw e;
                   }
-                } else {
-                  // Label exists.
                 }
               }
 
