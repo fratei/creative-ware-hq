@@ -4,7 +4,11 @@ on:
   pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
   schedule:
-    - cron: "*/30 * * * *"
+    # Daily reconciliation sweep only. Real-time labeling is handled by the
+    # pull_request_target trigger above; an every-30-min sweep generated the
+    # bulk of this workflow's failure volume for no added coverage.
+    - cron: "17 6 * * *"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -67,8 +71,6 @@ jobs:
                   } else {
                     throw e;
                   }
-                } else {
-                  // Label exists.
                 }
               }
 
@@ -77,3 +79,15 @@ jobs:
               });
               console.log(`PR #${pr.number}: applied labels ${[...desired].join(', ')}`);
             }
+
+  notify-cron-failure:
+    needs: label
+    if: ${{ failure() && github.event_name == 'schedule' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Open/append cron-failure issue
+        uses: ./.github/actions/notify-cron-failure
+        with:
+          github-token: ${{ secrets.AGENT_PAT || secrets.GITHUB_TOKEN }}

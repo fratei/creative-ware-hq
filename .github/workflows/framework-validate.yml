@@ -12,6 +12,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Validate framework schemas
         run: node framework/scripts/validate-schemas.js
+      - name: Lint inline github-script bodies
+        run: node framework/scripts/lint-workflow-scripts.js
       - name: Composite action smoke call
         uses: ./.github/actions/load-config
         with:
