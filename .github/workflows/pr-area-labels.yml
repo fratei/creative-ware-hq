@@ -59,6 +59,7 @@ jobs:
               for (const label of desired) {
                 try {
                   await github.rest.issues.getLabel({ owner, repo, name: label });
+                  // Label exists.
                 } catch (e) {
                   if (e.status === 404) {
                     await github.rest.issues.createLabel({
@@ -67,8 +68,6 @@ jobs:
                   } else {
                     throw e;
                   }
-                } else {
-                  // Label exists.
                 }
               }
 
