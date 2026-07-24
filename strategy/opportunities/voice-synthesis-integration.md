@@ -3,7 +3,7 @@
 **Status:** validated
 **Owner:** CPO Agent (HQ) / CTO
 **Created:** 2026-04-29
-**Last Updated:** 2026-05-07
+**Last Updated:** 2026-05-19
 **Related briefs:** [`open-source-tts-styletts2.md`](open-source-tts-styletts2.md), [`media-podcast-pipeline.md`](media-podcast-pipeline.md), [`zero-shot-voice-cloning.md`](zero-shot-voice-cloning.md)
 
 ### Problem / Pain Point
@@ -84,8 +84,9 @@ This opportunity has been repeatedly confirmed by recurring market signals acros
 | 2026-05-05 | `strategy/research/2026-05-05.md` | ElevenLabs tops **$500M ARR** + announces additional funding (The Economic Times) — new revenue milestone distinct from the prior $500M capital raise; further strengthens market conviction |
 | 2026-05-06 | `strategy/research/2026-05-06.md` | ElevenLabs $500M ARR re-confirmed (CXO Digitalpulse, issue #106) — 9th cycle recurrence; same milestone from a third independent publisher; no new brief required |
 | 2026-05-07 | `strategy/research/2026-05-07.md` | ARR milestone signal recurs (same Economic Times source) and Voxtral (Mistral AI open-source voice model) is detected — opportunity remains *validated*; documented in competitor landscape; no additional action required |
+| 2026-05-12 | `strategy/research/2026-05-12.md` | Afrotech reframes the same Series D as an investor-composition signal (Jamie Foxx among investors), reinforcing mainstream and creator-economy validation of ElevenLabs' momentum; opportunity remains *validated* |
 
-Signal persistence across 10 research cycles further strengthens market conviction. No new action required until @fratei approves the [IMPLEMENT] issue.
+Signal persistence across 11 research cycles further strengthens market conviction. No new action required until @fratei approves the [IMPLEMENT] issue.
 
 ### Decision
 
@@ -94,7 +95,7 @@ Signal persistence across 10 research cycles further strengthens market convicti
 
 ---
 
-*Research sources: WSJ (ElevenLabs $500M Series D, Apr 2026 — confirmed by second WSJ signal detection 2026-04-30), The SaaS News (ElevenLabs raises $500M at $11B, Apr 2026), MarketsandMarkets (STT market 2026), Grand View Research (TTS market 2025–2030), marktechpost.com (xAI Grok STT/TTS APIs, May 2026), SiliconANGLE (Deepgram Flux multilingual, May 2026), The Economic Times (ElevenLabs tops $500M ARR + additional funding, May 2026).*
+*Research sources: WSJ (ElevenLabs $500M Series D, Apr 2026 — confirmed by second WSJ signal detection 2026-04-30), Afrotech (Jamie Foxx among ElevenLabs Series D investors, May 2026), The SaaS News (ElevenLabs raises $500M at $11B, Apr 2026), MarketsandMarkets (STT market 2026), Grand View Research (TTS market 2025–2030), marktechpost.com (xAI Grok STT/TTS APIs, May 2026), SiliconANGLE (Deepgram Flux multilingual, May 2026), The Economic Times (ElevenLabs tops $500M ARR + additional funding, May 2026).*
 
 *Signal re-confirmed: [Exclusive | Voice AI Startup ElevenLabs Raises $500 Million — WSJ](https://news.google.com/rss/articles/CBMiiwFBVV95cUxOQkdZSUphMGR3X2ZDaTRZdGpuU19aNF93ajhFMFNUenU5TUZoTmhMaVFSM29WQ3dGcjR6dUxUanlSVnNZZFdua1dlWEh3Slo2ZlROaVF6VkJYX2I2Tk9yOUhIMXp2enQ2cEN1VVNrVVNobzV2eEdvMEpyYy1tSF8tcDRpeVNLOG8wTzVR?oc=5) · Research briefs: [`strategy/research/2026-05-03.md`](../research/2026-05-03.md), [`strategy/research/2026-05-04.md`](../research/2026-05-04.md), [`strategy/research/2026-05-05.md`](../research/2026-05-05.md)*
 
