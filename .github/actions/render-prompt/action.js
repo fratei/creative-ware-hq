@@ -2,10 +2,13 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 function setOutput(name, value) {
-  const safe = String(value).replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
-  fs.appendFileSync(process.env.GITHUB_OUTPUT, `${name}=${safe}\n`);
+  const output = process.env.GITHUB_OUTPUT;
+  const renderedValue = String(value);
+  const delimiter = `EOF_${crypto.randomUUID().replace(/-/g, '')}`;
+  fs.appendFileSync(output, `${name}<<${delimiter}\n${renderedValue}\n${delimiter}\n`);
 }
 
 (function main() {
