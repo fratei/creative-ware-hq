@@ -6,8 +6,9 @@ name: "🎯 Company Reconciler — Cross-Product"
 # - Weekly product review trigger (Mondays)
 
 on:
-  schedule:
-    - cron: "0 */6 * * *"  # Every 6 hours (reduced from 2h)
+  # Automation paused: scheduled trigger disabled. Run manually via workflow_dispatch.
+  # schedule:
+  #   - cron: "0 */6 * * *"  # Every 6 hours (reduced from 2h)
   workflow_dispatch:
     inputs:
       action:

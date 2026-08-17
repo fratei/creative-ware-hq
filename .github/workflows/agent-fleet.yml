@@ -8,8 +8,9 @@ name: "🏢 CreativeWare Agent Fleet — C-Suite Operations"
 # Runs every 2 hours from HQ, reads product registry.
 
 on:
-  schedule:
-    - cron: "15 */6 * * *"  # Every 6 hours (reduced from 2h)
+  # Automation paused: scheduled trigger disabled. Run manually via workflow_dispatch.
+  # schedule:
+  #   - cron: "15 */6 * * *"  # Every 6 hours (reduced from 2h)
   workflow_dispatch:
     inputs:
       agent:
@@ -22,8 +23,9 @@ on:
           - "cfo-financial-review"
           - "cto-tech-review"
         default: "all"
-  repository_dispatch:
-    types: [agent-fleet-trigger]
+  # Automation paused: repository_dispatch trigger disabled.
+  # repository_dispatch:
+  #   types: [agent-fleet-trigger]
 
 permissions:
   contents: write

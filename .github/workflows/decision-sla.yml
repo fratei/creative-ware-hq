@@ -7,8 +7,9 @@ name: "⏱️ Decision SLA Tracker"
 # - High-tier issues only get re-pinged, never auto-approved.
 
 on:
-  schedule:
-    - cron: "0 */6 * * *"  # Every 6 hours
+  # Automation paused: scheduled trigger disabled. Run manually via workflow_dispatch.
+  # schedule:
+  #   - cron: "0 */6 * * *"  # Every 6 hours
   workflow_dispatch:
 
 permissions:

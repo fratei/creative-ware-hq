@@ -1,7 +1,8 @@
 name: template-sync
 on:
-  schedule:
-    - cron: '0 3 * * *'
+  # Automation paused: scheduled trigger disabled. Run manually via workflow_dispatch.
+  # schedule:
+  #   - cron: '0 3 * * *'
   workflow_dispatch:
 permissions:
   contents: write

@@ -5,13 +5,14 @@ name: "🧠 Agent Dispatcher — Central Event Router"
 # Product repos forward events here via repository_dispatch.
 
 on:
-  repository_dispatch:
-    types:
-      - implementation-approved
-      - incident-detected
-      - meeting-requested
-      - market-analysis-requested
-      - work-completed
+  # Automation paused: repository_dispatch trigger disabled. Run manually via workflow_dispatch.
+  # repository_dispatch:
+  #   types:
+  #     - implementation-approved
+  #     - incident-detected
+  #     - meeting-requested
+  #     - market-analysis-requested
+  #     - work-completed
 
   workflow_dispatch:
     inputs:

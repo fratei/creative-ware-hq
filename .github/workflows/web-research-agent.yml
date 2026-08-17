@@ -12,8 +12,9 @@ name: "🔬 Web Research Agent — Autonomous Market Intelligence"
 # and actionable GitHub issues are created for high-priority signals.
 
 on:
-  schedule:
-    - cron: "0 6,18 * * *"  # Every 12 hours at 06:00 and 18:00 UTC
+  # Automation paused: scheduled trigger disabled. Run manually via workflow_dispatch.
+  # schedule:
+  #   - cron: "0 6,18 * * *"  # Every 12 hours at 06:00 and 18:00 UTC
   workflow_dispatch:
     inputs:
       job:

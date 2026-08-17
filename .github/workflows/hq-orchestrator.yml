@@ -7,8 +7,9 @@ name: "🎯 HQ Orchestrator — Cross-Product Coordinator"
 # - Weekly company strategy review (Mondays)
 
 on:
-  schedule:
-    - cron: "0 */8 * * *"  # Every 8 hours (reduced from 4h)
+  # Automation paused: scheduled trigger disabled. Run manually via workflow_dispatch.
+  # schedule:
+  #   - cron: "0 */8 * * *"  # Every 8 hours (reduced from 4h)
   workflow_dispatch:
     inputs:
       action:
@@ -19,8 +20,9 @@ on:
           - "dashboard-only"
           - "strategy-review"
         default: "full-scan"
-  repository_dispatch:
-    types: [hq-orchestrator-trigger]
+  # Automation paused: repository_dispatch trigger disabled.
+  # repository_dispatch:
+  #   types: [hq-orchestrator-trigger]
 
 permissions:
   contents: write

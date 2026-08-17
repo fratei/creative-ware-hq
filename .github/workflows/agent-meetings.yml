@@ -6,8 +6,9 @@ name: "🤝 Agent Meetings — Company Coordination"
 # - Escalation: on-demand via dispatcher
 
 on:
-  schedule:
-    - cron: "0 0,8,16 * * *"
+  # Automation paused: scheduled trigger disabled. Run manually via workflow_dispatch.
+  # schedule:
+  #   - cron: "0 0,8,16 * * *"
   workflow_dispatch:
     inputs:
       meeting_type:
@@ -22,8 +23,9 @@ on:
         description: "Context for escalation"
         type: string
         default: ""
-  repository_dispatch:
-    types: [meeting-requested]
+  # Automation paused: repository_dispatch trigger disabled.
+  # repository_dispatch:
+  #   types: [meeting-requested]
 
 permissions:
   contents: write

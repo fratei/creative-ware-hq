@@ -6,12 +6,14 @@ name: "🗳️ Agent Committee — Autonomous Voting"
 # After silent_consensus_hours, tallies votes and approves/rejects/escalates.
 
 on:
-  repository_dispatch:
-    types: [committee-vote-requested]
-  issues:
-    types: [labeled]
-  schedule:
-    - cron: "*/30 * * * *"  # Tally silent-consensus timeouts every 30 min
+  # Automation paused: automatic triggers disabled. Run manually via workflow_dispatch.
+  workflow_dispatch:
+  # repository_dispatch:
+  #   types: [committee-vote-requested]
+  # issues:
+  #   types: [labeled]
+  # schedule:
+  #   - cron: "*/30 * * * *"  # Tally silent-consensus timeouts every 30 min
 
 permissions:
   contents: read

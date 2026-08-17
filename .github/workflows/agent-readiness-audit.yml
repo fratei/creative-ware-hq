@@ -2,8 +2,9 @@ name: "🔎 Agent Readiness Audit"
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "15 4 * * 1"
+  # Automation paused: scheduled trigger disabled. Run manually via workflow_dispatch.
+  # schedule:
+  #   - cron: "15 4 * * 1"
 
 permissions:
   contents: read

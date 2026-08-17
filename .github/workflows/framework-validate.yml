@@ -1,8 +1,10 @@
 name: framework-validate
 on:
-  pull_request:
-  schedule:
-    - cron: '0 4 * * 1'
+  # Automation paused: automatic triggers disabled. Run manually via workflow_dispatch.
+  workflow_dispatch:
+  # pull_request:
+  # schedule:
+  #   - cron: '0 4 * * 1'
 permissions:
   contents: read
 jobs:

@@ -8,8 +8,9 @@ name: "🔍 Market Analysis Agent — Trends, Whitespace & Product Evolution"
 # Results are written as opportunity briefs in strategy/opportunities/
 
 on:
-  schedule:
-    - cron: "0 9 * * 4"  # Every Thursday at 09:00 UTC
+  # Automation paused: scheduled trigger disabled. Run manually via workflow_dispatch.
+  # schedule:
+  #   - cron: "0 9 * * 4"  # Every Thursday at 09:00 UTC
   workflow_dispatch:
     inputs:
       analysis_type:
@@ -21,8 +22,9 @@ on:
           - "competitive-whitespace"
           - "product-evolution"
         default: "all"
-  repository_dispatch:
-    types: [market-analysis-trigger]
+  # Automation paused: repository_dispatch trigger disabled.
+  # repository_dispatch:
+  #   types: [market-analysis-trigger]
 
 permissions:
   contents: read

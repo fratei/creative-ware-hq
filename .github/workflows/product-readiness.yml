@@ -1,7 +1,8 @@
 name: product-readiness
 on:
-  schedule:
-    - cron: '0 9 * * *'
+  # Automation paused: scheduled trigger disabled. Run manually via workflow_dispatch.
+  # schedule:
+  #   - cron: '0 9 * * *'
   workflow_dispatch:
 permissions:
   contents: write

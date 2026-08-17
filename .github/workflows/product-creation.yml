@@ -4,8 +4,9 @@ name: "🏗️ Product Creation Pipeline"
 # Trigger via: repository_dispatch (new-product-approved) or workflow_dispatch.
 
 on:
-  repository_dispatch:
-    types: [new-product-approved]
+  # Automation paused: repository_dispatch trigger disabled. Run manually via workflow_dispatch.
+  # repository_dispatch:
+  #   types: [new-product-approved]
   workflow_dispatch:
     inputs:
       product_name:

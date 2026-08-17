@@ -1,8 +1,9 @@
 name: "🛡️ Autonomy Guardrails"
 
 on:
-  schedule:
-    - cron: "20 */6 * * *"
+  # Automation paused: scheduled trigger disabled. Run manually via workflow_dispatch.
+  # schedule:
+  #   - cron: "20 */6 * * *"
   workflow_dispatch:
 
 permissions:
