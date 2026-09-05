@@ -3,7 +3,7 @@
 **Status:** researching
 **Owner:** CMO Agent (HQ)
 **Created:** 2026-05-07
-**Last Updated:** 2026-05-07
+**Last Updated:** 2026-05-17
 
 ---
 
@@ -37,6 +37,7 @@ The market is increasingly splitting into two layers:
 - **Contact centre and call automation** continue to be the clearest ROI-backed enterprise use case, especially where voice AI reduces handling time and improves containment.
 - **Ambient documentation** in healthcare and adjacent regulated workflows continues to pull demand for accurate, compliant transcription plus summarisation.
 - **Developer adoption** is accelerating because modern APIs, streaming WebSockets, and open-source models dramatically reduce time-to-market for audio-native products.
+- **Voice-first productivity is emerging as its own funding category.** Wispr is reportedly raising roughly **$260M at a $2B valuation** for AI-native dictation and writing workflows, indicating that investors now view speech as a primary input surface for knowledge work rather than just a transcription backend. This broadens the market signal beyond call centres and meeting notes into everyday productivity software.
 
 ### Enterprise vs. SMB vs. developer spending shifts
 
