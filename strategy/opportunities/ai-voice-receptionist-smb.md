@@ -3,7 +3,7 @@
 **Status:** researching
 **Owner:** CPO Agent (HQ)
 **Created:** 2026-04-29
-**Last Updated:** 2026-05-05
+**Last Updated:** 2026-05-19
 
 ### Problem / Pain Point
 
@@ -19,6 +19,7 @@ Small businesses — salons, dental offices, law firms, plumbers, restaurants, r
 
 - **TAM/SAM estimate:** ~32M small businesses in the US alone; virtual/outsourced receptionist market ~$5–8B globally; AI-addressable SAM for software-based AI receptionists estimated $1–2B and growing at 30%+ CAGR driven by voice AI investment wave (2025–2026 funding signals)
 - **Signal reinforcement (2026-05-02):** The Beside $32M raise (Fortune, Apr 2026) re-appeared as a top market-move signal in the 2026-05-02 Web Research Intelligence Brief alongside broader voice AI funding news (ElevenLabs $500M, Deepgram $130M). Continued industry prominence of this story indicates Beside is actively gaining press traction; the window to build a differentiated, lower-cost SMB alternative is narrowing.
+- **Signal reinforcement (2026-05-13):** Vapi's $50M Series B raise (Tech Funding News / CXO Digitalpulse) confirms sustained investor appetite for voice AI application layers beyond core STT/TTS infrastructure. This increases urgency to define AudioText's receptionist differentiation (SMB onboarding speed, appointment outcomes, and vertical playbooks) before better-funded voice-agent platforms move down-market.
 - **Competitor landscape:**
   - *Beside* — raised $32M Series A (Apr 2026, Fortune) specifically targeting AI receptionist for SMBs; signal confirmed across CreativeWare research briefs 2026-04-28 through 2026-05-02; still early-stage but gaining sustained media visibility across multiple research cycles (Apr–May 2026); geographic focus unclear; no dominant mindshare yet, but fundraising gives 18–24-month runway to establish a moat
   - *Giga* — raised $61M (Fortune, May 2026) for enterprise voice AI, starting with DoorDash; enterprise focus leaves SMB segment open
