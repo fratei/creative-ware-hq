@@ -3,7 +3,7 @@
 **Status:** validated
 **Owner:** CPO Agent (HQ) / CTO
 **Created:** 2026-04-29
-**Last Updated:** 2026-05-07
+**Last Updated:** 2026-05-19
 **Related briefs:** [`open-source-tts-styletts2.md`](open-source-tts-styletts2.md), [`media-podcast-pipeline.md`](media-podcast-pipeline.md), [`zero-shot-voice-cloning.md`](zero-shot-voice-cloning.md)
 
 ### Problem / Pain Point
@@ -23,6 +23,7 @@ AudioText's speech-to-text (STT) engine and voice synthesis (TTS) platforms like
   - *ElevenLabs* — dominant TTS/voice-synthesis platform; **raised $500M Series D at $11B valuation (Apr 2026, WSJ / The SaaS News)**. Backed by Nvidia. Eyeing IPO. No native STT or transcription offering yet, but capitalisation gives it resources to build or acquire. Signal re-confirmed in research brief 2026-05-03. **NEW (May 2026):** ElevenLabs has now crossed **$500M ARR** (annual recurring revenue) and announced additional funding rounds — confirming hypergrowth status and cementing its position as the dominant voice AI platform by revenue. This ARR milestone (distinct from the capital raise) signals that the voice AI market is generating substantial real revenue, not just venture capital conviction. Signal independently confirmed by CXO Digitalpulse (issue #106, 2026-05-06) — 9th consecutive research cycle to surface this signal.
   - *Deepgram* — STT leader; raised $130M Series C (Apr 2026). Has not launched TTS integration partner programme. Now expanding with multilingual Flux model (10 languages, mid-call switching) targeting voice agents (May 2026).
   - *xAI (Grok)* — launched standalone Grok Speech-to-Text and Text-to-Speech APIs (May 2026, marktechpost.com), entering the developer voice API market; enterprise-focused; a new entrant to monitor as a potential competitor for developer mindshare.
+  - *Wispr* — reportedly seeking funding that would value the company around **$2B** (Crypto Briefing, May 2026), with strong traction in voice-first productivity workflows. While not a direct STT API competitor, this reinforces investor conviction that voice interface demand is scaling beyond niche creator use cases.
   - *Voxtral (Mistral AI)* — **Mistral AI entered the open-source voice model market (May 2026, Actu IA)** with Voxtral, a new open-source voice model. Signals that frontier LLM labs (Mistral, Microsoft, Meta) are increasingly commoditising the voice AI stack — raising the ceiling of what open-source alternatives can offer developers and reducing switching costs from proprietary TTS APIs. Strengthens the case for AudioText to own the STT → intelligence → synthesis pipeline before the synthesis layer becomes a zero-margin commodity.
   - *PlayHT, Resemble AI* — smaller TTS competitors; open to third-party integrations.
   - *Descript* — offers both STT (transcription) and limited TTS (voice cloning / Overdub). Closest bundled competitor in the creator segment, but editor-first UX limits API use cases. Now partnering with Kaltura for enterprise AI video workflows (May 2026).
@@ -84,8 +85,9 @@ This opportunity has been repeatedly confirmed by recurring market signals acros
 | 2026-05-05 | `strategy/research/2026-05-05.md` | ElevenLabs tops **$500M ARR** + announces additional funding (The Economic Times) — new revenue milestone distinct from the prior $500M capital raise; further strengthens market conviction |
 | 2026-05-06 | `strategy/research/2026-05-06.md` | ElevenLabs $500M ARR re-confirmed (CXO Digitalpulse, issue #106) — 9th cycle recurrence; same milestone from a third independent publisher; no new brief required |
 | 2026-05-07 | `strategy/research/2026-05-07.md` | ARR milestone signal recurs (same Economic Times source) and Voxtral (Mistral AI open-source voice model) is detected — opportunity remains *validated*; documented in competitor landscape; no additional action required |
+| 2026-05-18 | `strategy/research/2026-05-18.md` | Wispr funding signal recurs (reported ~$2B valuation) — further evidence of sustained investor conviction in voice AI workflows; opportunity remains *validated* |
 
-Signal persistence across 10 research cycles further strengthens market conviction. No new action required until @fratei approves the [IMPLEMENT] issue.
+Signal persistence across repeated research cycles further strengthens market conviction. No new action required until @fratei approves the [IMPLEMENT] issue.
 
 ### Decision
 
