@@ -3,7 +3,7 @@
 **Status:** researching
 **Owner:** CPO Agent (HQ)
 **Created:** 2026-04-29
-**Last Updated:** 2026-05-05
+**Last Updated:** 2026-05-19
 
 ### Problem / Pain Point
 
@@ -22,6 +22,7 @@ Small businesses — salons, dental offices, law firms, plumbers, restaurants, r
 - **Competitor landscape:**
   - *Beside* — raised $32M Series A (Apr 2026, Fortune) specifically targeting AI receptionist for SMBs; signal confirmed across CreativeWare research briefs 2026-04-28 through 2026-05-02; still early-stage but gaining sustained media visibility across multiple research cycles (Apr–May 2026); geographic focus unclear; no dominant mindshare yet, but fundraising gives 18–24-month runway to establish a moat
   - *Giga* — raised $61M (Fortune, May 2026) for enterprise voice AI, starting with DoorDash; enterprise focus leaves SMB segment open
+  - *Vapi* — **raised $50M Series B after surpassing 1 billion calls (May 2026, GlobeNewswire / The SaaS News)**; strong enterprise voice-agent traction and call-volume scale validate category demand and reliability benchmarks; enterprise-first momentum increases urgency for AudioText to differentiate on SMB onboarding simplicity, vertical templates, and lower total cost
   - *Hyro* — raised $45M Series C (May 2026, Cornell Tech) to scale Voice AI in Healthcare; focused on large hospital systems and clinic networks; does not serve general SMBs but validates that voice AI receptionists have strong market pull in the adjacent healthcare vertical (dental, specialist practices within our ICP are underserved by Hyro's enterprise motion) — see [`voice-ai-healthcare.md`](voice-ai-healthcare.md)
   - *Ruby Receptionists / AnswerConnect* — human + hybrid AI; expensive ($200–600/mo); human agents are the bottleneck; not truly AI-native
   - *Dialpad / RingCentral* — mid-market telephony + AI; over-engineered and overpriced for solo practitioners; minimum seats (5+); not SMB-first
@@ -78,9 +79,12 @@ Moderate-to-high reuse from existing AudioText infrastructure:
 
 **2026-05-05 review:** ElevenLabs $500M raise signal re-confirmed in both 2026-05-04 and 2026-05-05 research briefs (WSJ + CNBC). Voice AI infrastructure investment continues to accelerate. No change to opportunity status; urgency to act on SMB receptionist product remains high.
 
+**2026-05-19 review:** Vapi's $50M Series B and 1B-call milestone (first detected in 2026-05-14 AM/PM briefs) further validate voice-agent demand and production call-volume viability. No status change (*researching*); urgency increased to prioritise SMB-specific differentiation before enterprise-led players move downmarket.
+
 ---
 
 *Signal source: [Exclusive: Beside, an AI voice startup, raises $32 million to build an AI receptionist for small businesses — Fortune (2026-04-28)](https://news.google.com/rss/articles/CBMirAFBVV95cUxNUWw5TDZrQmhyZW9ZMFdvRi1zQ3hsazN0akRhRktUbTh6OXp0YTd2Vjk5aWVleTNieFItc3JCVnB1V2NJcWM5Mi1YLW1aVUthMjdnQ3BmM2V0SFZlQ1c1d3ZIZUxtbWNZVHdWM2poSnNWRF8wTUQ2d3I4LVE1dVpIWWljcE1XQ1RwWkRFeE9jMDdSb0lSaWxaTnRTaHFLa0FZYUZwMXFNOFFjNTNS?oc=5)*  
 *Signal confirmed in research briefs: [2026-04-28](../research/2026-04-28.md), [2026-04-29](../research/2026-04-29.md), [2026-04-30](../research/2026-04-30.md), [2026-05-01](../research/2026-05-01.md), [2026-05-02](../research/2026-05-02.md), [2026-05-03](../research/2026-05-03.md), [2026-05-04](../research/2026-05-04.md), [2026-05-05](../research/2026-05-05.md)*  
 *ElevenLabs $500M raise signal re-confirmed: [Exclusive | Voice AI Startup ElevenLabs Raises $500 Million — WSJ](https://news.google.com/rss/articles/CBMiiwFBVV95cUxOQkdZSUphMGR3X2ZDaTRZdGpuU19aNF93ajhFMFNUenU5TUZoTmhMaVFSM29WQ3dGcjR6dUxUanlSVnNZZFdua1dlWEh3Slo2ZlROaVF6VkJYX2I2Tk9yOUhIMXp2enQ2cEN1VVNrVVNobzV2eEdvMEpyYy1tSF8tcDRpeVNLOG8wTzVR?oc=5) · Research briefs: [`strategy/research/2026-05-03.md`](../research/2026-05-03.md), [`strategy/research/2026-05-04.md`](../research/2026-05-04.md), [`strategy/research/2026-05-05.md`](../research/2026-05-05.md)*  
+*Vapi $50M Series B + 1B calls signal re-confirmed: [Vapi raises $50M Series B as it reaches 1 billion calls, powering the next generation of enterprise voice AI — GlobeNewswire](https://news.google.com/rss/articles/CBMiigJBVV95cUxOVWpHMTk2N1UyR3ZfV0hhT21qQWtNbmFJOXJjQ01nZEdOTklNakFzaEJBSDRyeGdQQTN2d0JfMHZKZGJGdE53VC1uVFFqVkl3UndHaXFGNFdLeEpaNkphT2xOeTdNZElfRHRWbktsOHRCZjNETWh4cjIyNTJLRUxwUTY0RF91dXd0VUNncmZEdG8yckFvRVYwVDdlaVZzS2lUSm9yeDhYM29aV09iM0FadDliQ1djT292S1hZbm1DVlhpQ1RRUU1BRmF1VEY5WllLaWRkd3VpUDdpazhkdXpBZEdQTW1MdUZoaDAyeU1CTkI2aUxUd0JjZjVrNmk5NHFkOE1EQmJmUER3UQ?oc=5) · Research brief: [`strategy/research/2026-05-14.md`](../research/2026-05-14.md)*  
 *Brief created by Copilot Agent — CreativeWare HQ*
