@@ -51,12 +51,17 @@ jobs:
               results.push(row);
             }
 
+            const hasRequiredBootstrap = (row) =>
+              (row['AGENTS.md'] === '✅' || row['.github/copilot-instructions.md'] === '✅') &&
+              row['.devcontainer/devcontainer.json'] === '✅' &&
+              row['.github/workflows/copilot-setup-steps.yml'] === '✅';
+
             const header = '| Repository | AGENTS.md | copilot-instructions | devcontainer | copilot-setup-steps |';
             const divider = '|---|---|---|---|---|';
             const lines = results.map(r =>
               `| ${owner}/${r.repo} | ${r['AGENTS.md']} | ${r['.github/copilot-instructions.md']} | ${r['.devcontainer/devcontainer.json']} | ${r['.github/workflows/copilot-setup-steps.yml']} |`
             );
-            const missing = results.filter(r => Object.values(r).includes('❌'));
+            const missing = results.filter(r => !hasRequiredBootstrap(r));
 
             const body = [
               '## 🔎 Agent Readiness Audit',
@@ -70,6 +75,9 @@ jobs:
               missing.length === 0
                 ? 'All audited repositories meet the minimum autonomous agent bootstrap requirements.'
                 : `Missing requirements detected in **${missing.length}** repo(s).`,
+              '',
+              'Minimum instructions requirement passes when either `AGENTS.md` or `.github/copilot-instructions.md` exists.',
+              'Use `.github/workflows/bootstrap-product-repair.yml` to restore missing bootstrap files in product repositories.',
               '',
               'See also: `docs/agents/AUTONOMY-ADMIN-CHECKLIST.md`',
             ].join('\n');
