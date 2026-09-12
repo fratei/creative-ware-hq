@@ -3,7 +3,7 @@
 **Status:** validated
 **Owner:** CPO + CTO
 **Created:** 2026-04-24
-**Last Updated:** 2026-05-07
+**Last Updated:** 2026-05-19
 
 ### Problem / Pain Point
 
@@ -22,6 +22,7 @@ Developers building applications that need audio transcription, speaker diarizat
   - *Gladia* — **French AI startup raised $16M Series A (May 2026, SiliconANGLE / Slator)** and launched a multilingual real-time transcription engine. Reached $5.6M revenue with a 51-person team in 2025 (GetLatka). Directly targets the developer/API STT market with multilingual and real-time capabilities — a credible new entrant to monitor. Validates VC appetite for developer-facing STT APIs and confirms the market is not yet winner-takes-all.
   - *AssemblyAI* — developer-focused, strong docs; Voice Agent API now GA. **NEW (May 2026):** expanded LLM Gateway to deepen role in AI infrastructure (TipRanks), positioning as a full AI stack for voice — adds competitive urgency for AudioText to ship SDK and post-transcription intelligence features.
   - *Deepgram* — low-latency, real-time; **raised $130M Series C at $1.3B valuation (Apr 2026); expanded Flux model to 10 languages with mid-call switching for voice agents (May 2026); announced enterprise voice AI partnership with IBM (May 2026)** — accelerating DX improvements, multilingual capabilities, and enterprise distribution
+  - *Vapi* — developer-first voice agent platform; **raised $50M round backed by Kleiner Perkins and Peak XV (May 2026, Tech Funding News signal)**. Reinforces investor conviction in API-native voice infrastructure and increases urgency for AudioText to compete on SDK quality, reliability, and workflow intelligence layers.
   - *Rev AI* — accuracy-focused; no pay-as-you-go
   - *OpenAI Whisper* — free OSS but no managed API SLAs or support
   - *xAI/Grok* — launched standalone STT + TTS APIs targeting enterprise voice developers (May 2026)
