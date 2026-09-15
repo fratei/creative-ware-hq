@@ -159,7 +159,7 @@ The healthcare, legal, HR, and enterprise segments — collectively the highest-
 
 ### Implication 3: Global Scale Validation — iFlytek Reaches 100 Million Users
 
-**Signal (2026-05-03):** iFlytek — China's leading AI speech company — announced its audio transcription tool has crossed **100 million users** (KrASIA). iFlytek (HKEX: 6030) is best known for its Mandarin-language voice AI and STT products, and this milestone makes it one of the largest-scale audio transcription deployments in the world by user count.
+**Signal (2026-05-03, reconfirmed 2026-05-19):** iFlytek — China's leading AI speech company — announced its audio transcription tool has crossed **100 million users** (KrASIA). iFlytek (HKEX: 6030) is best known for its Mandarin-language voice AI and STT products, and this milestone makes it one of the largest-scale audio transcription deployments in the world by user count.
 
 **Why it matters for AudioText:** iFlytek's user milestone is a powerful proof point that audio transcription tools can achieve massive consumer and prosumer scale. While iFlytek operates primarily in the Chinese-language market and is not a direct competitor in AudioText's target geography (English-language SMB / developer), the milestone has important strategic implications:
 
