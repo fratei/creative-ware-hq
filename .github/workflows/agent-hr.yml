@@ -19,7 +19,31 @@ jobs:
           script: |
             const fs = require('fs');
             const agents = fs.readdirSync('docs/agents/charters').filter(f => f.endsWith('.md') && f !== 'README.md').map(f => f.replace('.md',''));
-            const rows = agents.map(a => `| ${a} | 0 | 0 | 0 | 0 | 100% | 0% | n/a | n/a | 100% | Keep iterating |`);
+            const toNumber = (value) => Number.isFinite(Number(value)) ? Number(value) : 0;
+            const stateByAgent = new Map(
+              fs.readdirSync('strategy/agent-state')
+                .filter(f => f.endsWith('.json'))
+                .map((file) => {
+                  try {
+                    const state = JSON.parse(fs.readFileSync(`strategy/agent-state/${file}`, 'utf8'));
+                    return [state.agent || file.replace('.json', ''), state];
+                  } catch {
+                    return [file.replace('.json', ''), {}];
+                  }
+                })
+            );
+            const rows = agents.map((a) => {
+              const metrics = stateByAgent.get(a)?.metrics_30d || {};
+              const proposed = toNumber(metrics.decisions_proposed);
+              const approved = toNumber(metrics.decisions_approved);
+              const rejected = toNumber(metrics.decisions_rejected);
+              const deferred = Math.max(0, proposed - approved - rejected);
+              const approvalRate = proposed > 0 ? `${Math.round((approved / proposed) * 100)}%` : 'n/a';
+              const escalationRate = proposed > 0 ? `${Math.round((deferred / proposed) * 100)}%` : 'n/a';
+              const autonomyPct = Number.isFinite(Number(metrics.autonomy_pct)) ? `${Number(metrics.autonomy_pct)}%` : 'n/a';
+              const recommendation = proposed > 0 ? 'Keep iterating' : 'No activity yet';
+              return `| ${a} | ${proposed} | ${approved} | ${rejected} | ${deferred} | ${approvalRate} | ${escalationRate} | n/a | n/a | ${autonomyPct} | ${recommendation} |`;
+            });
             const doc = ['# Agent Performance','',`Generated: ${new Date().toISOString()}`,'','| Agent | Proposed | Approved | Rejected | Deferred | Approval Rate | Escalation Rate | Mean TTD | Cycle Time | Charter Compliance | Recommendation |','|---|---:|---:|---:|---:|---:|---:|---|---|---:|---|',...rows,'','Sparkline (12w): ▁▁▂▂▃▃▄▅▅▆▇█'].join('\n');
             fs.writeFileSync('docs/agents/PERFORMANCE.md', doc);
             const week = new Date().toISOString().slice(0,10);
