@@ -19,7 +19,30 @@ jobs:
           script: |
             const fs = require('fs');
             const agents = fs.readdirSync('docs/agents/charters').filter(f => f.endsWith('.md') && f !== 'README.md').map(f => f.replace('.md',''));
-            const rows = agents.map(a => `| ${a} | 0 | 0 | 0 | 0 | 100% | 0% | n/a | n/a | 100% | Keep iterating |`);
+            const stateDir = 'strategy/agent-state';
+            const stateByAgent = new Map(
+              fs.existsSync(stateDir)
+                ? fs.readdirSync(stateDir)
+                    .filter(f => f.endsWith('.json'))
+                    .map((f) => {
+                      const state = JSON.parse(fs.readFileSync(`${stateDir}/${f}`, 'utf8'));
+                      return [state.agent, state];
+                    })
+                : []
+            );
+            const pct = (num, den) => (den > 0 ? `${Math.round((num / den) * 100)}%` : 'n/a');
+            const rows = agents.map((a) => {
+              const metrics = stateByAgent.get(a)?.metrics_30d ?? {};
+              const proposed = Number(metrics.decisions_proposed ?? 0);
+              const approved = Number(metrics.decisions_approved ?? 0);
+              const rejected = Number(metrics.decisions_rejected ?? 0);
+              const deferred = Math.max(0, proposed - approved - rejected);
+              const approvalRate = pct(approved, proposed);
+              const escalationRate = pct(deferred, proposed);
+              const charterCompliance = proposed > 0 && Number.isFinite(metrics.autonomy_pct) ? `${metrics.autonomy_pct}%` : 'n/a';
+              const recommendation = proposed === 0 ? 'Collect more data' : 'Keep iterating';
+              return `| ${a} | ${proposed} | ${approved} | ${rejected} | ${deferred} | ${approvalRate} | ${escalationRate} | n/a | n/a | ${charterCompliance} | ${recommendation} |`;
+            });
             const doc = ['# Agent Performance','',`Generated: ${new Date().toISOString()}`,'','| Agent | Proposed | Approved | Rejected | Deferred | Approval Rate | Escalation Rate | Mean TTD | Cycle Time | Charter Compliance | Recommendation |','|---|---:|---:|---:|---:|---:|---:|---|---|---:|---|',...rows,'','Sparkline (12w): ▁▁▂▂▃▃▄▅▅▆▇█'].join('\n');
             fs.writeFileSync('docs/agents/PERFORMANCE.md', doc);
             const week = new Date().toISOString().slice(0,10);
