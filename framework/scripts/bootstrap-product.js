@@ -2,7 +2,92 @@
 
 const fs = require('fs');
 
+const PRODUCT_TEMPLATE_REPO = 'creative-ware-product-template';
+const READINESS_BOOTSTRAP_FILES = [
+  'AGENTS.md',
+  '.github/copilot-instructions.md',
+  '.devcontainer/devcontainer.json',
+  '.github/workflows/copilot-setup-steps.yml',
+];
+
+function isNotFoundError(error) {
+  return error && (error.status === 404 || /not found|does not exist/i.test(error.message || ''));
+}
+
+function toTitleCase(value) {
+  return value
+    .split(/[\s_-]+/)
+    .filter(Boolean)
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(' ');
+}
+
+function deriveProductMetadata({ repoName, repoDescription }) {
+  const normalizedDescription = (repoDescription || '').trim();
+  const separatorMatch = normalizedDescription.match(/^(.+?)\s+[—-]\s+(.+)$/);
+  const fallbackName = toTitleCase(repoName.replace(/[-_](app|repo|service)$/i, ''));
+
+  if (separatorMatch) {
+    return {
+      productName: separatorMatch[1].trim(),
+      productDescription: separatorMatch[2].trim(),
+    };
+  }
+
+  return {
+    productName: fallbackName,
+    productDescription: normalizedDescription || `${fallbackName} product repository.`,
+  };
+}
+
+function applyProductPlaceholders(content, metadata) {
+  return content
+    .replaceAll('{{PRODUCT_NAME}}', metadata.productName)
+    .replaceAll('{{PRODUCT_SLUG}}', metadata.productSlug)
+    .replaceAll('{{PRODUCT_DESCRIPTION}}', metadata.productDescription);
+}
+
+async function ensureBootstrapFiles({ github, owner, targetRepo }) {
+  const { data: repo } = await github.rest.repos.get({ owner, repo: targetRepo });
+  const metadata = {
+    ...deriveProductMetadata({
+      repoName: targetRepo,
+      repoDescription: repo.description,
+    }),
+    productSlug: targetRepo,
+  };
+
+  for (const path of READINESS_BOOTSTRAP_FILES) {
+    try {
+      await github.rest.repos.getContent({ owner, repo: targetRepo, path });
+      continue;
+    } catch (error) {
+      if (!isNotFoundError(error)) {
+        throw error;
+      }
+    }
+
+    const { data: templateFile } = await github.rest.repos.getContent({
+      owner,
+      repo: PRODUCT_TEMPLATE_REPO,
+      path,
+    });
+    const templateContent = Buffer.from(templateFile.content, 'base64').toString('utf8');
+    const content = applyProductPlaceholders(templateContent, metadata);
+
+    await github.rest.repos.createOrUpdateFileContents({
+      owner,
+      repo: targetRepo,
+      path,
+      message: `chore: restore ${path} [skip ci]`,
+      content: Buffer.from(content).toString('base64'),
+    });
+  }
+}
+
 async function bootstrapProduct({ github, owner, hqRepo, targetRepo }) {
+  await ensureBootstrapFiles({ github, owner, targetRepo });
+
   const labels = JSON.parse(fs.readFileSync('framework/schemas/labels.json', 'utf8'));
   for (const l of labels) {
     try {
@@ -103,4 +188,9 @@ async function bootstrapProduct({ github, owner, hqRepo, targetRepo }) {
   });
 }
 
-module.exports = { bootstrapProduct };
+module.exports = {
+  applyProductPlaceholders,
+  bootstrapProduct,
+  deriveProductMetadata,
+  ensureBootstrapFiles,
+};
