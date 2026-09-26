@@ -3,7 +3,7 @@
 **Status:** researching
 **Owner:** CPO Agent (HQ)
 **Created:** 2026-04-29
-**Last Updated:** 2026-05-05
+**Last Updated:** 2026-05-19
 
 ### Problem / Pain Point
 
@@ -21,6 +21,7 @@ Small businesses — salons, dental offices, law firms, plumbers, restaurants, r
 - **Signal reinforcement (2026-05-02):** The Beside $32M raise (Fortune, Apr 2026) re-appeared as a top market-move signal in the 2026-05-02 Web Research Intelligence Brief alongside broader voice AI funding news (ElevenLabs $500M, Deepgram $130M). Continued industry prominence of this story indicates Beside is actively gaining press traction; the window to build a differentiated, lower-cost SMB alternative is narrowing.
 - **Competitor landscape:**
   - *Beside* — raised $32M Series A (Apr 2026, Fortune) specifically targeting AI receptionist for SMBs; signal confirmed across CreativeWare research briefs 2026-04-28 through 2026-05-02; still early-stage but gaining sustained media visibility across multiple research cycles (Apr–May 2026); geographic focus unclear; no dominant mindshare yet, but fundraising gives 18–24-month runway to establish a moat
+  - *Vapi* — raised $50M Series B (May 2026, The SaaS News; corroborated by TechCrunch/SiliconANGLE/Tech Funding News), reportedly at ~$500M valuation and with traction in enterprise voice-agent deployments; while not SMB-front-desk specific, this materially increases competitive pressure in core voice-agent orchestration and raises the urgency to differentiate on SMB onboarding speed, vertical call flows, and affordable pricing
   - *Giga* — raised $61M (Fortune, May 2026) for enterprise voice AI, starting with DoorDash; enterprise focus leaves SMB segment open
   - *Hyro* — raised $45M Series C (May 2026, Cornell Tech) to scale Voice AI in Healthcare; focused on large hospital systems and clinic networks; does not serve general SMBs but validates that voice AI receptionists have strong market pull in the adjacent healthcare vertical (dental, specialist practices within our ICP are underserved by Hyro's enterprise motion) — see [`voice-ai-healthcare.md`](voice-ai-healthcare.md)
   - *Ruby Receptionists / AnswerConnect* — human + hybrid AI; expensive ($200–600/mo); human agents are the bottleneck; not truly AI-native
@@ -77,6 +78,8 @@ Moderate-to-high reuse from existing AudioText infrastructure:
 **2026-05-04 review:** Signal re-confirmed in 2026-05-02 research scan. Beside's sustained media visibility (featured across multiple weekly intelligence briefs) confirms market demand is real and competitor clock is ticking. Recommend escalating to @fratei for go/no-go decision before Beside ships a public product.
 
 **2026-05-05 review:** ElevenLabs $500M raise signal re-confirmed in both 2026-05-04 and 2026-05-05 research briefs (WSJ + CNBC). Voice AI infrastructure investment continues to accelerate. No change to opportunity status; urgency to act on SMB receptionist product remains high.
+
+**2026-05-19 review:** Vapi $50M Series B signal reviewed from `strategy/research/2026-05-13.md` (The SaaS News, with corroborating coverage from TechCrunch/SiliconANGLE/Tech Funding News). This reinforces that well-capitalized voice-agent platforms are scaling quickly, including into enterprise call-handling contexts adjacent to receptionist workflows. No change to opportunity status (*researching*), but competitive urgency is elevated.
 
 ---
 
