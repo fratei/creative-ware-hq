@@ -3,7 +3,7 @@
 **Status:** researching
 **Owner:** CMO Agent (HQ)
 **Created:** 2026-05-07
-**Last Updated:** 2026-05-07
+**Last Updated:** 2026-05-19
 
 ---
 
@@ -34,6 +34,7 @@ The market is increasingly splitting into two layers:
 ### Year-over-year growth drivers
 
 - **Voice AI funding and platform investment remain strong.** Deepgram raised **$130M Series C at a $1.3B valuation** in January 2026, while ElevenLabs reportedly reached **$500M+ ARR** and raised a **$500M Series D at an $11B valuation**, signaling sustained investor confidence in audio infrastructure and voice interfaces.
+- **Dictation-layer voice AI is drawing late-stage capital.** Wispr was reported to be seeking roughly **$260M at a ~$2B valuation** (May 2026), reinforcing that investor conviction is extending from core infrastructure into workflow-native voice productivity products.
 - **Contact centre and call automation** continue to be the clearest ROI-backed enterprise use case, especially where voice AI reduces handling time and improves containment.
 - **Ambient documentation** in healthcare and adjacent regulated workflows continues to pull demand for accurate, compliant transcription plus summarisation.
 - **Developer adoption** is accelerating because modern APIs, streaming WebSockets, and open-source models dramatically reduce time-to-market for audio-native products.
